@@ -1,0 +1,6 @@
+@NTH_HostAddress = http://localhost:5139
+
+GET {{NTH_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
