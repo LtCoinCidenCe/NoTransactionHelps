@@ -1,3 +1,5 @@
+using NTH.DBContext;
+
 namespace NTH;
 
 public class Program
@@ -11,6 +13,7 @@ public class Program
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+        builder.Services.AddDbContext<PostgresContext>();
 
         var app = builder.Build();
 
