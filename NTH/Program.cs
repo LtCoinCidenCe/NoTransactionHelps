@@ -1,4 +1,5 @@
 using NTH.DBContext;
+using NTH.Utilities.Middlewares;
 
 namespace NTH;
 
@@ -28,7 +29,7 @@ public class Program
 
         app.UseAuthorization();
 
-
+        app.UseMiddleware<RequestLimiter>();
         app.MapControllers();
 
         app.Run();
