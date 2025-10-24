@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using NTH.Models;
+using NTH.Models.User;
 
 namespace NTH.DBContext;
 
@@ -27,17 +27,26 @@ public class PostgresContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // this is doing nothing.
+        // this is useful
         modelBuilder.Entity<UserID>(entity =>
         {
-            entity.Property(e => e.CreationDate).HasDefaultValueSql("transaction_timestamp()");
-            entity.Property(e => e.DisplaynameChangeDate).HasDefaultValueSql("transaction_timestamp()");
-            entity.Property(e => e.TitleWordsChangeDate).HasDefaultValueSql("transaction_timestamp()");
-            entity.Property(e => e.PasswordChangeDate).HasDefaultValueSql("transaction_timestamp()");
+            var props = typeof(UserID).GetProperties();
+            foreach (var prop in props)
+            {
+                if (prop.Name.EndsWith("Date"))
+                {
+                    entity.Property(prop.Name).HasDefaultValueSql("transaction_timestamp()");
+                }
+            }
         });
         base.OnModelCreating(modelBuilder);
     }
 
     public DbSet<UserID> Users { get; set; }
     public DbSet<DisplaynameHistory> DisplaynameHistories { get; set; }
+    public DbSet<UserRoleHistory> UserRoleHistories { get; set; }
+
+    #region Supplementary Definition Reference Tables
+    public DbSet<UserRoleSupplementary> UserRoleSupplementary { get; set; }
+    #endregion Supplementary Definition Reference Tables
 }

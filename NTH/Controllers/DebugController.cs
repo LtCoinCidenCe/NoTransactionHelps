@@ -1,56 +1,63 @@
 #if DEBUG
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NTH.DBContext;
-using NTH.Models;
+using NTH.DTO.User;
+using NTH.Models.User;
+using NTH.Services;
 
 namespace NTH.Controllers;
 
 [ApiController]
 [Route("Debug")]
-public class DebugController(ILogger<DebugController> logger, PostgresContext database) : ControllerBase
+public partial class DebugController(
+ILogger<DebugController> logger,
+PostgresContext database,
+UserService userService,
+SupplementaryService supplementaryService) : ControllerBase
 {
+    /// <summary>
+    /// Debug/test mode indicator
+    /// this should not be detected in production mode
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("ping")]
+    public IActionResult Ping()
+    {
+        return Ok("In debug mode");
+    }
+
     [HttpDelete]
     public void InitializeDatabase()
     {
-        logger.Log(LogLevel.Warning, "Database Reinitialized");
+        logger.Log(LogLevel.Warning, "Database Reinitializing");
         database.Database.EnsureDeleted();
         database.Database.EnsureCreated();
 
-        string firstDisplayname = "The First Emperor", defaultPassword = "someDefault", defaultSalt = "sirow";
-        byte[] hash = Encoding.UTF8.GetBytes(defaultSalt + defaultPassword);
-        for (int i = 0; i < 5; i++)
-        {
-            hash = SHA256.HashData(hash);
-        }
-        var firstUser = new UserID()
+        supplementaryService.GenerateSupplementaryDefinition();
+
+        var firstUser = userService.CreateNewUser(new NewUser
         {
             Username = "FirstUser",
-            Displayname = firstDisplayname,
-            Password = hash,
-            PassSalt = defaultSalt
-        };
-        database.Users.Add(firstUser);
-        database.SaveChanges();
-        logger.Log(LogLevel.Warning, JsonSerializer.Serialize(firstUser));
+            Displayname = "The First Emperor",
+            Password = "someDefault"
+        });
 
-        var historyItem = new DisplaynameHistory()
-        {
-            Displayname = firstDisplayname,
-            User = firstUser,
-            CreationDate = firstUser.CreationDate
-        };
-        database.DisplaynameHistories.Add(historyItem);
-        database.SaveChanges();
+        logger.Log(LogLevel.Warning, JsonSerializer.Serialize(firstUser));
     }
 
     [HttpGet]
-    [Route("[action]")]
-    public void donothing()
+    [Route("GetUsers")]
+    public List<UserID> GetUsers()
     {
+        return database.Users
+            .AsSplitQuery()
+            .Include(x => x.DisplaynameHistory)
+            .Include(x => x.UserRoleHistory)
+            .AsNoTracking()
+            .ToList();
     }
 }
 #endif

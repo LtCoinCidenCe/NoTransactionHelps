@@ -1,4 +1,5 @@
 using NTH.DBContext;
+using NTH.Services;
 using NTH.Utilities.Middlewares;
 
 namespace NTH;
@@ -15,6 +16,8 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddDbContext<PostgresContext>();
+        builder.Services.AddScoped<UserService>();
+        builder.Services.AddScoped<SupplementaryService>();
 
         var app = builder.Build();
 
