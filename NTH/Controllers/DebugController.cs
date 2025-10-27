@@ -10,7 +10,7 @@ using NTH.Services;
 namespace NTH.Controllers;
 
 [ApiController]
-[Route("Debug")]
+[Route("api/Debug")]
 public partial class DebugController(
 ILogger<DebugController> logger,
 PostgresContext database,
@@ -38,7 +38,7 @@ SupplementaryService supplementaryService) : ControllerBase
 
         supplementaryService.GenerateSupplementaryDefinition();
 
-        var firstUser = userService.CreateNewUser(new NewUser
+        var firstUser = userService.CreateNewUser(new NewUserDTO
         {
             Username = "FirstUser",
             Displayname = "The First Emperor",

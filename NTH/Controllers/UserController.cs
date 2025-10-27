@@ -6,11 +6,23 @@ using NTH.Models.User;
 using NTH.Services;
 
 [ApiController]
-[Route("User")]
+[Route("api/User")]
 public class UserController(ILogger<UserController> logger, PostgresContext database, UserService userService) : ControllerBase
 {
+    [HttpGet]
+    [Route("{ID}")]
+    public ActionResult<NonSensitiveUserDTO> GetUser(string ID)
+    {
+        var user = userService.GetUserByID(ID);
+        if (user is null)
+        {
+            return NotFound();
+        }
+        return Ok(user.toDTO());
+    }
+
     [HttpPost]
-    public IActionResult CreateNewUser(NewUser newUser)
+    public IActionResult CreateNewUser(NewUserDTO newUser)
     {
         UserID? newUserID = userService.CreateNewUser(newUser);
         if (newUserID is null)

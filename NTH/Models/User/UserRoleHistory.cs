@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using NTH.DTO.User;
 
 namespace NTH.Models.User;
 
 [Index(nameof(CreationDate))]
-public class UserRoleHistory
+public partial class UserRoleHistory
 {
     #region itsumono
     public long ID { get; set; }
@@ -23,4 +24,16 @@ public class UserRoleHistory
     #endregion itsumono
 
     public UserRole UserRole { get; set; }
+}
+
+
+/// <summary>
+/// partial class for all methods
+/// </summary>
+public partial class UserRoleHistory
+{
+    public UserRoleHistoryDTO toDTO()
+    {
+        return new UserRoleHistoryDTO() { UserID = UserID, UserRole = (UserRoleDTO)(int)UserRole, CreationDate = CreationDate };
+    }
 }

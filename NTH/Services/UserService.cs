@@ -11,19 +11,41 @@ public class UserService(PostgresContext database)
     /// <summary>
     /// 
     /// </summary>
+    /// <param name="ID">can be number or username</param>
+    /// <returns></returns>
+    public UserID? GetUserByID(string ID)
+    {
+        if (long.TryParse(ID, out var numID))
+        {
+            return database.Users.AsNoTracking().FirstOrDefault(x => x.ID == numID && !x.IsDeleted);
+        }
+        else
+        {
+            return database.Users.AsNoTracking().FirstOrDefault(x => x.Username == ID && !x.IsDeleted);
+        }
+    }
+
+    public UserLoginResponse? Login(UserLoginDTO userLoginDTO)
+    {
+        return database.Users.AsNoTracking().Where(x => x.Username == userLoginDTO.Username && !x.IsDeleted).Select(x => new UserLoginResponse { PassSalt = x.PassSalt, Password = x.Password }).FirstOrDefault();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
     /// <param name="ID"></param>
     /// <param name="newDisplayName"></param>
     /// <param name="dateTime"></param>
     /// <returns><b>null</b> if the user is not found. Else the new Display name history object</returns>
     public DisplaynameHistory? SetDisplayName(long ID, string newDisplayName, DateTimeOffset? dateTime)
     {
-        UserID? user = database.Users.FirstOrDefault(x => x.ID == ID);
+        UserID? user = database.Users.FirstOrDefault(x => x.ID == ID && !x.IsDeleted);
         if (user is null)
             return null;
         DateTimeOffset transactionTime = dateTime.GetValueOrDefault(DateTimeOffset.UtcNow);
 
         DisplaynameHistory newHistory = new() { Displayname = newDisplayName, CreationDate = transactionTime, User = user };
-        database.DisplaynameHistories.Add(newHistory);
+        database.UserDisplaynameHistories.Add(newHistory);
 
         user.Displayname = newDisplayName;
         user.DisplaynameChangeDate = transactionTime;
@@ -41,7 +63,7 @@ public class UserService(PostgresContext database)
     {
         var now = DateTimeOffset.UtcNow;
         int updated = database.Users
-            .Where(user => user.ID == ID)
+            .Where(user => user.ID == ID && !user.IsDeleted)
             .ExecuteUpdate(setter => setter
                 .SetProperty(user => user.TitleWords, newTitleWords)
                 .SetProperty(user => user.TitleWordsChangeDate, now));
@@ -79,7 +101,7 @@ public class UserService(PostgresContext database)
     /// <returns><b>null</b> if the user is not found. Else the new User Role History object</returns>
     public UserRoleHistory? SetUserRole(long ID, UserRole newRole)
     {
-        UserID? user = database.Users.FirstOrDefault(user => user.ID == ID);
+        UserID? user = database.Users.FirstOrDefault(user => user.ID == ID && !user.IsDeleted);
         if (user is null)
             return null;
         var dateTime = DateTimeOffset.UtcNow;
@@ -100,7 +122,7 @@ public class UserService(PostgresContext database)
     /// <param name="newUser"></param>
     /// <returns><b>null</b> if the username is already taken. Else the new created UserID</returns>
     /// <exception cref="Exception"></exception>
-    public UserID? CreateNewUser(NewUser newUser)
+    public UserID? CreateNewUser(NewUserDTO newUser)
     {
         string? salt = null;
         byte[] hashed = PasswordHasher.GetHashedPassword(newUser.Password, ref salt);
@@ -119,7 +141,7 @@ public class UserService(PostgresContext database)
             usernameTraffic.WaitOne();
 
             var existingUsername = database.Users
-                .Where(x => x.Username == newUser.Username)
+                .Where(x => x.Username == newUser.Username && !x.IsDeleted)
                 .Select(x => new { x.ID, x.Username })
                 .FirstOrDefault();
             if (existingUsername is not null)
@@ -157,4 +179,10 @@ public class PasswordHasherException : Exception
     public PasswordHasherException(string? message, Exception innerException) : base(message, innerException)
     {
     }
+}
+
+public class UserLoginResponse
+{
+    public required string PassSalt;
+    public required byte[] Password;
 }
