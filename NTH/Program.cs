@@ -1,3 +1,5 @@
+using Hangfire;
+using Hangfire.PostgreSql;
 using NTH.DBContext;
 using NTH.Services;
 using NTH.Utilities.Middlewares;
@@ -18,6 +20,10 @@ public class Program
         builder.Services.AddDbContext<PostgresContext>();
         builder.Services.AddScoped<UserService>();
         builder.Services.AddScoped<SupplementaryService>();
+        builder.Services.AddHangfire(config =>
+            config.UsePostgreSqlStorage(c =>
+            c.UseNpgsqlConnection("")));
+        builder.Services.AddHangfireServer();
 
         var app = builder.Build();
 
@@ -34,6 +40,8 @@ public class Program
 
         app.UseMiddleware<RequestLimiter>();
         app.MapControllers();
+
+        app.UseHangfireDashboard();
 
         app.Run();
     }
