@@ -32,6 +32,7 @@ public class Program
         {
             app.UseSwagger();
             app.UseSwaggerUI();
+            app.UseHangfireDashboard();
         }
 
         app.UseHttpsRedirection();
@@ -40,8 +41,6 @@ public class Program
 
         app.UseMiddleware<RequestLimiter>();
         app.MapControllers();
-
-        app.UseHangfireDashboard();
 
         BackgroundJob.Schedule(
             () => Console.WriteLine("Delayed!"),
