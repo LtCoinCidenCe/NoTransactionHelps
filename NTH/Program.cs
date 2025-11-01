@@ -22,7 +22,7 @@ public class Program
         builder.Services.AddScoped<SupplementaryService>();
         builder.Services.AddHangfire(config =>
             config.UsePostgreSqlStorage(c =>
-            c.UseNpgsqlConnection("")));
+            c.UseNpgsqlConnection("Host=localhost;Username=nthuser;Password=stillnicedatabase;Database=nthwork;Include Error Detail=True;")));
         builder.Services.AddHangfireServer();
 
         var app = builder.Build();
@@ -42,6 +42,11 @@ public class Program
         app.MapControllers();
 
         app.UseHangfireDashboard();
+
+        BackgroundJob.Schedule(
+            () => Console.WriteLine("Delayed!"),
+            TimeSpan.FromSeconds(15)
+        );
 
         app.Run();
     }
