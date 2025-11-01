@@ -1,6 +1,7 @@
 using Hangfire;
 using Hangfire.PostgreSql;
 using NTH.DBContext;
+using NTH.Scheduling;
 using NTH.Services;
 using NTH.Utilities.Middlewares;
 
@@ -42,8 +43,9 @@ public class Program
         app.UseMiddleware<RequestLimiter>();
         app.MapControllers();
 
+        GlobalConfiguration.Configuration.UseFilter(new AutomaticRetryAttribute { Attempts = 0 });
         BackgroundJob.Schedule(
-            () => Console.WriteLine("Delayed!"),
+            () => SchedulingTasks.ThrowException(),
             TimeSpan.FromSeconds(15)
         );
 
