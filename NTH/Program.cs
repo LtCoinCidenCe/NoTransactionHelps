@@ -1,5 +1,9 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using NTH.DBContext;
 using NTH.Services;
+using NTH.Utilities;
 using NTH.Utilities.Middlewares;
 
 namespace NTH;
@@ -18,6 +22,23 @@ public class Program
         builder.Services.AddDbContext<PostgresContext>();
         builder.Services.AddScoped<UserService>();
         builder.Services.AddScoped<SupplementaryService>();
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters()
+            {
+                ValidateIssuer = true,
+                ValidIssuer = JwtHelper.ISSUER,
+                ValidateAudience = false,
+                // AudienceValidator = audval,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtHelper.SECRET)),
+                ValidateLifetime = true
+            };
+        });
 
         var app = builder.Build();
 
@@ -30,11 +51,17 @@ public class Program
 
         app.UseHttpsRedirection();
 
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.UseMiddleware<RequestLimiter>();
         app.MapControllers();
 
         app.Run();
+    }
+
+    private static bool audval(IEnumerable<string> audiences, SecurityToken securityToken, TokenValidationParameters validationParameters)
+    {
+        throw new NotImplementedException();
     }
 }

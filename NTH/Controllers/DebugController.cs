@@ -1,5 +1,6 @@
 #if DEBUG
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NTH.DBContext;
@@ -27,6 +28,15 @@ SupplementaryService supplementaryService) : ControllerBase
     public IActionResult Ping()
     {
         return Ok("In debug mode");
+    }
+
+    [HttpGet]
+    [Route("authping")]
+    [Authorize]
+    public IActionResult AuthPing()
+    {
+        var httpcontext = HttpContext;
+        return Ok("In debug mode, auth");
     }
 
     [HttpDelete]

@@ -1,4 +1,7 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using NTH.DBContext;
 using NTH.DTO.User;
 using NTH.Services;
@@ -20,6 +23,15 @@ public class LoginController(ILogger<LoginController> logger, PostgresContext da
         byte[] calculatedPasshash = PasswordHasher.GetHashedPassword(userLoginDTO.Password, ref salt);
         if (!calculatedPasshash.SequenceEqual(user.Password))
             return BadRequest();
-        return Ok(); // TODO
+        var jwt = new JwtSecurityToken(
+            JwtHelper.ISSUER,
+            null,
+            null,
+            null,
+            DateTime.Now + TimeSpan.FromMinutes(15),
+            new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtHelper.SECRET)),
+            SecurityAlgorithms.HmacSha256));
+        var token = new JwtSecurityTokenHandler().WriteToken(jwt);
+        return Ok(token);
     }
 }

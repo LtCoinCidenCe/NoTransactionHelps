@@ -1,0 +1,4 @@
+@apphost=http://localhost:5139
+
+GET {{apphost}}/api/Debug/authping
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjIxMzgzNTAsImlzcyI6Ik5USEF1dGgifQ.LECC_cgCHMx8iPjPCeUYpWaWRm7xjs2yY5tErYQPY6Y
