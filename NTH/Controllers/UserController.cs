@@ -68,7 +68,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 
     [HttpPut]
     [Route("{ID}/UserRole")]
-    public IActionResult SetUserRole(long ID, [FromBody] UserRole newUserRole)
+    public IActionResult SetUserRole(long ID, [FromBody] UserRoleDTO newUserRole)
     {
         UserRoleHistory? result = userService.SetUserRole(ID, newUserRole);
         if (result is null)

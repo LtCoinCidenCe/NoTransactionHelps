@@ -23,7 +23,7 @@ public partial class UserRoleHistory
     public bool IsDeleted { get; set; } = false;
     #endregion itsumono
 
-    public UserRole UserRole { get; set; }
+    public UserRoleDTO UserRole { get; set; }
 }
 
 

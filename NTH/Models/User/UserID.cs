@@ -36,7 +36,7 @@ public partial class UserID
     #endregion Password
 
     #region User Roles
-    public UserRole UserRole { get; set; }
+    public UserRoleDTO UserRole { get; set; }
     public List<UserRoleHistory> UserRoleHistory { get; set; } = new();
     public DateTimeOffset UserRoleChangeDate { get; set; }
     #endregion User Roles

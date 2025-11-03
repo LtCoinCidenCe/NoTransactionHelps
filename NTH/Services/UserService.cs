@@ -99,7 +99,7 @@ public class UserService(PostgresContext database)
     /// <param name="ID"></param>
     /// <param name="newRole"></param>
     /// <returns><b>null</b> if the user is not found. Else the new User Role History object</returns>
-    public UserRoleHistory? SetUserRole(long ID, UserRole newRole)
+    public UserRoleHistory? SetUserRole(long ID, UserRoleDTO newRole)
     {
         UserID? user = database.Users.FirstOrDefault(user => user.ID == ID && !user.IsDeleted);
         if (user is null)
