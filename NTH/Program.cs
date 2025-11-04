@@ -1,6 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using NTH.DBContext;
 using NTH.Services;
 using NTH.Utilities;
@@ -18,7 +19,33 @@ public class Program
 
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.AddSecurityDefinition("Au", new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.Http,
+                Scheme = "Bearer",
+                Description = "Enter you Bearer token here"
+            });
+
+            /* OpenApiSecurityRequirement : Dictionary<OpenApiSecurityScheme, IList<string>> */
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference()
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Au"
+                        }
+                    },
+                    new List<string>()
+                }
+            });
+        });
         builder.Services.AddDbContext<PostgresContext>();
         builder.Services.AddScoped<UserService>();
         builder.Services.AddScoped<SupplementaryService>();
