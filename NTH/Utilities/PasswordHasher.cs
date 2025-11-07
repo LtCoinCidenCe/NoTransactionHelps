@@ -15,7 +15,7 @@ public static class PasswordHasher
     {
         if (string.IsNullOrEmpty(salt))
         {
-            salt = Random5ASCII.GetString();
+            salt = RandomASCIIGenerator.GetString(5);
         }
         byte[] hash = Encoding.UTF8.GetBytes(salt + password);
         for (int i = 0; i < 5; i++)

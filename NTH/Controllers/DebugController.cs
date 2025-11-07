@@ -1,4 +1,5 @@
 #if DEBUG
+using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -35,7 +36,9 @@ SupplementaryService supplementaryService) : ControllerBase
     [Authorize]
     public IActionResult AuthPing()
     {
+        var user = User;
         var httpcontext = HttpContext;
+        string? identity = user.FindFirstValue(ClaimTypes.Anonymous);
         return Ok("In debug mode, auth");
     }
 
@@ -53,6 +56,12 @@ SupplementaryService supplementaryService) : ControllerBase
             Username = "FirstUser",
             Displayname = "The First Emperor",
             Password = "someDefault"
+        });
+        userService.CreateNewUser(new NewUserDTO
+        {
+            Username = "krk",
+            Displayname = "Kimi Räikkönen",
+            Password = "McLaren"
         });
 
         logger.Log(LogLevel.Warning, JsonSerializer.Serialize(firstUser));

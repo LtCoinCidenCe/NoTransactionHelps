@@ -50,7 +50,7 @@ public partial class UserID
 /// </summary>
 public partial class UserID
 {
-    public NonSensitiveUserDTO toDTO()
+    public NonSensitiveUserDTO ToDTO()
     {
         return new NonSensitiveUserDTO()
         {

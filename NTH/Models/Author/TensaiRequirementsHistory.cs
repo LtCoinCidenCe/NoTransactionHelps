@@ -10,6 +10,7 @@ public class TensaiRequirementsHistory
     [Column(name: "AuthorID")]
     public long AuthorID { get; set; }
     [Column(name: "AuthorID")]
+    [JsonIgnore]
     public Author? Author { get; set; }
     public required DateTimeOffset CreationDate { get; set; }
     [JsonIgnore]

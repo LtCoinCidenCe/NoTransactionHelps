@@ -25,10 +25,10 @@ public class LoginController(ILogger<LoginController> logger, PostgresContext da
             return BadRequest();
         var jwt = new JwtSecurityToken(
             JwtHelper.ISSUER,
+            $"kt{user.UserID}",
             null,
-            null,
-            null,
-            DateTime.Now + TimeSpan.FromMinutes(15),
+            notBefore: null,
+            expires: DateTime.Now + TimeSpan.FromMinutes(15),
             new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtHelper.SECRET)),
             SecurityAlgorithms.HmacSha256));
         var token = new JwtSecurityTokenHandler().WriteToken(jwt);
