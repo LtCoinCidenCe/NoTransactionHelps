@@ -21,6 +21,14 @@ public class Program
 
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("developing", builder =>
+            {
+                builder.AllowAnyHeader()
+                .SetIsOriginAllowed(origin => new Uri(origin).IsLoopback);
+            });
+        });
         builder.Services.AddSwaggerGen(options =>
         {
             options.AddSecurityDefinition("Au", new OpenApiSecurityScheme
@@ -81,6 +89,7 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
             app.UseHangfireDashboard();
+            app.UseCors("developing");
         }
 
         app.UseHttpsRedirection();
