@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using NTH.DTO.User;
+using NTH.Models.Video;
 
 namespace NTH.Models.User;
 
@@ -40,6 +41,10 @@ public partial class UserID
     public List<UserRoleHistory> UserRoleHistory { get; set; } = new();
     public DateTimeOffset UserRoleChangeDate { get; set; }
     #endregion User Roles
+
+    #region AllWorks
+    public List<VideoID> WorkTranslations { get; set; } = new();
+    #endregion AllWorks
 
     public DateTimeOffset CreationDate { get; set; }
     public bool IsDeleted { get; set; } = false;

@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using NTH.Models.Author;
+using NTH.Models.User;
 
 namespace NTH.Models.Video;
 
@@ -25,7 +26,8 @@ public class VideoID
         new DateTimeOffset(1930, 1, 1, 0, 0, 0, TimeSpan.FromHours(0)); // that's before computer came into reality
     #endregion Video itself
 
-    // #region Our workers
+    #region Our workers
+    public List<UserID> WorkTranslation { get; set; } = new();
     // [Column(name: "TranslatorID"), JsonIgnore]
     // public UserID? Translator { get; set; }
     // [Column(name: "TranslatorID")]
@@ -38,7 +40,7 @@ public class VideoID
     // public UserID? Hardsubber { get; set; }
     // [Column(name: "HardsubberID")]
     // public long HardsubberID { get; set; }
-    // #endregion Our workers
+    #endregion Our workers
 
     #region Work details
     [MaxLength(800)]
