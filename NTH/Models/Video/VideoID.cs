@@ -41,6 +41,7 @@ public class VideoID
     // #endregion Our workers
 
     #region Work details
+    [MaxLength(800)]
     public string TensaiRequirement { get; set; } = string.Empty;
     [MaxLength(999_9999)] // 1 qian wan
     public string TranslationText { get; set; } = string.Empty;
