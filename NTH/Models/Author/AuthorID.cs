@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using NTH.DTO.Author;
+using NTH.Models.Video;
 
 namespace NTH.Models.Author;
 
 [Index(nameof(Name), IsUnique = true)]
-public partial class Author
+public partial class AuthorID
 {
     public long ID { get; set; }
     [MaxLength(30)]
@@ -18,11 +19,14 @@ public partial class Author
     public string BilibiliHomePage { get; set; } = string.Empty;
     [MaxLength(200)]
     public string TwitterHomePage { get; set; } = string.Empty;
-    /// <summary>
-    /// Actually authorized, if is per video
-    /// </summary>
-    public bool Contacted { get; set; } = false;
+
+    public bool AuthorizedPerVideo { get; set; } = false;
     public bool AllVideoAuthorized { get; set; } = false;
+
+    /// <summary>
+    /// the userID who contacts the author
+    /// </summary>
+    public long? Contact { get; set; }
 
     #region TensaiRequirements
     [MaxLength(800)]
@@ -31,23 +35,25 @@ public partial class Author
     public DateTimeOffset TensaiRequirementsChangeDate { get; set; }
     #endregion TensaiRequirements
 
+    public List<VideoID> Videos { get; set; } = new();
+
     public DateTimeOffset CreationDate { get; set; }
     public bool IsDeleted { get; set; } = false;
 }
 
-public partial class Author
+public partial class AuthorID
 {
-    public static Author FromDTO(NewAuthorDTO newAuthorDTO)
+    public static AuthorID FromDTO(NewAuthorDTO newAuthorDTO)
     {
         var datetime = DateTimeOffset.UtcNow;
-        var newAuthor = new Author()
+        var newAuthor = new AuthorID()
         {
             Name = newAuthorDTO.Name,
             YoutubeHomePage = newAuthorDTO.YoutubeHomePage,
             NiconicoHomePage = newAuthorDTO.NiconicoHomePage,
             BilibiliHomePage = newAuthorDTO.BilibiliHomePage,
             TwitterHomePage = newAuthorDTO.TwitterHomePage,
-            Contacted = newAuthorDTO.Contacted,
+            AuthorizedPerVideo = newAuthorDTO.AuthorizedPerVideo,
             AllVideoAuthorized = newAuthorDTO.AllVideoAuthorized,
             TensaiRequirements = newAuthorDTO.TensaiRequirement,
             TensaiRequirementsChangeDate = datetime,

@@ -11,7 +11,7 @@ public class TensaiRequirementsHistory
     public long AuthorID { get; set; }
     [Column(name: "AuthorID")]
     [JsonIgnore]
-    public Author? Author { get; set; }
+    public AuthorID? Author { get; set; }
     public required DateTimeOffset CreationDate { get; set; }
     [JsonIgnore]
     public bool IsDeleted { get; set; } = false;

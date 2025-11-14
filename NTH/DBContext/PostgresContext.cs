@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NTH.Models.Author;
 using NTH.Models.User;
+using NTH.Models.Video;
 
 namespace NTH.DBContext;
 
@@ -46,8 +47,9 @@ public class PostgresContext : DbContext
     public DbSet<UserID> Users { get; set; }
     public DbSet<DisplaynameHistory> UserDisplaynameHistories { get; set; }
     public DbSet<UserRoleHistory> UserRoleHistories { get; set; }
-    public DbSet<Author> Authors { get; set; }
+    public DbSet<AuthorID> Authors { get; set; }
     public DbSet<TensaiRequirementsHistory> TensaiRequirementsHistories { get; set; }
+    public DbSet<VideoID> Videos { get; set; }
 
     #region Supplementary Definition Reference Tables
     public DbSet<UserRoleSupplementary> UserRoleSupplementary { get; set; }
