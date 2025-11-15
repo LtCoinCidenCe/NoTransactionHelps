@@ -14,7 +14,7 @@ namespace NTH.Controllers;
 public class LoginController(ILogger<LoginController> logger, PostgresContext database, UserService userService) : ControllerBase
 {
     [HttpPost]
-    public IActionResult Login(UserLoginDTO userLoginDTO)
+    public ActionResult<string> Login(UserLoginDTO userLoginDTO)
     {
         var user = userService.Login(userLoginDTO);
         if (user is null)

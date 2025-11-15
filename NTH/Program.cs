@@ -1,4 +1,6 @@
 using System.Text;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -19,6 +21,14 @@ public class Program
 
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("developing", builder =>
+            {
+                builder.AllowAnyHeader()
+                .SetIsOriginAllowed(origin => new Uri(origin).IsLoopback);
+            });
+        });
         builder.Services.AddSwaggerGen(options =>
         {
             options.AddSecurityDefinition("Au", new OpenApiSecurityScheme
@@ -66,6 +76,10 @@ public class Program
                 ValidateLifetime = true
             };
         });
+        builder.Services.AddHangfire(config =>
+            config.UsePostgreSqlStorage(c =>
+            c.UseNpgsqlConnection("Host=localhost;Username=nthuser;Password=stillnicedatabase;Database=nthwork;Include Error Detail=True;")));
+        builder.Services.AddHangfireServer();
 
         var app = builder.Build();
 
@@ -74,6 +88,8 @@ public class Program
         {
             app.UseSwagger();
             app.UseSwaggerUI();
+            app.UseHangfireDashboard();
+            app.UseCors("developing");
         }
 
         app.UseHttpsRedirection();
@@ -84,11 +100,9 @@ public class Program
         app.UseMiddleware<RequestLimiter>();
         app.MapControllers();
 
-        app.Run();
-    }
+        // Hangfire 0 retry
+        GlobalConfiguration.Configuration.UseFilter(new AutomaticRetryAttribute { Attempts = 0 });
 
-    private static bool audval(IEnumerable<string> audiences, SecurityToken securityToken, TokenValidationParameters validationParameters)
-    {
-        throw new NotImplementedException();
+        app.Run();
     }
 }

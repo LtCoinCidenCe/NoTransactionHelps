@@ -1,12 +1,14 @@
 #if DEBUG
 using System.Security.Claims;
 using System.Text.Json;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NTH.DBContext;
 using NTH.DTO.User;
 using NTH.Models.User;
+using NTH.Scheduling;
 using NTH.Services;
 
 namespace NTH.Controllers;
@@ -77,6 +79,17 @@ SupplementaryService supplementaryService) : ControllerBase
             .Include(x => x.UserRoleHistory)
             .AsNoTracking()
             .ToList();
+    }
+
+    [HttpGet]
+    [Route("fireException")]
+    public IActionResult FireException()
+    {
+        BackgroundJob.Schedule(
+            () => SchedulingTasks.ThrowException(),
+            TimeSpan.FromSeconds(15)
+        );
+        return Ok();
     }
 }
 #endif
