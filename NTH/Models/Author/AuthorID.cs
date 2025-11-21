@@ -8,6 +8,7 @@ namespace NTH.Models.Author;
 [Index(nameof(Name), IsUnique = true)]
 public partial class AuthorID
 {
+    #region Author Itself
     public long ID { get; set; }
     [MaxLength(30)]
     public required string Name { get; set; }
@@ -19,14 +20,16 @@ public partial class AuthorID
     public string BilibiliHomePage { get; set; } = string.Empty;
     [MaxLength(200)]
     public string TwitterHomePage { get; set; } = string.Empty;
+    #endregion Author Itself
 
+    #region Authorization
     public bool AuthorizedPerVideo { get; set; } = false;
     public bool AllVideoAuthorized { get; set; } = false;
-
     /// <summary>
     /// the userID who contacts the author
     /// </summary>
     public long? Contact { get; set; }
+    #endregion Authorization
 
     #region TensaiRequirements
     [MaxLength(800)]
@@ -35,7 +38,9 @@ public partial class AuthorID
     public DateTimeOffset TensaiRequirementsChangeDate { get; set; }
     #endregion TensaiRequirements
 
+    #region :n Video
     public List<VideoID> Videos { get; set; } = new();
+    #endregion :n Video
 
     public DateTimeOffset CreationDate { get; set; }
     public bool IsDeleted { get; set; } = false;
