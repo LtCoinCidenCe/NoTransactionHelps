@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace NTH.Models.Author;
 
-public class TensaiRequirementsHistory
+public class AdditionalRequirementsHistory
 {
     public long ID { get; set; }
     [Column(name: "AuthorID")]

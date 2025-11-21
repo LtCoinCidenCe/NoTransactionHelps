@@ -36,7 +36,7 @@ public partial class AuthorID
     #region TensaiRequirements
     [MaxLength(800)]
     public string TensaiRequirements { get; set; } = string.Empty;
-    public List<TensaiRequirementsHistory> TensaiRequirementsHistory { get; set; } = new();
+    public List<AdditionalRequirementsHistory> TensaiRequirementsHistory { get; set; } = new();
     public DateTimeOffset TensaiRequirementsChangeDate { get; set; }
     #endregion TensaiRequirements
 
@@ -66,7 +66,7 @@ public partial class AuthorID
             TensaiRequirementsChangeDate = datetime,
             CreationDate = datetime
         };
-        newAuthor.TensaiRequirementsHistory.Add(new TensaiRequirementsHistory()
+        newAuthor.TensaiRequirementsHistory.Add(new AdditionalRequirementsHistory()
         {
             CreationDate = datetime,
             TensaiRequirements = newAuthorDTO.TensaiRequirement

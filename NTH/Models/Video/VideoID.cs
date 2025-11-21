@@ -27,6 +27,7 @@ public class VideoID
     #endregion Video itself
 
     #region Our workers
+    // since we can represent null with many-to-many relations...
     public List<UserID> WorkTranslation { get; set; } = new();
     // [Column(name: "TranslatorID"), JsonIgnore]
     // public UserID? Translator { get; set; }
@@ -44,7 +45,7 @@ public class VideoID
 
     #region Work details
     [MaxLength(800)]
-    public string TensaiRequirement { get; set; } = string.Empty;
+    public string AdditionalRequirement { get; set; } = string.Empty;
     [MaxLength(999_9999)] // 1 qian wan
     public string TranslationText { get; set; } = string.Empty;
     #endregion Work details
