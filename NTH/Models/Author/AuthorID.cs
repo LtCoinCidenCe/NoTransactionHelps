@@ -25,6 +25,8 @@ public partial class AuthorID
     #region Authorization
     public bool AuthorizedPerVideo { get; set; } = false;
     public bool AllVideoAuthorized { get; set; } = false;
+    public List<AuthorizationChangeHistory> AuthorizationChangeHistory { get; set; } = new();
+    public DateTimeOffset AuthorizationChangeDate { get; set; }
     /// <summary>
     /// the userID who contacts the author
     /// </summary>
