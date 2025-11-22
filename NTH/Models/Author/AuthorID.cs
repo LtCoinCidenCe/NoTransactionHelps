@@ -35,9 +35,9 @@ public partial class AuthorID
 
     #region TensaiRequirements
     [MaxLength(800)]
-    public string TensaiRequirements { get; set; } = string.Empty;
-    public List<AdditionalRequirementsHistory> TensaiRequirementsHistory { get; set; } = new();
-    public DateTimeOffset TensaiRequirementsChangeDate { get; set; }
+    public string AdditionalRequirements { get; set; } = string.Empty;
+    public List<AdditionalRequirementsHistory> AdditionalRequirementsHistory { get; set; } = new();
+    public DateTimeOffset AdditionalRequirementsChangeDate { get; set; }
     #endregion TensaiRequirements
 
     #region :n Video
@@ -62,11 +62,11 @@ public partial class AuthorID
             TwitterHomePage = newAuthorDTO.TwitterHomePage,
             AuthorizedPerVideo = newAuthorDTO.AuthorizedPerVideo,
             AllVideoAuthorized = newAuthorDTO.AllVideoAuthorized,
-            TensaiRequirements = newAuthorDTO.TensaiRequirement,
-            TensaiRequirementsChangeDate = datetime,
+            AdditionalRequirements = newAuthorDTO.TensaiRequirement,
+            AdditionalRequirementsChangeDate = datetime,
             CreationDate = datetime
         };
-        newAuthor.TensaiRequirementsHistory.Add(new AdditionalRequirementsHistory()
+        newAuthor.AdditionalRequirementsHistory.Add(new AdditionalRequirementsHistory()
         {
             CreationDate = datetime,
             TensaiRequirements = newAuthorDTO.TensaiRequirement

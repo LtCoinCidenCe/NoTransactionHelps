@@ -11,6 +11,8 @@ public class VideoID
     public long ID { get; set; }
 
     #region Video itself
+    [MaxLength(100)]
+    public string Title { get; set; } = string.Empty;
     [Column(name: "AuthorID"), JsonIgnore]
     public AuthorID? Author { get; set; }
     [Column(name: "AuthorID")]
