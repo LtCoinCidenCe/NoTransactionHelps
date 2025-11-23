@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using NTH.Models.Author;
-using NTH.Models.User;
+using NTH.Models.Work;
 
 namespace NTH.Models.Video;
 
@@ -30,7 +30,8 @@ public class VideoID
 
     #region Our workers
     // since we can represent null with many-to-many relations...
-    public List<UserID> WorkTranslation { get; set; } = new();
+    [JsonIgnore]
+    public List<WorkTranslation> WorkTranslation { get; set; } = new();
     // [Column(name: "TranslatorID"), JsonIgnore]
     // public UserID? Translator { get; set; }
     // [Column(name: "TranslatorID")]

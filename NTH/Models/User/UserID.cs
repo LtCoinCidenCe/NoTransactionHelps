@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using NTH.DTO.User;
-using NTH.Models.Video;
+using NTH.Models.Work;
 
 namespace NTH.Models.User;
 
@@ -43,7 +43,7 @@ public partial class UserID
     #endregion User Roles
 
     #region AllWorks
-    public List<VideoID> WorkTranslations { get; set; } = new();
+    public List<WorkTranslation> WorkTranslations { get; set; } = new();
     #endregion AllWorks
 
     public DateTimeOffset CreationDate { get; set; }

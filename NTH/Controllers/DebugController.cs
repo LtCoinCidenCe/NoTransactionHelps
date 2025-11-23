@@ -75,9 +75,11 @@ SupplementaryService supplementaryService) : ControllerBase
     {
         return database.Users
             .AsSplitQuery()
+            .AsNoTracking()
             .Include(x => x.DisplaynameHistory)
             .Include(x => x.UserRoleHistory)
-            .AsNoTracking()
+            .Include(x => x.WorkTranslations)
+            .ThenInclude(x => x.Video)
             .ToList();
     }
 
