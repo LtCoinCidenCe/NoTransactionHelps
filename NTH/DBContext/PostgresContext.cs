@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using NTH.Models.Author;
 using NTH.Models.User;
 using NTH.Models.Video;
+using NTH.Models.Work;
 
 namespace NTH.DBContext;
 
@@ -51,6 +52,7 @@ public class PostgresContext : DbContext
     public DbSet<AuthorizationChangeHistory> AuthorizationChangeHistories { get; set; }
     public DbSet<AdditionalRequirementsHistory> AdditionalRequirementsHistories { get; set; }
     public DbSet<VideoID> Videos { get; set; }
+    public DbSet<WorkTranslation> WorkTranslations { get; set; }
 
     #region Supplementary Definition Reference Tables
     public DbSet<UserRoleSupplementary> UserRoleSupplementary { get; set; }
