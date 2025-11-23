@@ -1,11 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NTH.DBContext;
 using NTH.DTO.User;
 using NTH.Models.User;
 using NTH.Services;
 using NTH.Utilities;
+using SixLabors.ImageSharp;
 
 [ApiController]
 [Route("api/User")]
@@ -89,5 +91,32 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
         if (result is null)
             return NotFound();
         return Ok(result);
+    }
+
+    [HttpGet]
+    [Route("{ID}/Icon")]
+    public IActionResult GetUserIcon(long ID)
+    {
+        byte[]? image = database.Users.AsNoTracking().Where(x => x.ID == ID).Select(x => x.Icon).FirstOrDefault();
+        if (image is null)
+            return NotFound();
+        return File(image, "image/png");
+    }
+
+    [HttpPost]
+    [Route("{ID}/Icon")]
+    public IActionResult SetUserIcon([FromRoute] long ID, IFormFile file)
+    {
+        if (file.Length < 5 || file.Length > UserID.MAX_ICON_SIZE)
+            return BadRequest();
+        if (!database.Users.Any(x => x.ID == ID))
+            return BadRequest();
+        Stream readStream = file.OpenReadStream();
+        Image image = Image.Load(readStream);
+        MemoryStream pngStream = new MemoryStream();
+        image.SaveAsPng(pngStream);
+        byte[] bytes = pngStream.ToArray();
+        database.Users.Where(x => x.ID == ID).ExecuteUpdate(setter => setter.SetProperty(x => x.Icon, bytes));
+        return Ok();
     }
 }
