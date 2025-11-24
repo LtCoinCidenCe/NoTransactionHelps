@@ -97,13 +97,16 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
     [Route("{ID}/Icon")]
     public IActionResult GetUserIcon(long ID)
     {
-        byte[]? image = database.Users.AsNoTracking().Where(x => x.ID == ID).Select(x => x.Icon).FirstOrDefault();
+        var info = database.Users.AsNoTracking().Where(x => x.ID == ID).Select(x => new { x.Username, x.Icon, x.IconChangeDate }).FirstOrDefault();
+        if (info is null)
+            return NotFound();
+        byte[]? image = info.Icon;
         if (image is null)
             return NotFound();
-        return File(image, "image/png");
+        return File(image, "image/png", $"{info.Username}{info.IconChangeDate}.png");
     }
 
-    [HttpPost]
+    [HttpPost, Authorize]
     [Route("{ID}/Icon")]
     public IActionResult SetUserIcon([FromRoute] long ID, IFormFile file)
     {
@@ -112,11 +115,25 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
         if (!database.Users.Any(x => x.ID == ID))
             return BadRequest();
         Stream readStream = file.OpenReadStream();
-        Image image = Image.Load(readStream);
-        MemoryStream pngStream = new MemoryStream();
-        image.SaveAsPng(pngStream);
-        byte[] bytes = pngStream.ToArray();
-        database.Users.Where(x => x.ID == ID).ExecuteUpdate(setter => setter.SetProperty(x => x.Icon, bytes));
-        return Ok();
+
+        Image image;
+        try { image = Image.Load(readStream); }
+        catch (Exception) { return BadRequest("Image file reading error"); }
+        using (image)
+        {
+            image.Size.Deconstruct(out int x, out int y);
+            if (x != y)
+                return BadRequest("Not square Image");
+            if (x < 25)
+                return BadRequest("Image too small");
+            using MemoryStream pngStream = new();
+            image.SaveAsPng(pngStream);
+            byte[] bytes = pngStream.ToArray();
+            DateTimeOffset newDate = DateTimeOffset.UtcNow;
+            database.Users.Where(x => x.ID == ID).ExecuteUpdate(
+                setter => setter.SetProperty(x => x.Icon, bytes)
+                    .SetProperty(x => x.IconChangeDate, newDate));
+            return Ok();
+        }
     }
 }

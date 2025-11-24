@@ -14,8 +14,11 @@ public partial class UserID
     [MaxLength(30)]
     public required string Username { get; set; }
 
+    #region Profile Icon
     [MaxLength(MAX_ICON_SIZE)]
     public byte[]? Icon { get; set; }
+    public DateTimeOffset IconChangeDate { get; set; }
+    #endregion Profile Icon
 
     #region Display name
     // [Length(2, 30)] this doesn't work for DB
@@ -58,7 +61,7 @@ public partial class UserID
 /// </summary>
 public partial class UserID
 {
-    public const int MAX_ICON_SIZE = 8_000_000; // 8MB
+    public const int MAX_ICON_SIZE = 3_000_000; // 3MB
     public NonSensitiveUserDTO ToDTO()
     {
         return new NonSensitiveUserDTO()
