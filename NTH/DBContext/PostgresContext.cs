@@ -55,6 +55,9 @@ public class PostgresContext : DbContext
     public DbSet<WorkTranslation> WorkTranslations { get; set; }
 
     #region Supplementary Definition Reference Tables
+#if DEBUG
     public DbSet<UserRoleSupplementary> UserRoleSupplementary { get; set; }
+    public DbSet<WorkStatusSupplementary> WorkStatusSupplementary { get; set; }
+#endif
     #endregion Supplementary Definition Reference Tables
 }

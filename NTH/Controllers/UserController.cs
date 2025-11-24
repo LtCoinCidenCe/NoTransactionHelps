@@ -106,7 +106,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
         return File(image, "image/png", $"{info.Username}{info.IconChangeDate}.png");
     }
 
-    [HttpPost, Authorize]
+    [HttpPut, Authorize]
     [Route("{ID}/Icon")]
     public IActionResult SetUserIcon([FromRoute] long ID, IFormFile file)
     {

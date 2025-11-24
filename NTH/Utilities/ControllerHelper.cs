@@ -4,6 +4,13 @@ namespace NTH.Utilities;
 
 public static class ControllerHelper
 {
+    /// <summary>
+    /// Check if the jwt is issued for the user with ID.
+    /// <code>ControllerHelper.CheckUserClaimsID(User, ID)</code>
+    /// </summary>
+    /// <param name="user">Controller Property User</param>
+    /// <param name="ID">the user ID</param>
+    /// <returns>true if the jwt aud data contains the ID</returns>
     public static bool CheckUserClaimsID(ClaimsPrincipal user, long ID)
     {
         string? identity = user.FindFirstValue("aud");
