@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using NTH.DTO.Author;
 using NTH.Models.Video;
+using NTH.Models.Work;
 
 namespace NTH.Models.Author;
 
@@ -29,8 +30,9 @@ public partial class AuthorID
     public DateTimeOffset AuthorizationChangeDate { get; set; }
     /// <summary>
     /// the userID who contacts the author
+    /// even though here is a List, there could only be 0 or 1 value.
     /// </summary>
-    public long? Contact { get; set; }
+    public List<WorkContact> Contact { get; set; } = new();
     #endregion Authorization
 
     #region TensaiRequirements

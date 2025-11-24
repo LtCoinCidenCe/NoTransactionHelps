@@ -49,6 +49,7 @@ public partial class UserID
     #endregion User Roles
 
     #region AllWorks
+    public List<WorkContact> Contact { get; set; } = new();
     public List<WorkTranslation> WorkTranslations { get; set; } = new();
     #endregion AllWorks
 
