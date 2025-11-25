@@ -2,6 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NTH.DTO.Author;
 
+/// <summary>
+/// For minimal requirement, write only Name
+/// </summary>
 public class NewAuthorDTO
 {
     [MaxLength(30)]

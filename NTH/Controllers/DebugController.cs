@@ -7,9 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NTH.DBContext;
 using NTH.DTO.User;
+using NTH.Models.Author;
 using NTH.Models.User;
+using NTH.Models.Video;
+using NTH.Models.Work;
 using NTH.Scheduling;
 using NTH.Services;
+using NTH.Utilities;
 
 namespace NTH.Controllers;
 
@@ -66,7 +70,65 @@ SupplementaryService supplementaryService) : ControllerBase
             Password = "McLaren"
         });
 
-        logger.Log(LogLevel.Warning, JsonSerializer.Serialize(firstUser));
+
+        string samplePassword = "kissa123";
+        string? salt = null;
+        byte[] hashed = PasswordHasher.GetHashedPassword(samplePassword, ref salt);
+        if (salt is null)
+            throw new PasswordHasherException("salt is not received");
+        var businessman = new UserID
+        {
+            Username = "business",
+            Displayname = "BusinessInside",
+            Password = hashed,
+            PassSalt = salt,
+        };
+        database.Users.Add(businessman);
+        database.SaveChanges();
+        businessman.DisplaynameHistory.Add(new DisplaynameHistory
+        {
+            UserID = businessman.ID,
+            Displayname = businessman.Displayname,
+            CreationDate = businessman.CreationDate,
+        });
+        userService.SetTitleWords(businessman.ID, "The new king.");
+        userService.SetUserRole(businessman.ID, UserRoleDTO.Translator | UserRoleDTO.Scriptor);
+        var oneAuthor = new AuthorID()
+        {
+            Name = "kflat",
+            TwitterHomePage = "https://x.com/kflat_aasa",
+        };
+        var twoAuthor = new AuthorID()
+        {
+            Name = "cyderl",
+        };
+        businessman.Contact.Add(new WorkContact()
+        {
+            Author = oneAuthor
+        });
+        businessman.Contact.Add(new WorkContact()
+        {
+            Author = twoAuthor
+        });
+        var firstVideo = new VideoID()
+        {
+            Title = "过♂年",
+            BilibiliPage = "https://www.bilibili.com/video/BV1Qs411X7QR",
+        };
+        oneAuthor.Videos.Add(firstVideo);
+
+        if (firstUser is null)
+            throw new Exception("firstUser null guard");
+        userService.SetUserRole(firstUser.ID, UserRoleDTO.Translator);
+        firstVideo.WorkTranslation.Add(new WorkTranslation
+        {
+            UserID = firstUser.ID,
+            WorkStatus = WorkStatus.Assigned,
+            ChangeDate = DateTimeOffset.UtcNow
+        });
+        database.SaveChanges();
+
+        logger.Log(LogLevel.Warning, "Database debug initialized.");
     }
 
     [HttpGet]

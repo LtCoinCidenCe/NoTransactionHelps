@@ -71,6 +71,7 @@ public partial class UserID
         {
             ID = ID,
             Username = Username,
+            IconChangeDate = IconChangeDate,
             Displayname = Displayname,
             DisplaynameHistory = DisplaynameHistory.Count > 0 ? DisplaynameHistory.Select(x => x.toDTO()).ToList() : null,
             DisplaynameChangeDate = DisplaynameChangeDate,

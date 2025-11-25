@@ -4,6 +4,7 @@ public partial class NonSensitiveUserDTO
 {
     public long ID { get; set; }
     public required string Username { get; set; }
+    public DateTimeOffset IconChangeDate { get; set; }
 
     #region Display name
     public required string Displayname { get; set; }

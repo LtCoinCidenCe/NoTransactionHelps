@@ -7,6 +7,7 @@ namespace NTH.Services;
 
 public class SupplementaryService(PostgresContext database)
 {
+#if DEBUG
     public void GenerateSupplementaryDefinition()
     {
         database.UserRoleSupplementary.ExecuteDelete();
@@ -15,4 +16,5 @@ public class SupplementaryService(PostgresContext database)
         database.WorkStatusSupplementary.AddRange(WorkStatusSupplementary.GetDefinitionList());
         database.SaveChanges();
     }
+#endif
 }
