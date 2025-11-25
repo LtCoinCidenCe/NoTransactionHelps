@@ -103,7 +103,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
         byte[]? image = info.Icon;
         if (image is null)
             return NotFound();
-        return File(image, "image/png", $"{info.Username}{info.IconChangeDate}.png");
+        return File(image, "image/png", $"{info.Username}{info.IconChangeDate.ToString("s")}.png");
     }
 
     [HttpPut, Authorize]
