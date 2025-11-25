@@ -74,10 +74,13 @@ SupplementaryService supplementaryService) : ControllerBase
     public List<UserID> GetUsers()
     {
         return database.Users
-            .AsSplitQuery()
+            // .AsSplitQuery()
+            .AsSingleQuery()
             .AsNoTracking()
             .Include(x => x.DisplaynameHistory)
             .Include(x => x.UserRoleHistory)
+            .Include(x => x.Contact)
+            .ThenInclude(contact => contact.Author)
             .Include(x => x.WorkTranslations)
             .ThenInclude(x => x.Video)
             .ToList();

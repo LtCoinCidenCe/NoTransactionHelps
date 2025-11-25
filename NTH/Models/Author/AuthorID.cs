@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using NTH.DTO.Author;
 using NTH.Models.Video;
@@ -32,6 +33,7 @@ public partial class AuthorID
     /// the userID who contacts the author
     /// even though here is a List, there could only be 0 or 1 value.
     /// </summary>
+    [JsonIgnore] // TODO needs to decide
     public List<WorkContact> Contact { get; set; } = new();
     #endregion Authorization
 
@@ -64,6 +66,7 @@ public partial class AuthorID
             TwitterHomePage = newAuthorDTO.TwitterHomePage,
             AuthorizedPerVideo = newAuthorDTO.AuthorizedPerVideo,
             AllVideoAuthorized = newAuthorDTO.AllVideoAuthorized,
+            AuthorizationChangeDate = datetime,
             AdditionalRequirements = newAuthorDTO.TensaiRequirement,
             AdditionalRequirementsChangeDate = datetime,
             CreationDate = datetime
