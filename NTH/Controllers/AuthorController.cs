@@ -5,6 +5,8 @@ using NTH.DBContext;
 using NTH.DTO.Author;
 using NTH.Models.Author;
 
+namespace NTH.Controllers;
+
 [ApiController]
 [Route("api/Author")]
 public class AuthorController(ILogger<AuthorController> logger, PostgresContext database) : ControllerBase

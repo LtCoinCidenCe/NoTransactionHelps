@@ -9,8 +9,6 @@ public class WorkTranslation
 {
     public long ID { get; set; }
 
-    public WorkStatus WorkStatus { get; set; }
-
     public DateTimeOffset ChangeDate { get; set; } = DateTimeOffset.UtcNow;
 
     #region User

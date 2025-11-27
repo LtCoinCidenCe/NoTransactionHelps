@@ -9,6 +9,8 @@ using NTH.Services;
 using NTH.Utilities;
 using SixLabors.ImageSharp;
 
+namespace NTH.Controllers;
+
 [ApiController]
 [Route("api/User")]
 public class UserController(ILogger<UserController> logger, PostgresContext database, UserService userService) : ControllerBase

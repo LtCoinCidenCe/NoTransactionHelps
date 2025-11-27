@@ -28,10 +28,17 @@ public class VideoID
         new DateTimeOffset(1930, 1, 1, 0, 0, 0, TimeSpan.FromHours(0)); // that's before computer came into reality
     #endregion Video itself
 
+    #region Authorization
+    public bool AuthorizedPerVideo { get; set; } = false;
+    #endregion Authorization
+
     #region Our workers
     // since we can represent null with many-to-many relations...
     [JsonIgnore]
     public List<WorkTranslation> WorkTranslation { get; set; } = new();
+    public WorkStatus StatusTranslation = WorkStatus.NeverTouched;
+    public WorkStatus StatusScripting = WorkStatus.NeverTouched;
+    public WorkStatus StatusHardSubbing = WorkStatus.NeverTouched;
     // [Column(name: "TranslatorID"), JsonIgnore]
     // public UserID? Translator { get; set; }
     // [Column(name: "TranslatorID")]
