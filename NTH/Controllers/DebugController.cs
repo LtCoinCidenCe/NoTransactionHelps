@@ -128,8 +128,9 @@ SupplementaryService supplementaryService) : ControllerBase
         firstVideo.WorkTranslation.Add(new WorkTranslation
         {
             UserID = firstUser.ID,
-            ChangeDate = DateTimeOffset.UtcNow
+            ChangeDate = DateTimeOffset.UtcNow,
         });
+        firstVideo.StatusTranslation = WorkStatus.Assigned;
         database.SaveChanges();
 
         logger.Log(LogLevel.Warning, "Database debug initialized.");

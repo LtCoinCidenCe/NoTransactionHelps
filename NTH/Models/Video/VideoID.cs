@@ -36,9 +36,9 @@ public class VideoID
     // since we can represent null with many-to-many relations...
     [JsonIgnore]
     public List<WorkTranslation> WorkTranslation { get; set; } = new();
-    public WorkStatus StatusTranslation = WorkStatus.NeverTouched;
-    public WorkStatus StatusScripting = WorkStatus.NeverTouched;
-    public WorkStatus StatusHardSubbing = WorkStatus.NeverTouched;
+    public WorkStatus StatusTranslation { get; set; } = WorkStatus.NeverTouched;
+    public WorkStatus StatusScripting { get; set; } = WorkStatus.NeverTouched;
+    public WorkStatus StatusHardSubbing { get; set; } = WorkStatus.NeverTouched;
     // [Column(name: "TranslatorID"), JsonIgnore]
     // public UserID? Translator { get; set; }
     // [Column(name: "TranslatorID")]

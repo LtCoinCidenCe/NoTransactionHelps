@@ -1,3 +1,4 @@
+using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,27 @@ namespace NTH.Controllers;
 [Route("api/User")]
 public class UserController(ILogger<UserController> logger, PostgresContext database, UserService userService) : ControllerBase
 {
+    [HttpGet, Authorize]
+    public ICollection GetUsers()
+    {
+        var users = database.Users
+            .AsNoTracking()
+            .Where(x => !x.IsDeleted)
+            .Include(x => x.Contact)
+            .ThenInclude(contact => contact.Author)
+            .Include(x => x.WorkTranslations)
+            .ThenInclude(x => x.Video)
+            .ToList();
+        users.ForEach(x =>
+        {
+            // non-public data
+            x.PassSalt = "";
+            x.Password = [];
+            x.PasswordChangeDate = DateTimeOffset.MinValue;
+        });
+        return users;
+    }
+
     [HttpGet, Authorize]
     [Route("{ID}")]
     public ActionResult<NonSensitiveUserDTO> GetUser(string ID)
