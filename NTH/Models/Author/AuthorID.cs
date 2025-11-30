@@ -16,7 +16,6 @@ public partial class AuthorID
     public required string Name { get; set; }
     #region Profile Icon
     [MaxLength(MAX_ICON_SIZE)]
-    [JsonIgnore]
     public byte[]? Icon { get; set; }
     public DateTimeOffset IconChangeDate { get; set; }
     #endregion Profile Icon

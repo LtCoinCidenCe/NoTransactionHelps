@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using NTH.DTO.User;
 using NTH.Models.Work;
@@ -17,7 +16,6 @@ public partial class UserID
 
     #region Profile Icon
     [MaxLength(MAX_ICON_SIZE)]
-    [JsonIgnore]
     public byte[]? Icon { get; set; }
     public DateTimeOffset IconChangeDate { get; set; }
     #endregion Profile Icon
@@ -71,6 +69,7 @@ public partial class UserID
         {
             ID = ID,
             Username = Username,
+            Icon = Icon,
             IconChangeDate = IconChangeDate,
             Displayname = Displayname,
             DisplaynameHistory = DisplaynameHistory.Count > 0 ? DisplaynameHistory.Select(x => x.toDTO()).ToList() : null,

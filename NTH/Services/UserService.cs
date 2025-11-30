@@ -27,7 +27,13 @@ public class UserService(PostgresContext database)
 
     public UserLoginResponse? Login(UserLoginDTO userLoginDTO)
     {
-        return database.Users.AsNoTracking().Where(x => x.Username == userLoginDTO.Username && !x.IsDeleted).Select(x => new UserLoginResponse { UserID = x.ID, PassSalt = x.PassSalt, Password = x.Password }).FirstOrDefault();
+        return database.Users.AsNoTracking().Where(x => x.Username == userLoginDTO.Username && !x.IsDeleted).Select(x => new UserLoginResponse
+        {
+            UserID = x.ID,
+            PassSalt = x.PassSalt,
+            Password = x.Password,
+            UserRole = x.UserRole
+        }).FirstOrDefault();
     }
 
     /// <summary>
@@ -186,4 +192,5 @@ public class UserLoginResponse
     public required long UserID;
     public required string PassSalt;
     public required byte[] Password;
+    public required UserRoleDTO UserRole;
 }

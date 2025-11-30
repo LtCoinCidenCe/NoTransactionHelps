@@ -15,7 +15,7 @@ namespace NTH.Controllers;
 [Route("api/User")]
 public class UserController(ILogger<UserController> logger, PostgresContext database, UserService userService) : ControllerBase
 {
-    [HttpGet]
+    [HttpGet, Authorize]
     [Route("{ID}")]
     public ActionResult<NonSensitiveUserDTO> GetUser(string ID)
     {

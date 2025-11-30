@@ -134,7 +134,7 @@ SupplementaryService supplementaryService) : ControllerBase
     [Route("GetUsers")]
     public List<UserID> GetUsers()
     {
-        return database.Users
+        var users = database.Users
             // .AsSplitQuery()
             .AsSingleQuery()
             .AsNoTracking()
@@ -145,6 +145,8 @@ SupplementaryService supplementaryService) : ControllerBase
             .Include(x => x.WorkTranslations)
             .ThenInclude(x => x.Video)
             .ToList();
+        users.ForEach(x => x.Icon = null);
+        return users;
     }
 
     [HttpGet]
