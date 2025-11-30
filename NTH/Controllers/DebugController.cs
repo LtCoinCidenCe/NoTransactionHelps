@@ -69,6 +69,12 @@ SupplementaryService supplementaryService) : ControllerBase
             Displayname = "Kimi Räikkönen",
             Password = "McLaren"
         });
+        userService.CreateNewUser(new NewUserDTO
+        {
+            Username = "string",
+            Displayname = "testUser",
+            Password = "string"
+        });
 
 
         string samplePassword = "kissa123";
@@ -145,7 +151,6 @@ SupplementaryService supplementaryService) : ControllerBase
             .Include(x => x.WorkTranslations)
             .ThenInclude(x => x.Video)
             .ToList();
-        users.ForEach(x => x.Icon = null);
         return users;
     }
 

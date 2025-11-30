@@ -46,6 +46,7 @@ public class PostgresContext : DbContext
     }
 
     public DbSet<UserID> Users { get; set; }
+    public DbSet<UserIconHistory> UserIconHistories { get; set; }
     public DbSet<DisplaynameHistory> UserDisplaynameHistories { get; set; }
     public DbSet<UserRoleHistory> UserRoleHistories { get; set; }
     public DbSet<WorkContact> WorkContacts { get; set; }

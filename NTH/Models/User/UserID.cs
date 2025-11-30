@@ -15,8 +15,12 @@ public partial class UserID
     public required string Username { get; set; }
 
     #region Profile Icon
-    [MaxLength(MAX_ICON_SIZE)]
-    public byte[]? Icon { get; set; }
+    /// <summary>
+    /// Since user icon can be too big (3MB)
+    /// An indirect query is required to reduce the load.
+    /// Don't even .Include this History as this could be painful
+    /// </summary>
+    public List<UserIconHistory> UserIconHistory { get; set; } = new();
     public DateTimeOffset IconChangeDate { get; set; }
     #endregion Profile Icon
 
@@ -62,14 +66,12 @@ public partial class UserID
 /// </summary>
 public partial class UserID
 {
-    public const int MAX_ICON_SIZE = 3_000_000; // 3MB
     public NonSensitiveUserDTO ToDTO()
     {
         return new NonSensitiveUserDTO()
         {
             ID = ID,
             Username = Username,
-            Icon = Icon,
             IconChangeDate = IconChangeDate,
             Displayname = Displayname,
             DisplaynameHistory = DisplaynameHistory.Count > 0 ? DisplaynameHistory.Select(x => x.toDTO()).ToList() : null,

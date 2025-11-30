@@ -5,7 +5,6 @@ public partial class NonSensitiveUserDTO
     public long ID { get; set; }
     public required string Username { get; set; }
     #region Profile Icon
-    public byte[]? Icon { get; set; }
     public DateTimeOffset IconChangeDate { get; set; }
     #endregion Profile Icon
 

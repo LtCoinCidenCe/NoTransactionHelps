@@ -99,20 +99,26 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
     [Route("{ID}/Icon")]
     public IActionResult GetUserIcon(long ID)
     {
-        var info = database.Users.AsNoTracking().Where(x => x.ID == ID).Select(x => new { x.Username, x.Icon, x.IconChangeDate }).FirstOrDefault();
+        var info = database.UserIconHistories
+            .AsNoTracking()
+            .OrderByDescending(x => x.ID)
+            .Take(1)
+            .FirstOrDefault(x => x.UserID == ID);
         if (info is null)
             return NotFound();
         byte[]? image = info.Icon;
         if (image is null)
             return NotFound();
-        return File(image, "image/png", $"{info.Username}{info.IconChangeDate.ToString("s")}.png");
+        return File(image, "image/png", $"{info.UserID}-{info.CreationDate.ToString("s")}.png");
     }
 
     [HttpPut, Authorize]
     [Route("{ID}/Icon")]
     public IActionResult SetUserIcon([FromRoute] long ID, IFormFile file)
     {
-        if (file.Length < 5 || file.Length > UserID.MAX_ICON_SIZE)
+        if (!ControllerHelper.CheckUserClaimsID(User, ID))
+            return Unauthorized();
+        if (file.Length < 5 || file.Length > UserIconHistory.MAX_ICON_SIZE)
             return BadRequest();
         if (!database.Users.Any(x => x.ID == ID))
             return BadRequest();
@@ -132,9 +138,13 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
             image.SaveAsPng(pngStream);
             byte[] bytes = pngStream.ToArray();
             DateTimeOffset newDate = DateTimeOffset.UtcNow;
-            database.Users.Where(x => x.ID == ID).ExecuteUpdate(
-                setter => setter.SetProperty(x => x.Icon, bytes)
-                    .SetProperty(x => x.IconChangeDate, newDate));
+            database.UserIconHistories.Add(new UserIconHistory
+            {
+                UserID = ID,
+                Icon = bytes,
+                CreationDate = newDate,
+            });
+            database.SaveChanges();
             return Ok();
         }
     }
