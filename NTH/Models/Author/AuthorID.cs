@@ -14,6 +14,12 @@ public partial class AuthorID
     public long ID { get; set; }
     [MaxLength(30)]
     public required string Name { get; set; }
+    #region Profile Icon
+    [MaxLength(MAX_ICON_SIZE)]
+    [JsonIgnore]
+    public byte[]? Icon { get; set; }
+    public DateTimeOffset IconChangeDate { get; set; }
+    #endregion Profile Icon
     [MaxLength(200)]
     public string YoutubeHomePage { get; set; } = string.Empty;
     [MaxLength(200)]
@@ -54,6 +60,7 @@ public partial class AuthorID
 
 public partial class AuthorID
 {
+    public const int MAX_ICON_SIZE = 3_000_000; // 3MB
     public static AuthorID FromDTO(NewAuthorDTO newAuthorDTO)
     {
         var datetime = DateTimeOffset.UtcNow;
