@@ -18,6 +18,8 @@ public static class ControllerHelper
             return false;
         if (identity.Length < 3)
             return false;
+        if (identity.StartsWith("sa"))
+            return true;
         long.TryParse(identity.Substring(2), out var provedID);
         if (provedID != ID)
             return false;

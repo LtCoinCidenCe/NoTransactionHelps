@@ -85,7 +85,6 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
     [Route("{ID}/UserRole")]
     public IActionResult SetUserRole(long ID, [FromBody] UserRoleDTO newUserRole)
     {
-        // TODO here I set it to self assign roles
         if (!ControllerHelper.CheckUserClaimsID(User, ID))
             return Unauthorized();
 
@@ -99,11 +98,11 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
     [Route("{ID}/Icon")]
     public IActionResult GetUserIcon(long ID)
     {
+        // we don't solve high concurrency issue
         var info = database.UserIconHistories
             .AsNoTracking()
             .OrderByDescending(x => x.ID)
-            .Take(1)
-            .FirstOrDefault(x => x.UserID == ID);
+            .FirstOrDefault(x => x.UserID == ID && !x.IsDeleted);
         if (info is null)
             return NotFound();
         byte[]? image = info.Icon;
@@ -134,9 +133,13 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
                 return BadRequest("Not square Image");
             if (x < 25)
                 return BadRequest("Image too small");
+            if (x > 400)
+                return BadRequest("Image too big");
             using MemoryStream pngStream = new();
             image.SaveAsPng(pngStream);
             byte[] bytes = pngStream.ToArray();
+            if (bytes.Length > UserIconHistory.MAX_ICON_SIZE)
+                return BadRequest();
             DateTimeOffset newDate = DateTimeOffset.UtcNow;
             database.UserIconHistories.Add(new UserIconHistory
             {

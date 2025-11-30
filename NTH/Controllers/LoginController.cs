@@ -19,13 +19,15 @@ public class LoginController(ILogger<LoginController> logger, PostgresContext da
         var user = userService.Login(userLoginDTO);
         if (user is null)
             return BadRequest();
+        bool isSA = (user.UserRole & UserRoleDTO.SystemAdministrator) != 0;
+        string roleString = isSA ? "sa" : "kt";
         string? salt = user.PassSalt;
         byte[] calculatedPasshash = PasswordHasher.GetHashedPassword(userLoginDTO.Password, ref salt);
         if (!calculatedPasshash.SequenceEqual(user.Password))
             return BadRequest();
         var jwt = new JwtSecurityToken(
             JwtHelper.ISSUER,
-            $"kt{user.UserID}",
+            $"{roleString}{user.UserID}",
             null,
             notBefore: null,
             expires: DateTime.Now + TimeSpan.FromMinutes(15),

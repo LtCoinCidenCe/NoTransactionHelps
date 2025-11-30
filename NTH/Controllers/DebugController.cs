@@ -1,6 +1,5 @@
 #if DEBUG
 using System.Security.Claims;
-using System.Text.Json;
 using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -152,6 +151,16 @@ SupplementaryService supplementaryService) : ControllerBase
             .ThenInclude(x => x.Video)
             .ToList();
         return users;
+    }
+
+    [HttpGet]
+    [Route("UserIcon/{ID}")]
+    public ActionResult GetIconbyID(long ID)
+    {
+        var row = database.UserIconHistories.AsNoTracking().FirstOrDefault(x => x.ID == ID);
+        if (row is null)
+            return NotFound();
+        return File(row.Icon, "image/png");
     }
 
     [HttpGet]
