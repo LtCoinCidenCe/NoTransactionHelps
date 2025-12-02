@@ -24,8 +24,8 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
             .Where(x => !x.IsDeleted)
             .Include(x => x.Contact)
             .ThenInclude(contact => contact.Author)
-            .Include(x => x.WorkTranslations)
-            .ThenInclude(x => x.Video)
+            // .Include(x => x.WorkTranslations)
+            // .ThenInclude(x => x.Video)
             .ToList();
         users.ForEach(x =>
         {
@@ -120,7 +120,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
     [Route("{ID}/Icon")]
     public IActionResult GetUserIcon(long ID)
     {
-        // we don't solve high concurrency issue
+        // we don't solve high concurrency icon creation
         var info = database.UserIconHistories
             .AsNoTracking()
             .OrderByDescending(x => x.ID)
@@ -155,7 +155,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
                 return BadRequest("Not square Image");
             if (x < 25)
                 return BadRequest("Image too small");
-            if (x > 400)
+            if (x > 800)
                 return BadRequest("Image too big");
             using MemoryStream pngStream = new();
             image.SaveAsPng(pngStream);

@@ -54,7 +54,8 @@ public partial class AuthorID
     #endregion :n Video
 
     public DateTimeOffset CreationDate { get; set; }
-    public bool IsDeleted { get; set; } = false;
+    // we are not going to delete the authors anyway
+    // public bool IsDeleted { get; set; } = false;
 }
 
 public partial class AuthorID

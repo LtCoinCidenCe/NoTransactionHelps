@@ -7,5 +7,4 @@ namespace NTH.Controllers;
 [Route("api/Video")]
 public class VideoController(ILogger<VideoController> logger, PostgresContext database) : ControllerBase
 {
-    
 }

@@ -33,6 +33,8 @@ SupplementaryService supplementaryService) : ControllerBase
     [Route("ping")]
     public IActionResult Ping()
     {
+        string somehttp = "https://www.isodfe.com/video/234?ist=true&d=6#title";
+        Uri uri = new Uri(somehttp);
         return Ok("In debug mode");
     }
 

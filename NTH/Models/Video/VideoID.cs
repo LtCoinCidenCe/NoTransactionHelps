@@ -36,6 +36,10 @@ public class VideoID
     // since we can represent null with many-to-many relations...
     [JsonIgnore]
     public List<WorkTranslation> WorkTranslation { get; set; } = new();
+    [JsonIgnore]
+    public List<WorkScripting> WorkScriptings { get; set; } = new();
+    [JsonIgnore]
+    public List<WorkHardSubbing> WorkHardSubbings { get; set; } = new();
     public WorkStatus StatusTranslation { get; set; } = WorkStatus.NeverTouched;
     public WorkStatus StatusScripting { get; set; } = WorkStatus.NeverTouched;
     public WorkStatus StatusHardSubbing { get; set; } = WorkStatus.NeverTouched;
@@ -57,7 +61,9 @@ public class VideoID
     [MaxLength(800)]
     public string AdditionalRequirement { get; set; } = string.Empty;
     [MaxLength(999_9999)] // 1 qian wan
-    public string TranslationText { get; set; } = string.Empty;
+    public string WTranslationText { get; set; } = string.Empty;
+    [MaxLength(999_9999)] // 1 qian wan
+    public string WScriptingText { get; set; } = string.Empty;
     #endregion Work details
 
     [MaxLength(200)]
