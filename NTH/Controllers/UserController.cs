@@ -118,6 +118,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 
     [HttpGet]
     [Route("{ID}/Icon")]
+    [ResponseCache(Duration = 86400)]
     public IActionResult GetUserIcon(long ID)
     {
         // we don't solve high concurrency icon creation

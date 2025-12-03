@@ -21,6 +21,7 @@ public class Program
 
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddResponseCaching();
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("developing", builder =>
@@ -93,6 +94,8 @@ public class Program
         }
 
         app.UseHttpsRedirection();
+
+        app.UseResponseCaching();
 
         app.UseAuthentication();
         app.UseAuthorization();
