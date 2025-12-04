@@ -35,11 +35,7 @@ public class VideoID
     #region Our workers
     // since we can represent null with many-to-many relations...
     [JsonIgnore]
-    public List<WorkTranslation> WorkTranslation { get; set; } = new();
-    [JsonIgnore]
-    public List<WorkScripting> WorkScriptings { get; set; } = new();
-    [JsonIgnore]
-    public List<WorkHardSubbing> WorkHardSubbings { get; set; } = new();
+    public List<WorkID> Works { get; set; } = new();
     public WorkStatus StatusTranslation { get; set; } = WorkStatus.NeverTouched;
     public WorkStatus StatusScripting { get; set; } = WorkStatus.NeverTouched;
     public WorkStatus StatusHardSubbing { get; set; } = WorkStatus.NeverTouched;

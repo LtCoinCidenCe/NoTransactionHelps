@@ -54,9 +54,7 @@ public class PostgresContext : DbContext
     public DbSet<AuthorizationChangeHistory> AuthorizationChangeHistories { get; set; }
     public DbSet<AdditionalRequirementsHistory> AdditionalRequirementsHistories { get; set; }
     public DbSet<VideoID> Videos { get; set; }
-    public DbSet<WorkTranslation> WorkTranslations { get; set; }
-    public DbSet<WorkTranslation> WorkScriptings { get; set; }
-    public DbSet<WorkTranslation> WorkHardSubbings { get; set; }
+    public DbSet<WorkID> Works { get; set; }
 
     #region Supplementary Definition Reference Tables
     public DbSet<UserRoleSupplementary> UserRoleSupplementary { get; set; }

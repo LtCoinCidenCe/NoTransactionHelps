@@ -127,7 +127,7 @@ SupplementaryService supplementaryService) : ControllerBase
         if (firstUser is null)
             throw new Exception("firstUser null guard");
         userService.SetUserRole(firstUser.ID, UserRoleDTO.Translator);
-        firstVideo.WorkTranslation.Add(new WorkTranslation
+        firstVideo.Works.Add(new WorkID
         {
             UserID = firstUser.ID,
             ChangeDate = DateTimeOffset.UtcNow,
@@ -150,7 +150,7 @@ SupplementaryService supplementaryService) : ControllerBase
             .Include(x => x.UserRoleHistory)
             .Include(x => x.Contact)
             .ThenInclude(contact => contact.Author)
-            .Include(x => x.WorkTranslations)
+            .Include(x => x.Works)
             .ThenInclude(x => x.Video)
             .ToList();
         return users;

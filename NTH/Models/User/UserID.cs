@@ -54,9 +54,7 @@ public partial class UserID
 
     #region AllWorks
     public List<WorkContact> Contact { get; set; } = new();
-    public List<WorkTranslation> WorkTranslations { get; set; } = new();
-    public List<WorkScripting> WorkScriptings { get; set; } = new();
-    public List<WorkHardSubbing> WorkHardSubbings { get; set; } = new();
+    public List<WorkID> Works { get; set; } = new();
     #endregion AllWorks
 
     public DateTimeOffset CreationDate { get; set; }

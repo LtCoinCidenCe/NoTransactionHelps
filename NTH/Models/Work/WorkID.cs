@@ -1,13 +1,19 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 using NTH.Models.User;
 using NTH.Models.Video;
 
 namespace NTH.Models.Work;
 
-public class WorkTemplate
+[Index(nameof(UserID), nameof(WorkType))]
+public class WorkID
 {
     public long ID { get; set; }
+
+    public WorkType WorkType { get; set; }
+
+    public bool IsFinished { get; set; }
 
     public DateTimeOffset ChangeDate { get; set; } = DateTimeOffset.UtcNow;
 
