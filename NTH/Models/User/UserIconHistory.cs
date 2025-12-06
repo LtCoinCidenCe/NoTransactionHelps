@@ -19,7 +19,7 @@ public class UserIconHistory
     [JsonIgnore]
     public UserID? User { get; set; }
 
-    public required DateTimeOffset CreationDate { get; set; }
+    public required DateTimeOffset CreationDate { get; set; } = DateTimeOffset.UtcNow;
 
     [JsonIgnore]
     public bool IsDeleted { get; set; } = false;

@@ -12,8 +12,10 @@ public class SupplementaryService(PostgresContext database)
     {
         database.UserRoleSupplementary.ExecuteDelete();
         database.WorkStatusSupplementary.ExecuteDelete();
+        database.WorkTypeSupplementary.ExecuteDelete();
         database.UserRoleSupplementary.AddRange(UserRoleSupplementary.GetDefinitionList());
         database.WorkStatusSupplementary.AddRange(WorkStatusSupplementary.GetDefinitionList());
+        database.WorkTypeSupplementary.AddRange(WorkTypeSupplementary.GetDefinitionList());
         database.SaveChanges();
     }
 #endif
