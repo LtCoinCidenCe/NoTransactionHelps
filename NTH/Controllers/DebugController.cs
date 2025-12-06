@@ -130,7 +130,7 @@ SupplementaryService supplementaryService) : ControllerBase
         firstVideo.Works.Add(new WorkID
         {
             UserID = firstUser.ID,
-            ChangeDate = DateTimeOffset.UtcNow,
+            FinishingDate = DateTimeOffset.UtcNow,
         });
         firstVideo.StatusTranslation = WorkStatus.Assigned;
         database.SaveChanges();
