@@ -59,6 +59,7 @@ public class Program
         });
         builder.Services.AddDbContext<PostgresContext>();
         builder.Services.AddScoped<UserService>();
+        builder.Services.AddScoped<AuthorService>();
         builder.Services.AddScoped<SupplementaryService>();
         builder.Services.AddAuthentication(options =>
         {

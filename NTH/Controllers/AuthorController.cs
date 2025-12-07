@@ -4,14 +4,15 @@ using Microsoft.EntityFrameworkCore;
 using NTH.DBContext;
 using NTH.DTO.Author;
 using NTH.Models.Author;
+using NTH.Services;
 
 namespace NTH.Controllers;
 
 [ApiController]
 [Route("api/Author")]
-public class AuthorController(ILogger<AuthorController> logger, PostgresContext database) : ControllerBase
+public class AuthorController(ILogger<AuthorController> logger, PostgresContext database, AuthorService authorService) : ControllerBase
 {
-    [HttpGet]
+    [HttpGet, Authorize]
     public List<AuthorID> GetAllAuthors()
     {
         return database.Authors.AsNoTracking().ToList();
@@ -21,13 +22,12 @@ public class AuthorController(ILogger<AuthorController> logger, PostgresContext 
     /// Register a new author. Name should be unique but too lazy to check with mutex.
     /// </summary>
     /// <returns></returns>
-    [HttpPost]
-    [Authorize]
+    [HttpPost, Authorize]
     public ActionResult<AuthorID> CreateNewAuthor(NewAuthorDTO newAuthorDTO)
     {
         AuthorID author = AuthorID.FromDTO(newAuthorDTO);
-        AuthorID? existing = database.Authors.AsNoTracking().FirstOrDefault(x => x.Name == author.Name);
-        if (existing is not null)
+        bool existing = database.Authors.AsNoTracking().Any(x => x.Name == author.Name);
+        if (existing)
             return BadRequest();
         database.Authors.Add(author);
         database.SaveChanges();

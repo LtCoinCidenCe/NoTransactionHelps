@@ -61,6 +61,11 @@ public partial class AuthorID
 public partial class AuthorID
 {
     public const int MAX_ICON_SIZE = 3_000_000; // 3MB
+    /// <summary>
+    /// be aware this returned object contains AdditionalRequirementsHistory and AuthorizationChangeHistory
+    /// </summary>
+    /// <param name="newAuthorDTO"></param>
+    /// <returns></returns>
     public static AuthorID FromDTO(NewAuthorDTO newAuthorDTO)
     {
         var datetime = DateTimeOffset.UtcNow;
@@ -78,10 +83,16 @@ public partial class AuthorID
             AdditionalRequirementsChangeDate = datetime,
             CreationDate = datetime
         };
-        newAuthor.AdditionalRequirementsHistory.Add(new AdditionalRequirementsHistory()
+        newAuthor.AdditionalRequirementsHistory.Add(new()
         {
             CreationDate = datetime,
             TensaiRequirements = newAuthorDTO.TensaiRequirement
+        });
+        newAuthor.AuthorizationChangeHistory.Add(new()
+        {
+            AuthorizedPerVideo = newAuthorDTO.AuthorizedPerVideo,
+            AllVideoAuthorized = newAuthorDTO.AllVideoAuthorized,
+            CreationDate = datetime
         });
         return newAuthor;
     }

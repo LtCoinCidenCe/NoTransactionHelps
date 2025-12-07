@@ -15,14 +15,13 @@ public class UserService(PostgresContext database)
     /// <returns></returns>
     public UserID? GetUserByID(string ID)
     {
+        System.Linq.Expressions.Expression<Func<UserID, bool>> predicate = x => x.Username == ID && !x.IsDeleted;
         if (long.TryParse(ID, out var numID))
-        {
-            return database.Users.AsNoTracking().FirstOrDefault(x => x.ID == numID && !x.IsDeleted);
-        }
-        else
-        {
-            return database.Users.AsNoTracking().FirstOrDefault(x => x.Username == ID && !x.IsDeleted);
-        }
+            predicate = x => x.ID == numID && !x.IsDeleted;
+        return database.Users.AsNoTracking().AsSplitQuery()
+                .Include(x => x.DisplaynameHistory)
+                .Include(x => x.UserRoleHistory)
+                .FirstOrDefault(predicate);
     }
 
     public UserLoginResponse? Login(UserLoginDTO userLoginDTO)
@@ -160,11 +159,15 @@ public class UserService(PostgresContext database)
             usernameTraffic.ReleaseMutex();
         }
 
-        userID.DisplaynameHistory.Add(new DisplaynameHistory
+        userID.DisplaynameHistory.Add(new()
         {
-            UserID = userID.ID,
             Displayname = userID.Displayname,
             CreationDate = userID.CreationDate,
+        });
+        userID.UserRoleHistory.Add(new()
+        {
+            UserRole = UserRoleDTO.User,
+            CreationDate = userID.CreationDate
         });
         database.SaveChanges();
         return userID;
