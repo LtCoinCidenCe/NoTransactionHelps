@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NTH.DBContext;
 using NTH.Models.User;
+using NTH.Models.Video;
 using NTH.Models.Work;
 
 namespace NTH.Services;

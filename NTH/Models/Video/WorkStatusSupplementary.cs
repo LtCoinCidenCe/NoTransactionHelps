@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace NTH.Models.Work;
+namespace NTH.Models.Video;
 
 [PrimaryKey(nameof(ID))]
 public class WorkStatusSupplementary
