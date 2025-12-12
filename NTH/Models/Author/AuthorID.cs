@@ -38,7 +38,7 @@ public partial class AuthorID
     /// the userID who contacts the author
     /// even though here is a List, there could only be 0 or 1 value.
     /// </summary>
-    [JsonIgnore] // TODO needs to decide
+    [JsonIgnore]
     public List<WorkContact> Contact { get; set; } = new();
     #endregion Authorization
 
