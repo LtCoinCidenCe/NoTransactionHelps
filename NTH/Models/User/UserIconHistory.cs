@@ -26,5 +26,5 @@ public class UserIconHistory
     #endregion itsumono
 
     [MaxLength(MAX_ICON_SIZE)]
-    public byte[] Icon { get; set; } = new byte[1];
+    public byte[] Icon { get; set; } = [];
 }

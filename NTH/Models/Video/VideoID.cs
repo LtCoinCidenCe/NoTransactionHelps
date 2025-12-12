@@ -8,11 +8,22 @@ namespace NTH.Models.Video;
 
 public class VideoID
 {
+    public const int MAX_THUMBNAIL_SIZE = 3_000_000; // 3MB
+
     public long ID { get; set; }
 
     #region Video itself
     [MaxLength(120)]
     public string Title { get; set; } = string.Empty;
+    /// <summary>
+    /// jpg png webp ...
+    /// </summary>
+    [MaxLength(6)]
+    public string ThumbnailType { get; set; } = "";
+    [MaxLength(MAX_THUMBNAIL_SIZE)]
+    public byte[] Thumbnail { get; set; } = [];
+    [MaxLength(3000)]
+    public string Introduction { get; set; } = "";
     [Column(name: "AuthorID"), JsonIgnore]
     public AuthorID? Author { get; set; }
     [Column(name: "AuthorID")]

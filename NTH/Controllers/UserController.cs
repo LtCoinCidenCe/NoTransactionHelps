@@ -126,9 +126,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
             .FirstOrDefault(x => x.UserID == ID && !x.IsDeleted);
         if (info is null)
             return NotFound();
-        byte[]? image = info.Icon;
-        if (image is null)
-            return NotFound();
+        byte[] image = info.Icon;
         return File(image, "image/png", $"{info.UserID}-{info.CreationDate.ToString("s")}.png");
     }
 
