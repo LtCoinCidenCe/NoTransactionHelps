@@ -19,8 +19,23 @@ public class VideoController(ILogger<VideoController> logger, PostgresContext da
             .Where(x => x.AllVideoAuthorized).Select(x => x.ID).ToList();
         var validVideos = database.Videos
             .Where(x => generousAuthors.Contains(x.AuthorID) || x.AuthorizedPerVideo)
-            .Select(x => x) // TODO: project the query to make it easier and quicker.
-            .ToList();
+            .Select(x => new
+            {
+                x.ID,
+                x.Title,
+                x.Introduction,
+                x.YoutubePage,
+                x.NiconicoPage,
+                x.BilibiliPage,
+                x.AuthorID,
+                x.AuthorizedPerVideo,
+                x.UploadDate,
+                x.StatusTranslation,
+                x.StatusScripting,
+                x.StatusHardSubbing,
+                x.AdditionalRequirement,
+                x.FinishedProductLink,
+            });
         return Ok(validVideos);
     }
 
