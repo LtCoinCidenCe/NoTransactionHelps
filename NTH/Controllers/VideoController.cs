@@ -115,4 +115,52 @@ public class VideoController(ILogger<VideoController> logger, PostgresContext da
             mime = MediaTypeNames.Image.Webp;
         return File(rkgk.Thumbnail, mime, $"{rkgk.Title}.{rkgk.ThumbnailType}");
     }
+
+    [HttpGet, Authorize]
+    [Route("AllVideo")]
+    public IActionResult GetAllVideo()
+    {
+        return Ok(database.Videos.OrderByDescending(x => x.ID).Select(x => new
+        {
+            x.ID,
+            x.Title,
+            x.Introduction,
+            x.YoutubePage,
+            x.NiconicoPage,
+            x.BilibiliPage,
+            x.AuthorID,
+            x.AuthorizedPerVideo,
+            x.UploadDate,
+            x.StatusTranslation,
+            x.StatusScripting,
+            x.StatusHardSubbing,
+            x.AdditionalRequirement,
+            x.FinishedProductLink,
+        }));
+    }
+
+    [HttpGet, Authorize]
+    [Route("WorkStarted")]
+    public IActionResult GetWorkStartedVideo()
+    {
+        return Ok(database.Videos.Where(x =>
+            x.StatusTranslation > WorkStatus.NeverTouched || x.StatusTranslation < WorkStatus.Uploaded
+        ).Select(x => new
+        {
+            x.ID,
+            x.Title,
+            x.Introduction,
+            x.YoutubePage,
+            x.NiconicoPage,
+            x.BilibiliPage,
+            x.AuthorID,
+            x.AuthorizedPerVideo,
+            x.UploadDate,
+            x.StatusTranslation,
+            x.StatusScripting,
+            x.StatusHardSubbing,
+            x.AdditionalRequirement,
+            x.FinishedProductLink,
+        }));
+    }
 }
