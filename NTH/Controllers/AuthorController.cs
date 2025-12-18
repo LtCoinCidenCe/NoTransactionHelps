@@ -13,9 +13,26 @@ namespace NTH.Controllers;
 public class AuthorController(ILogger<AuthorController> logger, PostgresContext database, AuthorService authorService) : ControllerBase
 {
     [HttpGet, Authorize]
-    public List<AuthorID> GetAllAuthors()
+    public IActionResult GetAllAuthors()
     {
-        return database.Authors.AsNoTracking().ToList();
+        var query = database.Authors.Include(x => x.Contact)
+            .Select(author => new
+            {
+                author.ID,
+                author.Name,
+                author.YoutubeHomePage,
+                author.NiconicoHomePage,
+                author.BilibiliHomePage,
+                author.TwitterHomePage,
+                author.AuthorizedPerVideo,
+                author.AllVideoAuthorized,
+                author.AuthorizationChangeDate,
+                author.AdditionalRequirements,
+                author.AdditionalRequirementsChangeDate,
+                author.CreationDate,
+                ContactUserID = author.Contact.Select(x => x.UserID).FirstOrDefault()
+            });
+        return Ok(query);
     }
 
     /// <summary>
