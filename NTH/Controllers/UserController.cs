@@ -105,9 +105,6 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
     [Route("{ID}/UserRole")]
     public IActionResult SetUserRole(long ID, [FromBody] UserRoleDTO newUserRole)
     {
-        if (!ControllerHelper.CheckUserClaimsID(User, ID))
-            return Unauthorized();
-
         UserRoleHistory? result = userService.SetUserRole(ID, newUserRole);
         if (result is null)
             return NotFound();
