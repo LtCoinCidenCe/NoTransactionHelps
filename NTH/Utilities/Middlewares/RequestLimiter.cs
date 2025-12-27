@@ -7,7 +7,7 @@ public class RequestLimiter(RequestDelegate next)
     {
         try
         {
-            semaphoreLimiter.Wait();
+            await semaphoreLimiter.WaitAsync();
             await next(context);
         }
         finally
