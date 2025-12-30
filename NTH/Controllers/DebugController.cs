@@ -22,7 +22,8 @@ public partial class DebugController(
 ILogger<DebugController> logger,
 PostgresContext database,
 UserService userService,
-SupplementaryService supplementaryService) : ControllerBase
+SupplementaryService supplementaryService,
+AuthorService authorService) : ControllerBase
 {
     /// <summary>
     /// Debug/test mode indicator
@@ -76,6 +77,53 @@ SupplementaryService supplementaryService) : ControllerBase
             Displayname = "testUser",
             Password = "string"
         });
+        userService.CreateNewUser(new NewUserDTO
+        {
+            Username = "ayjyou",
+            Displayname = "Yajyou",
+            Password = "114514"
+        });
+        userService.CreateNewUser(new NewUserDTO
+        {
+            Username = "nononononofs",
+            Displayname = "sfononono",
+            Password = "perisrtow"
+        });
+        userService.CreateNewUser(new NewUserDTO
+        {
+            Username = "anguraea",
+            Displayname = "Angular",
+            Password = "whatisthat?"
+        });
+        userService.CreateNewUser(new NewUserDTO
+        {
+            Username = "oofran",
+            Displayname = "Francais",
+            Password = "bonne1846"
+        });
+        userService.CreateNewUser(new NewUserDTO
+        {
+            Username = "pstrag",
+            Displayname = "Patient Strategizer",
+            Password = "someApexmeme"
+        });
+        userService.CreateNewUser(new NewUserDTO
+        {
+            Username = "heathrow",
+            Displayname = "London Heathrow",
+            Password = "someApexmeme"
+        });
+
+        // size = 6, [0-5]
+        List<DateTimeOffset> times = [
+            new DateTimeOffset(2024, 5, 6, 12, 25, 30, TimeSpan.Zero),
+            new DateTimeOffset(2025, 2, 9, 7, 4, 21, TimeSpan.Zero),
+            new DateTimeOffset(2024, 7, 9, 20, 43, 44, TimeSpan.Zero),
+            new DateTimeOffset(2024, 12, 25, 12, 25, 3, TimeSpan.Zero),
+            new DateTimeOffset(2025, 9, 4, 23, 55, 0, TimeSpan.Zero),
+            new DateTimeOffset(2025, 11, 3, 6, 12, 9, TimeSpan.Zero)
+        ];
+        times.Sort();
 
 
         string samplePassword = "kissa123";
@@ -109,14 +157,76 @@ SupplementaryService supplementaryService) : ControllerBase
         {
             Name = "cyderl",
         };
-        businessman.Contact.Add(new WorkContact()
-        {
-            Author = oneAuthor
-        });
-        businessman.Contact.Add(new WorkContact()
-        {
-            Author = twoAuthor
-        });
+        List<AuthorID> moreAuthors = [
+            new AuthorID()
+            {
+                Name = "harujiko",
+                CreationDate = times[0],
+            },
+            new AuthorID()
+            {
+                Name = "suyako",
+                CreationDate = times[0],
+            },
+            new AuthorID()
+            {
+                Name = "awawa",
+                CreationDate = times[1],
+            },
+            new AuthorID()
+            {
+                Name = "tatin",
+                CreationDate = times[3],
+            },
+            new AuthorID()
+            {
+                Name = "しろめで",
+                CreationDate = times[2],
+            },
+            new AuthorID()
+            {
+                Name = "descend",
+                CreationDate = times[4],
+            },
+            new AuthorID()
+            {
+                Name = "ねねこ",
+                CreationDate = times[5],
+            },
+            new AuthorID()
+            {
+                Name = "w-mine",
+                CreationDate = times[5],
+            },
+            new AuthorID()
+            {
+                Name = "saphire",
+                CreationDate = times[5],
+            },
+            new AuthorID()
+            {
+                Name = "NpU",
+                CreationDate = times[2],
+            },
+            new AuthorID()
+            {
+                Name = "KLM",
+                CreationDate = times[2],
+            },
+            new AuthorID()
+            {
+                Name = "ANA",
+                CreationDate = times[2],
+            },
+            new AuthorID()
+            {
+                Name = "JAL",
+                CreationDate = times[2],
+            },
+        ];
+        database.Authors.AddRange(moreAuthors);
+        businessman.Contact.Add(new WorkContact() { Author = oneAuthor });
+        businessman.Contact.Add(new WorkContact() { Author = twoAuthor });
         var firstVideo = new VideoID()
         {
             Title = "过♂年",
