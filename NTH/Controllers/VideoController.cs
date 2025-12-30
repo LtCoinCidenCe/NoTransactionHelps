@@ -72,7 +72,7 @@ public class VideoController(ILogger<VideoController> logger, PostgresContext da
         int ready = readStream.Read(bytes, 0, n);
         if (ready != n)
             throw new Exception("video thumbnail stream guard");
-        int updates = database.Videos.Where(x => x.ID == ID)
+        int updates = database.Videos.Where(z => z.ID == ID)
             .ExecuteUpdate(setter =>
                 setter.SetProperty(x => x.ThumbnailType, extension)
                     .SetProperty(x => x.Thumbnail, bytes));
