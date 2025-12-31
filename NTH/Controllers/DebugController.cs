@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NTH.DBContext;
+using NTH.DTO.Author;
 using NTH.DTO.User;
 using NTH.Models.Author;
 using NTH.Models.User;
@@ -20,11 +21,16 @@ namespace NTH.Controllers;
 [Route("api/Debug")]
 public partial class DebugController(
 ILogger<DebugController> logger,
+ILogger<AuthorController> authorLogger,
+ILogger<UserController> userLogger,
 PostgresContext database,
 UserService userService,
 SupplementaryService supplementaryService,
 AuthorService authorService) : ControllerBase
 {
+    private AuthorController authorController = new AuthorController(authorLogger, database, authorService);
+    private UserController userController = new UserController(userLogger, database, userService);
+
     /// <summary>
     /// Debug/test mode indicator
     /// this should not be detected in production mode
@@ -56,6 +62,9 @@ AuthorService authorService) : ControllerBase
         logger.Log(LogLevel.Warning, "Database Reinitializing");
         database.Database.EnsureDeleted();
         database.Database.EnsureCreated();
+
+        userController.ControllerContext = ControllerContext;
+        authorController.ControllerContext = ControllerContext;
 
         supplementaryService.GenerateSupplementaryDefinition();
 
@@ -157,74 +166,23 @@ AuthorService authorService) : ControllerBase
         {
             Name = "cyderl",
         };
-        List<AuthorID> moreAuthors = [
-            new AuthorID()
-            {
-                Name = "harujiko",
-                CreationDate = times[0],
-            },
-            new AuthorID()
-            {
-                Name = "suyako",
-                CreationDate = times[0],
-            },
-            new AuthorID()
-            {
-                Name = "awawa",
-                CreationDate = times[1],
-            },
-            new AuthorID()
-            {
-                Name = "tatin",
-                CreationDate = times[3],
-            },
-            new AuthorID()
-            {
-                Name = "しろめで",
-                CreationDate = times[2],
-            },
-            new AuthorID()
-            {
-                Name = "descend",
-                CreationDate = times[4],
-            },
-            new AuthorID()
-            {
-                Name = "ねねこ",
-                CreationDate = times[5],
-            },
-            new AuthorID()
-            {
-                Name = "w-mine",
-                CreationDate = times[5],
-            },
-            new AuthorID()
-            {
-                Name = "saphire",
-                CreationDate = times[5],
-            },
-            new AuthorID()
-            {
-                Name = "NpU",
-                CreationDate = times[2],
-            },
-            new AuthorID()
-            {
-                Name = "KLM",
-                CreationDate = times[2],
-            },
-            new AuthorID()
-            {
-                Name = "ANA",
-                CreationDate = times[2],
-            },
-            new AuthorID()
-            {
-                Name = "JAL",
-                CreationDate = times[2],
-            },
+        List<NewAuthorDTO> moreAuthors = [
+            new NewAuthorDTO() { Name = "harujiko", },
+            new NewAuthorDTO() { Name = "suyako", AllVideoAuthorized = true },
+            new NewAuthorDTO() { Name = "awawa", AuthorizedPerVideo = true, TensaiRequirement = "提供作者主页链接" },
+            new NewAuthorDTO() { Name = "tatin", },
+            new NewAuthorDTO() { Name = "しろめで", },
+            new NewAuthorDTO() { Name = "descend", },
+            new NewAuthorDTO() { Name = "ねねこ", },
+            new NewAuthorDTO() { Name = "w-mine", },
+            new NewAuthorDTO() { Name = "saphire", AuthorizedPerVideo = true, TensaiRequirement = "提供作者主页链接" },
+            new NewAuthorDTO() { Name = "NpU", },
+            new NewAuthorDTO() { Name = "KLM", AllVideoAuthorized = true },
+            new NewAuthorDTO() { Name = "ANA", AuthorizedPerVideo = true, TensaiRequirement = "提供作者主页链接" },
+            new NewAuthorDTO() { Name = "JAL", },
         ];
-        database.Authors.AddRange(moreAuthors);
+        var creatingAuthors = moreAuthors.Select(x => authorController.CreateNewAuthor(x)).ToList();
+
         businessman.Contact.Add(new WorkContact() { Author = oneAuthor });
         businessman.Contact.Add(new WorkContact() { Author = twoAuthor });
         var firstVideo = new VideoID()
