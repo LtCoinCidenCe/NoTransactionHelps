@@ -89,6 +89,8 @@ public class AuthorController(ILogger<AuthorController> logger, PostgresContext 
         var timeNow = DateTimeOffset.UtcNow;
         var newHistory = new AuthorizationChangeHistory()
         {
+            AuthorizedPerVideo = newAuth.AuthorizedPerVideo,
+            AllVideoAuthorized = newAuth.AllVideoAuthorized,
             AuthorID = authorID,
             CreationDate = timeNow
         };
