@@ -95,6 +95,7 @@ public class Program
         }
 
         app.UseHttpsRedirection();
+        app.UseStaticFiles();
 
         app.UseResponseCaching();
 
@@ -102,6 +103,7 @@ public class Program
         app.UseAuthorization();
 
         app.UseMiddleware<RequestLimiter>();
+        app.UseMiddleware<HomepageGuide>();
         app.MapControllers();
 
         // Hangfire 0 retry
