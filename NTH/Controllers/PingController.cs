@@ -12,13 +12,13 @@ public class PingController(PostgresContext database) : ControllerBase
     public IActionResult Ping()
     {
         database.Users.Any();
-        return Ok();
+        return Ok("OK");
     }
 
     [HttpPut, Authorize]
     [Route("Authorized")]
     public IActionResult AuthorizedPing()
     {
-        return Ok();
+        return Ok("OK");
     }
 }

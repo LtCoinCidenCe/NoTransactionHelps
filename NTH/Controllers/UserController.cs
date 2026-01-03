@@ -78,7 +78,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 
         int rows = userService.SetTitleWords(ID, newTitleWords);
         if (rows == 1)
-            return Ok();
+            return Ok("OK");
         else if (rows == 0)
             return NotFound();
         else
@@ -94,7 +94,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 
         int rows = userService.SetPassword(ID, newPassword);
         if (rows == 1)
-            return Ok();
+            return Ok("OK");
         else if (rows == 0)
             return NotFound();
         else
@@ -164,7 +164,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
                 CreationDate = newDate,
             });
             database.SaveChanges();
-            return Ok();
+            return Ok("OK");
         }
     }
 }

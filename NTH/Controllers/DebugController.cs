@@ -243,7 +243,7 @@ AuthorService authorService) : ControllerBase
             () => SchedulingTasks.ThrowException(),
             TimeSpan.FromSeconds(15)
         );
-        return Ok();
+        return Ok("OK");
     }
 }
 #endif
