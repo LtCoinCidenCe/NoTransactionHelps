@@ -57,7 +57,7 @@ AuthorService authorService) : ControllerBase
     }
 
     [HttpDelete]
-    public void InitializeDatabase()
+    public IActionResult InitializeDatabase()
     {
         logger.Log(LogLevel.Warning, "Database Reinitializing");
         database.Database.EnsureDeleted();
@@ -204,6 +204,7 @@ AuthorService authorService) : ControllerBase
         database.SaveChanges();
 
         logger.Log(LogLevel.Warning, "Database debug initialized.");
+        return Ok("Initialized");
     }
 
     [HttpGet]
