@@ -68,60 +68,36 @@ AuthorService authorService) : ControllerBase
 
         supplementaryService.GenerateSupplementaryDefinition();
 
-        var firstUser = userService.CreateNewUser(new NewUserDTO
+        List<NewUserDTO> newUsersDTO = [
+            new() { Username = "FirstUser", Displayname = "The First Emperor", Password = "someDefault" },
+            new() { Username = "krk", Displayname = "Kimi Räikkönen", Password = "McLaren" },
+            new() { Username = "string", Displayname = "testUser", Password = "string" },
+            new() { Username = "ayjyou", Displayname = "Yajyou", Password = "114514" },
+            new() { Username = "nononononofs", Displayname = "sfononono", Password = "perisrtow" },
+            new() { Username = "anguraea", Displayname = "Angular", Password = "whatisthat?" },
+            new() { Username = "oofran", Displayname = "Francais", Password = "bonne1846" },
+            new() { Username = "pstrag", Displayname = "Patient Strategizer", Password = "someApexmeme" },
+            new() { Username = "heathrow", Displayname = "London Heathrow", Password = "someApexmeme" }
+        ];
+        List<UserID> newUsers = newUsersDTO.Select(x =>
         {
-            Username = "FirstUser",
-            Displayname = "The First Emperor",
-            Password = "someDefault"
-        });
-        userService.CreateNewUser(new NewUserDTO
-        {
-            Username = "krk",
-            Displayname = "Kimi Räikkönen",
-            Password = "McLaren"
-        });
-        userService.CreateNewUser(new NewUserDTO
-        {
-            Username = "string",
-            Displayname = "testUser",
-            Password = "string"
-        });
-        userService.CreateNewUser(new NewUserDTO
-        {
-            Username = "ayjyou",
-            Displayname = "Yajyou",
-            Password = "114514"
-        });
-        userService.CreateNewUser(new NewUserDTO
-        {
-            Username = "nononononofs",
-            Displayname = "sfononono",
-            Password = "perisrtow"
-        });
-        userService.CreateNewUser(new NewUserDTO
-        {
-            Username = "anguraea",
-            Displayname = "Angular",
-            Password = "whatisthat?"
-        });
-        userService.CreateNewUser(new NewUserDTO
-        {
-            Username = "oofran",
-            Displayname = "Francais",
-            Password = "bonne1846"
-        });
-        userService.CreateNewUser(new NewUserDTO
-        {
-            Username = "pstrag",
-            Displayname = "Patient Strategizer",
-            Password = "someApexmeme"
-        });
-        userService.CreateNewUser(new NewUserDTO
-        {
-            Username = "heathrow",
-            Displayname = "London Heathrow",
-            Password = "someApexmeme"
-        });
+            UserID? newX = userService.CreateNewUser(x);
+            if (newX is null)
+                throw new Exception("Debug User Creation Error");
+            return newX;
+        }).ToList();
+        var firstUser = newUsers.Single(x => x.Username == "FirstUser");
+        var testUser = newUsers.Single(x => x.Username == "string");
+        var Angular = newUsers.Single(x => x.Username == "anguraea");
+        var franc = newUsers.Single(x => x.Username == "oofran");
+        var PatientStrategizer = newUsers.Single(x => x.Username == "pstrag");
+        var LondonHeathrow = newUsers.Single(x => x.Username == "heathrow");
+        userService.SetUserRole(firstUser.ID, UserRoleDTO.SystemAdministrator);
+        userService.SetUserRole(testUser.ID, UserRoleDTO.SystemAdministrator);
+        userService.SetUserRole(PatientStrategizer.ID, UserRoleDTO.Translator);
+        userService.SetUserRole(LondonHeathrow.ID, UserRoleDTO.Translator);
+        userService.SetUserRole(franc.ID, UserRoleDTO.Scriptor);
+        userService.SetUserRole(Angular.ID, UserRoleDTO.Translator | UserRoleDTO.Scriptor);
 
         // size = 6, [0-5]
         List<DateTimeOffset> times = [
@@ -133,6 +109,18 @@ AuthorService authorService) : ControllerBase
             new DateTimeOffset(2025, 11, 3, 6, 12, 9, TimeSpan.Zero)
         ];
         times.Sort();
+
+        var anIconFile = System.IO.File.ReadAllBytes("../鱼卡日yu.png");
+        for (int i = 1; i <= 6; i++)
+        {
+            // only with the PNG assumption
+            database.UserIconHistories.Add(new UserIconHistory
+            {
+                UserID = i,
+                Icon = anIconFile,
+                CreationDate = times[3],
+            });
+        }
 
 
         string samplePassword = "kissa123";
