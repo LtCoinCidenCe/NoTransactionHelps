@@ -57,7 +57,7 @@ AuthorService authorService) : ControllerBase
         return Ok("In debug mode, auth");
     }
 
-    [HttpDelete]
+    [HttpGet]
     [Route("httpAuth")]
     public async Task<IActionResult> HttpGo()
     {
@@ -69,7 +69,7 @@ AuthorService authorService) : ControllerBase
     }
 
     [HttpDelete]
-    public void InitializeDatabase()
+    public IActionResult InitializeDatabase()
     {
         logger.Log(LogLevel.Warning, "Database Reinitializing");
         database.Database.EnsureDeleted();
@@ -215,6 +215,7 @@ AuthorService authorService) : ControllerBase
         database.SaveChanges();
 
         logger.Log(LogLevel.Warning, "Database debug initialized.");
+        return Ok("Initialized");
     }
 
     [HttpGet]
@@ -253,7 +254,7 @@ AuthorService authorService) : ControllerBase
             () => SchedulingTasks.ThrowException(),
             TimeSpan.FromSeconds(15)
         );
-        return Ok();
+        return Ok("OK");
     }
 }
 #endif

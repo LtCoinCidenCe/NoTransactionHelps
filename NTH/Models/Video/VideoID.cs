@@ -67,6 +67,8 @@ public class VideoID
     #region Work details
     [MaxLength(800)]
     public string AdditionalRequirement { get; set; } = string.Empty;
+    [MaxLength(5000)]
+    public string WIntroTranslation = string.Empty;
     [MaxLength(999_9999)] // 1 qian wan
     public string WTranslationText { get; set; } = string.Empty;
     [MaxLength(999_9999)] // 1 qian wan

@@ -78,7 +78,7 @@ public class VideoController(ILogger<VideoController> logger, PostgresContext da
                     .SetProperty(x => x.Thumbnail, bytes));
         if (updates != 1)
             throw new Exception("video executeupdate guard");
-        return Ok();
+        return Ok("OK");
     }
 
     [HttpGet]
