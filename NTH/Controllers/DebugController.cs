@@ -30,6 +30,7 @@ AuthorService authorService) : ControllerBase
 {
     private AuthorController authorController = new AuthorController(authorLogger, database, authorService);
     private UserController userController = new UserController(userLogger, database, userService);
+    private static HttpClient httpClient = new HttpClient();
 
     /// <summary>
     /// Debug/test mode indicator
@@ -57,6 +58,17 @@ AuthorService authorService) : ControllerBase
     }
 
     [HttpDelete]
+    [Route("httpAuth")]
+    public async Task<IActionResult> HttpGo()
+    {
+        var asyncCall = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}/api/Login", new UserLoginDTO() { Username = "star", Password = "texas" });
+        var jwt = await asyncCall.Content.ReadAsStringAsync();
+        if (string.IsNullOrEmpty(jwt))
+            throw new Exception("httpAuth jwt is not received");
+        return Ok("OK");
+    }
+
+    [HttpDelete]
     public void InitializeDatabase()
     {
         logger.Log(LogLevel.Warning, "Database Reinitializing");
@@ -72,6 +84,7 @@ AuthorService authorService) : ControllerBase
             new() { Username = "FirstUser", Displayname = "The First Emperor", Password = "someDefault" },
             new() { Username = "krk", Displayname = "Kimi Räikkönen", Password = "McLaren" },
             new() { Username = "string", Displayname = "testUser", Password = "string" },
+            new() { Username = "star", Displayname = "Solar", Password = "texas" },
             new() { Username = "ayjyou", Displayname = "Yajyou", Password = "114514" },
             new() { Username = "nononononofs", Displayname = "sfononono", Password = "perisrtow" },
             new() { Username = "anguraea", Displayname = "Angular", Password = "whatisthat?" },
@@ -88,16 +101,39 @@ AuthorService authorService) : ControllerBase
         }).ToList();
         var firstUser = newUsers.Single(x => x.Username == "FirstUser");
         var testUser = newUsers.Single(x => x.Username == "string");
+        var starUser = newUsers.Single(x => x.Username == "star");
         var Angular = newUsers.Single(x => x.Username == "anguraea");
         var franc = newUsers.Single(x => x.Username == "oofran");
         var PatientStrategizer = newUsers.Single(x => x.Username == "pstrag");
         var LondonHeathrow = newUsers.Single(x => x.Username == "heathrow");
-        userService.SetUserRole(firstUser.ID, UserRoleDTO.SystemAdministrator);
+        userService.SetUserRole(firstUser.ID, UserRoleDTO.SystemAdministrator | UserRoleDTO.Translator);
         userService.SetUserRole(testUser.ID, UserRoleDTO.SystemAdministrator);
+        userService.SetUserRole(starUser.ID, UserRoleDTO.SystemAdministrator);
         userService.SetUserRole(PatientStrategizer.ID, UserRoleDTO.Translator);
         userService.SetUserRole(LondonHeathrow.ID, UserRoleDTO.Translator);
         userService.SetUserRole(franc.ID, UserRoleDTO.Scriptor);
         userService.SetUserRole(Angular.ID, UserRoleDTO.Translator | UserRoleDTO.Scriptor);
+
+        var anIconFile = System.IO.File.ReadAllBytes("../鱼卡日yu.png");
+        var setProfileIcons = async () =>
+        {
+            var authCall = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}/api/Login", new UserLoginDTO() { Username = "star", Password = "texas" });
+            var jwt = await authCall.Content.ReadAsStringAsync();
+            if (string.IsNullOrEmpty(jwt))
+                throw new Exception("httpAuth jwt is not received");
+            httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwt);
+            using var content = new MultipartFormDataContent();
+            content.Add(new ByteArrayContent(anIconFile), "file", "鱼卡日yu.png");
+            List<Task<HttpResponseMessage>> iconCalls = new();
+            for (int i = 1; i <= 6; i++)
+            {
+                var URLi = $"{Request.Scheme}://{Request.Host}/api/User/{i}/Icon";
+                var iconCall = await httpClient.PutAsync(URLi, content);
+            }
+            await Task.WhenAll(iconCalls);
+        };
+
+        setProfileIcons().Wait();
 
         // size = 6, [0-5]
         List<DateTimeOffset> times = [
@@ -109,19 +145,6 @@ AuthorService authorService) : ControllerBase
             new DateTimeOffset(2025, 11, 3, 6, 12, 9, TimeSpan.Zero)
         ];
         times.Sort();
-
-        var anIconFile = System.IO.File.ReadAllBytes("../鱼卡日yu.png");
-        for (int i = 1; i <= 6; i++)
-        {
-            // only with the PNG assumption
-            database.UserIconHistories.Add(new UserIconHistory
-            {
-                UserID = i,
-                Icon = anIconFile,
-                CreationDate = times[3],
-            });
-        }
-
 
         string samplePassword = "kissa123";
         string? salt = null;

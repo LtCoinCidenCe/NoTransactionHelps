@@ -21,6 +21,11 @@ public partial class UserID
     /// Don't even .Include this History as this could be painful
     /// </summary>
     public List<UserIconHistory> UserIconHistory { get; set; } = new();
+    /// <summary>
+    /// Since going to UserIconHistories can be painful.
+    /// Just store a value here to quickly find the UserIcon
+    /// </summary>
+    public long UserIconID { get; set; }
     public DateTimeOffset IconChangeDate { get; set; }
     #endregion Profile Icon
 

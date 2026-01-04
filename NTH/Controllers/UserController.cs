@@ -116,11 +116,10 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
     [ResponseCache(Duration = 86400)]
     public IActionResult GetUserIcon(long ID)
     {
-        // we don't solve high concurrency icon creation
-        var info = database.UserIconHistories
-            .AsNoTracking()
-            .OrderByDescending(x => x.ID)
-            .FirstOrDefault(x => x.UserID == ID && !x.IsDeleted);
+        long iconID = database.Users.Where(x => x.ID == ID).Select(x => x.UserIconID).FirstOrDefault();
+        if (iconID == 0)
+            return NotFound();
+        var info = database.UserIconHistories.AsNoTracking().FirstOrDefault(x => x.ID == iconID);
         if (info is null)
             return NotFound();
         byte[] image = info.Icon;
@@ -157,13 +156,19 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
             if (bytes.Length > UserIconHistory.MAX_ICON_SIZE)
                 return BadRequest();
             DateTimeOffset newDate = DateTimeOffset.UtcNow;
-            database.UserIconHistories.Add(new UserIconHistory
+            var historyItem = new UserIconHistory
             {
                 UserID = ID,
                 Icon = bytes,
                 CreationDate = newDate,
-            });
+            };
+            // we don't solve high concurrency icon creation
+            database.UserIconHistories.Add(historyItem);
             database.SaveChanges();
+            database.Users.Where(x => x.ID == ID)
+                .ExecuteUpdate(setter => setter
+                    .SetProperty(u => u.UserIconID, historyItem.ID)
+                    .SetProperty(u => u.IconChangeDate, newDate));
             return Ok();
         }
     }
