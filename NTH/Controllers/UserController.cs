@@ -128,15 +128,15 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 
     [HttpPut, Authorize]
     [Route("{ID}/Icon")]
-    public IActionResult SetUserIcon([FromRoute] long ID, IFormFile file)
+    public IActionResult SetUserIcon([FromRoute] long ID, IFormFile icon)
     {
         if (!ControllerHelper.CheckUserClaimsID(User, ID))
             return Unauthorized();
-        if (file.Length < 5 || file.Length > UserIconHistory.MAX_ICON_SIZE)
+        if (icon.Length < 5 || icon.Length > UserIconHistory.MAX_ICON_SIZE)
             return BadRequest();
         if (!database.Users.Any(x => x.ID == ID))
             return BadRequest();
-        Stream readStream = file.OpenReadStream();
+        Stream readStream = icon.OpenReadStream();
 
         Image image;
         try { image = Image.Load(readStream); }

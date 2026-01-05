@@ -1,4 +1,5 @@
 #if DEBUG
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using Hangfire;
 using Microsoft.AspNetCore.Authorization;
@@ -121,14 +122,15 @@ AuthorService authorService) : ControllerBase
             var jwt = await authCall.Content.ReadAsStringAsync();
             if (string.IsNullOrEmpty(jwt))
                 throw new Exception("httpAuth jwt is not received");
-            httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwt);
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
             using var content = new MultipartFormDataContent();
-            content.Add(new ByteArrayContent(anIconFile), "file", "鱼卡日yu.png");
+            content.Add(new ByteArrayContent(anIconFile), "icon", "鱼卡日yu.png");
             List<Task<HttpResponseMessage>> iconCalls = new();
             for (int i = 1; i <= 6; i++)
             {
                 var URLi = $"{Request.Scheme}://{Request.Host}/api/User/{i}/Icon";
-                var iconCall = await httpClient.PutAsync(URLi, content);
+                var iconCall = httpClient.PutAsync(URLi, content);
+                iconCalls.Add(iconCall);
             }
             await Task.WhenAll(iconCalls);
         };
