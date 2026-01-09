@@ -1,11 +1,11 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using NTH.DBContext;
 using NTH.Services;
 using NTH.Utilities;
 using NTH.Utilities.Middlewares;
+using System.Text;
 
 namespace NTH;
 
@@ -30,29 +30,20 @@ public class Program
         });
         builder.Services.AddSwaggerGen(options =>
         {
-            options.AddSecurityDefinition("Au", new OpenApiSecurityScheme
+            var au = "Au";
+            var bearer = new OpenApiSecurityScheme
             {
                 Name = "Authorization",
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.Http,
-                Scheme = "Bearer",
+                Scheme = "bearer",
                 Description = "Enter you Bearer token here"
-            });
+            };
+            options.AddSecurityDefinition(au, bearer);
 
-            /* OpenApiSecurityRequirement : Dictionary<OpenApiSecurityScheme, IList<string>> */
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
             {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference()
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Au"
-                        }
-                    },
-                    new List<string>()
-                }
+                { new OpenApiSecuritySchemeReference(au, document), new List<string>() }
             });
         });
         builder.Services.AddDbContext<PostgresContext>();
