@@ -93,7 +93,7 @@ public class Program
         }
 
         app.UseHttpsRedirection();
-        app.UseStaticFiles();
+        app.MapStaticAssets().ShortCircuit();
 
         app.UseResponseCaching();
 
