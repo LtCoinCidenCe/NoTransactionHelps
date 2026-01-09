@@ -25,7 +25,7 @@ services:
     image: postgres:17
     restart: unless-stopped
     volumes:
-      - NTHpostgres-data:/var/lib/postgresql/data
+      - NTHpostgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: stillnicedatabase
       POSTGRES_USER: nthuser
@@ -35,4 +35,4 @@ services:
     # (Adding the "ports" property to this file will not forward from a Codespace.)
 
 volumes:
-  NTHpostgres-data:
+  NTHpostgres_data:

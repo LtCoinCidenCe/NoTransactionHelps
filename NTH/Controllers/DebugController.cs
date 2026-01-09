@@ -1,7 +1,6 @@
 #if DEBUG
 using System.Net.Http.Headers;
 using System.Security.Claims;
-using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -252,10 +251,10 @@ AuthorService authorService) : ControllerBase
     [Route("fireException")]
     public IActionResult FireException()
     {
-        BackgroundJob.Schedule(
-            () => SchedulingTasks.ThrowException(),
-            TimeSpan.FromSeconds(15)
-        );
+        //BackgroundJob.Schedule(
+        //    () => SchedulingTasks.ThrowException(),
+        //    TimeSpan.FromSeconds(15)
+        //);
         return Ok("OK");
     }
 }

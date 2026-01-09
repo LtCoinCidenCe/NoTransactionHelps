@@ -1,6 +1,4 @@
 using System.Text;
-using Hangfire;
-using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -78,10 +76,10 @@ public class Program
                 ValidateLifetime = true
             };
         });
-        builder.Services.AddHangfire(config =>
-            config.UsePostgreSqlStorage(c =>
-            c.UseNpgsqlConnection("Host=localhost;Username=nthuser;Password=stillnicedatabase;Database=nthwork;Include Error Detail=True;")));
-        builder.Services.AddHangfireServer();
+        //builder.Services.AddHangfire(config =>
+        //    config.UsePostgreSqlStorage(c =>
+        //    c.UseNpgsqlConnection("Host=localhost;Username=nthuser;Password=stillnicedatabase;Database=nthwork;Include Error Detail=True;")));
+        //builder.Services.AddHangfireServer();
 
         var app = builder.Build();
 
@@ -90,7 +88,7 @@ public class Program
         {
             app.UseSwagger();
             app.UseSwaggerUI();
-            app.UseHangfireDashboard();
+            //app.UseHangfireDashboard();
             app.UseCors("developing");
         }
 
@@ -107,7 +105,7 @@ public class Program
         app.MapControllers();
 
         // Hangfire 0 retry
-        GlobalConfiguration.Configuration.UseFilter(new AutomaticRetryAttribute { Attempts = 0 });
+        //GlobalConfiguration.Configuration.UseFilter(new AutomaticRetryAttribute { Attempts = 0 });
 
         app.Run();
     }
