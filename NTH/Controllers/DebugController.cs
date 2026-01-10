@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NTH.DBContext;
-using NTH.DTO.Author;
-using NTH.DTO.User;
 using NTH.Models.Author;
 using NTH.Models.User;
 using NTH.Models.Video;
@@ -128,10 +126,10 @@ AuthorService authorService) : ControllerBase
             for (int i = 1; i <= 6; i++)
             {
                 var URLi = $"{Request.Scheme}://{Request.Host}/api/User/{i}/Icon";
-                var iconCall = httpClient.PutAsync(URLi, content);
-                iconCalls.Add(iconCall);
+                var iconCall = await httpClient.PutAsync(URLi, content);
+                // iconCalls.Add(iconCall);
             }
-            await Task.WhenAll(iconCalls);
+            // await Task.WhenAll(iconCalls);
         };
 
         setProfileIcons().Wait();

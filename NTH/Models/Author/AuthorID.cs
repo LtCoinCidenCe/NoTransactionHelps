@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
-using NTH.DTO.Author;
 using NTH.Models.Video;
 using NTH.Models.Work;
 
@@ -10,6 +9,7 @@ namespace NTH.Models.Author;
 [Index(nameof(Name), IsUnique = true)]
 public partial class AuthorID
 {
+    public const int MAX_ICON_SIZE = 3_000_000; // 3MB
     #region Author Itself
     public long ID { get; set; }
     [MaxLength(30)]
@@ -56,44 +56,4 @@ public partial class AuthorID
     public DateTimeOffset CreationDate { get; set; }
     // we are not going to delete the authors anyway
     // public bool IsDeleted { get; set; } = false;
-}
-
-public partial class AuthorID
-{
-    public const int MAX_ICON_SIZE = 3_000_000; // 3MB
-    /// <summary>
-    /// be aware this returned object contains AdditionalRequirementsHistory and AuthorizationChangeHistory
-    /// </summary>
-    /// <param name="newAuthorDTO"></param>
-    /// <returns></returns>
-    public static AuthorID FromDTO(NewAuthorDTO newAuthorDTO)
-    {
-        var datetime = DateTimeOffset.UtcNow;
-        var newAuthor = new AuthorID()
-        {
-            Name = newAuthorDTO.Name,
-            YoutubeHomePage = newAuthorDTO.YoutubeHomePage,
-            NiconicoHomePage = newAuthorDTO.NiconicoHomePage,
-            BilibiliHomePage = newAuthorDTO.BilibiliHomePage,
-            TwitterHomePage = newAuthorDTO.TwitterHomePage,
-            AuthorizedPerVideo = newAuthorDTO.AuthorizedPerVideo,
-            AllVideoAuthorized = newAuthorDTO.AllVideoAuthorized,
-            AuthorizationChangeDate = datetime,
-            AdditionalRequirements = newAuthorDTO.TensaiRequirement,
-            AdditionalRequirementsChangeDate = datetime,
-            CreationDate = datetime
-        };
-        newAuthor.AdditionalRequirementsHistory.Add(new()
-        {
-            CreationDate = datetime,
-            TensaiRequirements = newAuthorDTO.TensaiRequirement
-        });
-        newAuthor.AuthorizationChangeHistory.Add(new()
-        {
-            AuthorizedPerVideo = newAuthorDTO.AuthorizedPerVideo,
-            AllVideoAuthorized = newAuthorDTO.AllVideoAuthorized,
-            CreationDate = datetime
-        });
-        return newAuthor;
-    }
 }

@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
-using NTH.DTO.User;
 
 namespace NTH.Models.User;
 

@@ -1,4 +1,4 @@
-namespace NTH.DTO.User;
+namespace NTH.Models.User;
 
 public enum UserRoleDTO
 {

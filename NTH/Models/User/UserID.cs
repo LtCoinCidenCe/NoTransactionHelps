@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
-using NTH.DTO.User;
 using NTH.Models.Work;
 
 namespace NTH.Models.User;
@@ -64,29 +63,4 @@ public partial class UserID
 
     public DateTimeOffset CreationDate { get; set; }
     public bool IsDeleted { get; set; } = false;
-}
-
-/// <summary>
-/// partial class for all methods
-/// </summary>
-public partial class UserID
-{
-    public NonSensitiveUserDTO ToDTO()
-    {
-        return new NonSensitiveUserDTO()
-        {
-            ID = ID,
-            Username = Username,
-            IconChangeDate = IconChangeDate,
-            Displayname = Displayname,
-            DisplaynameHistory = DisplaynameHistory.Count > 0 ? DisplaynameHistory.Select(x => x.toDTO()).ToList() : null,
-            DisplaynameChangeDate = DisplaynameChangeDate,
-            TitleWords = TitleWords,
-            TitleWordsChangeDate = TitleWordsChangeDate,
-            UserRole = (UserRoleDTO)(int)UserRole,
-            UserRoleHistory = UserRoleHistory.Count > 0 ? UserRoleHistory.Select(x => x.toDTO()).ToList() : null,
-            UserRoleChangeDate = UserRoleChangeDate,
-            CreationDate = CreationDate
-        };
-    }
 }

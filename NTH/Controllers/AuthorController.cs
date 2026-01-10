@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NTH.DBContext;
-using NTH.DTO.Author;
 using NTH.Models.Author;
 using NTH.Models.Work;
 using NTH.Services;
@@ -44,7 +43,7 @@ public class AuthorController(ILogger<AuthorController> logger, PostgresContext 
     [HttpPost, Authorize]
     public ActionResult<AuthorID> CreateNewAuthor(NewAuthorDTO newAuthorDTO)
     {
-        AuthorID author = AuthorID.FromDTO(newAuthorDTO);
+        AuthorID author = newAuthorDTO.ToDBModel();
         bool existing = database.Authors.AsNoTracking().Any(x => x.Name == author.Name);
         if (existing)
             return BadRequest();
@@ -152,4 +151,63 @@ public class AuthorizationChangeDTO
 {
     public required bool AuthorizedPerVideo { get; set; }
     public required bool AllVideoAuthorized { get; set; }
+}
+
+/// <summary>
+/// For minimal requirement, write only Name
+/// </summary>
+public class NewAuthorDTO
+{
+    [MaxLength(30)]
+    public required string Name { get; set; }
+    [MaxLength(200)]
+    public string YoutubeHomePage { get; set; } = string.Empty;
+    [MaxLength(200)]
+    public string NiconicoHomePage { get; set; } = string.Empty;
+    [MaxLength(200)]
+    public string BilibiliHomePage { get; set; } = string.Empty;
+    [MaxLength(200)]
+    public string TwitterHomePage { get; set; } = string.Empty;
+    public bool AuthorizedPerVideo { get; set; } = false;
+    public bool AllVideoAuthorized { get; set; } = false;
+    [MaxLength(800)]
+    public string TensaiRequirement { get; set; } = string.Empty;
+}
+
+public static class NewAuthorDTOExtension
+{
+    /// <summary>
+    /// be aware this returned object contains AdditionalRequirementsHistory and AuthorizationChangeHistory
+    /// </summary>
+    /// <returns></returns>
+    public static AuthorID ToDBModel(this NewAuthorDTO newAuthorDTO)
+    {
+        var datetime = DateTimeOffset.UtcNow;
+        var newAuthor = new AuthorID()
+        {
+            Name = newAuthorDTO.Name,
+            YoutubeHomePage = newAuthorDTO.YoutubeHomePage,
+            NiconicoHomePage = newAuthorDTO.NiconicoHomePage,
+            BilibiliHomePage = newAuthorDTO.BilibiliHomePage,
+            TwitterHomePage = newAuthorDTO.TwitterHomePage,
+            AuthorizedPerVideo = newAuthorDTO.AuthorizedPerVideo,
+            AllVideoAuthorized = newAuthorDTO.AllVideoAuthorized,
+            AuthorizationChangeDate = datetime,
+            AdditionalRequirements = newAuthorDTO.TensaiRequirement,
+            AdditionalRequirementsChangeDate = datetime,
+            CreationDate = datetime
+        };
+        newAuthor.AdditionalRequirementsHistory.Add(new()
+        {
+            CreationDate = datetime,
+            TensaiRequirements = newAuthorDTO.TensaiRequirement
+        });
+        newAuthor.AuthorizationChangeHistory.Add(new()
+        {
+            AuthorizedPerVideo = newAuthorDTO.AuthorizedPerVideo,
+            AllVideoAuthorized = newAuthorDTO.AllVideoAuthorized,
+            CreationDate = datetime
+        });
+        return newAuthor;
+    }
 }

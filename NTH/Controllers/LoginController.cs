@@ -3,7 +3,7 @@ using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using NTH.DBContext;
-using NTH.DTO.User;
+using NTH.Models.User;
 using NTH.Services;
 using NTH.Utilities;
 

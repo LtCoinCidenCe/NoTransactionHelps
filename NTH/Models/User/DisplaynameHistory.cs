@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
-using NTH.DTO.User;
 
 namespace NTH.Models.User;
 
@@ -26,15 +25,4 @@ public partial class DisplaynameHistory
 
     [MaxLength(30)]
     public required string Displayname { get; set; }
-}
-
-/// <summary>
-/// partial class for all methods
-/// </summary>
-public partial class DisplaynameHistory
-{
-    public DisplaynameHistoryDTO toDTO()
-    {
-        return new DisplaynameHistoryDTO() { UserID = UserID, Displayname = Displayname, CreationDate = CreationDate };
-    }
 }

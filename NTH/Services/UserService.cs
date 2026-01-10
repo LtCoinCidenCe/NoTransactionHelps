@@ -1,6 +1,6 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using NTH.DBContext;
-using NTH.DTO.User;
 using NTH.Models.User;
 using NTH.Utilities;
 
@@ -175,7 +175,24 @@ public class UserService(PostgresContext database)
     public static Mutex usernameTraffic = new();
 }
 
+public class UserLoginDTO
+{
+    [Length(2, 30)]
+    public required string Username { get; set; }
+    [Length(5, 90)]
+    public required string Password { get; set; }
+}
 
+
+public class NewUserDTO
+{
+    [Length(2, 30)]
+    public required string Username { get; set; }
+    [Length(2, 30)]
+    public required string Displayname { get; set; }
+    [Length(5, 90)]
+    public required string Password { get; set; }
+}
 
 public class PasswordHasherException : Exception
 {
