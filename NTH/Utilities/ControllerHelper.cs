@@ -25,4 +25,21 @@ public static class ControllerHelper
             return false;
         return true;
     }
+
+    /// <summary>
+    /// get userID from token
+    /// </summary>
+    /// <param name="user">pass Controller.User</param>
+    /// <param name="userID"></param>
+    /// <returns>true if parsing was successful</returns>
+    public static bool TryGetUserID(ClaimsPrincipal user, out long userID)
+    {
+        userID = 0;
+        string? identity = user.FindFirstValue("aud");
+        if (identity is null)
+            return false;
+        if (identity.Length < 3)
+            return false;
+        return long.TryParse(identity.Substring(2), out userID);
+    }
 }

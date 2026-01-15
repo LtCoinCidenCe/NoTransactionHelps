@@ -62,7 +62,7 @@ AuthorService authorService) : ControllerBase
         var asyncCall = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}/api/Login", new UserLoginDTO() { Username = "star", Password = "texas" });
         var jwt = await asyncCall.Content.ReadAsStringAsync();
         if (string.IsNullOrEmpty(jwt))
-            throw new Exception("httpAuth jwt is not received");
+            throw new NTHException("httpAuth jwt is not received");
         return Ok("OK");
     }
 
@@ -94,7 +94,7 @@ AuthorService authorService) : ControllerBase
         {
             UserID? newX = userService.CreateNewUser(x);
             if (newX is null)
-                throw new Exception("Debug User Creation Error");
+                throw new NTHException("Debug User Creation Error");
             return newX;
         }).ToList();
         var firstUser = newUsers.Single(x => x.Username == "FirstUser");
@@ -118,7 +118,7 @@ AuthorService authorService) : ControllerBase
             var authCall = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}/api/Login", new UserLoginDTO() { Username = "star", Password = "texas" });
             var jwt = await authCall.Content.ReadAsStringAsync();
             if (string.IsNullOrEmpty(jwt))
-                throw new Exception("httpAuth jwt is not received");
+                throw new NTHException("httpAuth jwt is not received");
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
             using var content = new MultipartFormDataContent();
             content.Add(new ByteArrayContent(anIconFile), "icon", "鱼卡日yu.png");
@@ -203,7 +203,7 @@ AuthorService authorService) : ControllerBase
         oneAuthor.Videos.Add(firstVideo);
 
         if (firstUser is null)
-            throw new Exception("firstUser null guard");
+            throw new NTHException("firstUser null guard");
         userService.SetUserRole(firstUser.ID, UserRoleDTO.Translator);
         firstVideo.Works.Add(new WorkID
         {

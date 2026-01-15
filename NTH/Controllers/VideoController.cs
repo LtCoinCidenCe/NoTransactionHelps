@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NTH.DBContext;
 using NTH.Models.Video;
+using NTH.Utilities;
 
 namespace NTH.Controllers;
 
@@ -71,13 +72,13 @@ public class VideoController(ILogger<VideoController> logger, PostgresContext da
         byte[] bytes = new byte[n];
         int ready = readStream.Read(bytes, 0, n);
         if (ready != n)
-            throw new Exception("video thumbnail stream guard");
+            throw new NTHException("video thumbnail stream guard");
         int updates = database.Videos.Where(z => z.ID == ID)
             .ExecuteUpdate(setter =>
                 setter.SetProperty(x => x.ThumbnailType, extension)
                     .SetProperty(x => x.Thumbnail, bytes));
         if (updates != 1)
-            throw new Exception("video executeupdate guard");
+            throw new NTHException("video executeupdate guard");
         return Ok("OK");
     }
 

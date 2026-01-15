@@ -24,7 +24,7 @@ public class Program
         {
             options.AddPolicy("developing", builder =>
             {
-                builder.AllowAnyHeader()
+                builder.AllowAnyHeader().AllowAnyMethod()
                 .SetIsOriginAllowed(origin => new Uri(origin).IsLoopback);
             });
         });

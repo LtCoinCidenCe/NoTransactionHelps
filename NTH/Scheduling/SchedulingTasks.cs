@@ -1,5 +1,7 @@
 //using Hangfire;
 
+using NTH.Utilities;
+
 namespace NTH.Scheduling;
 
 public class SchedulingTasks
@@ -12,6 +14,6 @@ public class SchedulingTasks
 
     public static void ThrowException()
     {
-        throw new Exception("Scheduling Task Throwing");
+        throw new NTHException("Scheduling Task Throwing");
     }
 }

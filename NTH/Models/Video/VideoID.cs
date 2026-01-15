@@ -9,6 +9,8 @@ namespace NTH.Models.Video;
 public class VideoID
 {
     public const int MAX_THUMBNAIL_SIZE = 3_000_000; // 3MB
+    public const int MAX_TRANSEDTITLE = 200;
+    public const int MAX_TRANSEDINTRO = 5000;
 
     public long ID { get; set; }
 
@@ -67,14 +69,22 @@ public class VideoID
     #region Work details
     [MaxLength(800)]
     public string AdditionalRequirement { get; set; } = string.Empty;
-    [MaxLength(5000)]
-    public string WIntroTranslation = string.Empty;
+
+    [MaxLength(MAX_TRANSEDTITLE)]
+    public string WTitleTranslation { get; set; } = string.Empty;
+    public DateTimeOffset WTitleChangeDate { get; set; } = DateTimeOffset.MinValue;
+    public long WTitleChangeUser { get; set; } = 0;
+
+    [MaxLength(MAX_TRANSEDINTRO)]
+    public string WIntroTranslation { get; set; } = string.Empty;
+    public DateTimeOffset WIntroChangeDate { get; set; } = DateTimeOffset.MinValue;
+    public long WIntroChangeUser { get; set; } = 0;
+
     [MaxLength(999_9999)] // 1 qian wan
     public string WTranslationText { get; set; } = string.Empty;
     [MaxLength(999_9999)] // 1 qian wan
     public string WScriptingText { get; set; } = string.Empty;
-    #endregion Work details
-
     [MaxLength(200)]
     public string FinishedProductLink { get; set; } = string.Empty;
+    #endregion Work details
 }

@@ -9,7 +9,7 @@ public class HomepageGuide(RequestDelegate next)
         indexHTML = File.ReadAllText("wwwroot/index.html");
         if (indexHTML.Length < 10)
         {
-            throw new Exception("indexHTML not loaded correctly");
+            throw new NTHException("indexHTML not loaded correctly");
         }
     }
 

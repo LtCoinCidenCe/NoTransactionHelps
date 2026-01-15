@@ -81,7 +81,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
         else if (rows == 0)
             return NotFound();
         else
-            throw new Exception("SetTitleWords updated multiple rows");
+            throw new NTHException("SetTitleWords updated multiple rows");
     }
 
     [HttpPut, Authorize]
@@ -97,7 +97,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
         else if (rows == 0)
             return NotFound();
         else
-            throw new Exception("SetPassword updated multiple rows");
+            throw new NTHException("SetPassword updated multiple rows");
     }
 
     [HttpPut, Authorize]
