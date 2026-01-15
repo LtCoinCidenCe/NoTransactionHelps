@@ -11,6 +11,11 @@ public class VideoID
     public const int MAX_THUMBNAIL_SIZE = 3_000_000; // 3MB
     public const int MAX_TRANSEDTITLE = 200;
     public const int MAX_TRANSEDINTRO = 5000;
+    /// <summary>
+    /// 1 qian wan
+    /// </summary>
+    public const int MAX_LONGTEXT = 999_9999;
+    public const int MAX_URL = 200;
 
     public long ID { get; set; }
 
@@ -30,12 +35,12 @@ public class VideoID
     public AuthorID? Author { get; set; }
     [Column(name: "AuthorID")]
     public long AuthorID { get; set; }
-    [MaxLength(200)]
+    [MaxLength(MAX_URL)]
     public string YoutubePage { get; set; } = string.Empty;
-    [MaxLength(200)]
+    [MaxLength(MAX_URL)]
     public string NiconicoPage { get; set; } = string.Empty;
     // If any author requests video to be translated for things here...
-    [MaxLength(200)]
+    [MaxLength(MAX_URL)]
     public string BilibiliPage { get; set; } = string.Empty;
     public DateTimeOffset UploadDate { get; set; } =
         new DateTimeOffset(1930, 1, 1, 0, 0, 0, TimeSpan.FromHours(0)); // that's before computer came into reality
@@ -80,11 +85,14 @@ public class VideoID
     public DateTimeOffset WIntroChangeDate { get; set; } = DateTimeOffset.MinValue;
     public long WIntroChangeUser { get; set; } = 0;
 
-    [MaxLength(999_9999)] // 1 qian wan
-    public string WTranslationText { get; set; } = string.Empty;
-    [MaxLength(999_9999)] // 1 qian wan
+    [MaxLength(MAX_LONGTEXT)]
+    public string WTekstTranslation { get; set; } = string.Empty;
+    public DateTimeOffset WTekstChangeDate { get; set; } = DateTimeOffset.MinValue;
+    public long WTekstChangeUser { get; set; } = 0;
+
+    [MaxLength(MAX_LONGTEXT)]
     public string WScriptingText { get; set; } = string.Empty;
-    [MaxLength(200)]
+    [MaxLength(MAX_URL)]
     public string FinishedProductLink { get; set; } = string.Empty;
     #endregion Work details
 }
