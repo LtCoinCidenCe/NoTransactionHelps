@@ -56,6 +56,14 @@ AuthorService authorService) : ControllerBase
     }
 
     [HttpGet]
+    [Route("tempReturn")]
+    public IActionResult TempReturn()
+    {
+        var urlCreateUser = Url.Action("CreateNewUser", "User");
+        return Ok(urlCreateUser);
+    }
+
+    [HttpGet]
     [Route("httpAuth")]
     public async Task<IActionResult> HttpGo()
     {
@@ -73,10 +81,10 @@ AuthorService authorService) : ControllerBase
         database.Database.EnsureDeleted();
         database.Database.EnsureCreated();
 
+        supplementaryService.GenerateSupplementaryDefinition();
+
         userController.ControllerContext = ControllerContext;
         authorController.ControllerContext = ControllerContext;
-
-        supplementaryService.GenerateSupplementaryDefinition();
 
         List<NewUserDTO> newUsersDTO = [
             new() { Username = "FirstUser", Displayname = "The First Emperor", Password = "someDefault" },
@@ -90,13 +98,22 @@ AuthorService authorService) : ControllerBase
             new() { Username = "pstrag", Displayname = "Patient Strategizer", Password = "someApexmeme" },
             new() { Username = "heathrow", Displayname = "London Heathrow", Password = "someApexmeme" }
         ];
-        List<UserID> newUsers = newUsersDTO.Select(x =>
+        var urlCreateUser = Url.Action(nameof(UserController.CreateNewUser), "User");
+        var newUsers = newUsersDTO.Select(x =>
         {
-            UserID? newX = userService.CreateNewUser(x);
-            if (newX is null)
-                throw new NTHException("Debug User Creation Error");
-            return newX;
+            var shifeng = async (NewUserDTO dude) =>
+            {
+                var httpResult = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}{urlCreateUser}", x);
+                var resultObject = await httpResult.Content.ReadFromJsonAsync<NonSensitiveUserDTO>();
+                if (resultObject is null)
+                    throw new NTHException("Debug User Creation Error");
+                return resultObject;
+            };
+            return shifeng(x).Result;
         }).ToList();
+
+        var setUserRoleURL = Url.Action(nameof(UserController.SetUserRole), "User");
+
         var firstUser = newUsers.Single(x => x.Username == "FirstUser");
         var testUser = newUsers.Single(x => x.Username == "string");
         var starUser = newUsers.Single(x => x.Username == "star");
@@ -104,6 +121,7 @@ AuthorService authorService) : ControllerBase
         var franc = newUsers.Single(x => x.Username == "oofran");
         var PatientStrategizer = newUsers.Single(x => x.Username == "pstrag");
         var LondonHeathrow = newUsers.Single(x => x.Username == "heathrow");
+
         userService.SetUserRole(firstUser.ID, UserRoleDTO.SystemAdministrator | UserRoleDTO.Translator);
         userService.SetUserRole(testUser.ID, UserRoleDTO.SystemAdministrator);
         userService.SetUserRole(starUser.ID, UserRoleDTO.SystemAdministrator);
@@ -115,10 +133,7 @@ AuthorService authorService) : ControllerBase
         var anIconFile = System.IO.File.ReadAllBytes("../鱼卡日yu.png");
         var setProfileIcons = async () =>
         {
-            var authCall = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}/api/Login", new UserLoginDTO() { Username = "star", Password = "texas" });
-            var jwt = await authCall.Content.ReadAsStringAsync();
-            if (string.IsNullOrEmpty(jwt))
-                throw new NTHException("httpAuth jwt is not received");
+            var jwt = await getJwtByUser(new UserLoginDTO { Username = "star", Password = "texas" });
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
             using var content = new MultipartFormDataContent();
             content.Add(new ByteArrayContent(anIconFile), "icon", "鱼卡日yu.png");
@@ -215,6 +230,15 @@ AuthorService authorService) : ControllerBase
 
         logger.Log(LogLevel.Warning, "Database debug initialized.");
         return Ok("Initialized");
+    }
+
+    private async Task<string> getJwtByUser(UserLoginDTO loginUser)
+    {
+        var authCall = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}/api/Login", loginUser);
+        var jwt = await authCall.Content.ReadAsStringAsync();
+        if (string.IsNullOrEmpty(jwt))
+            throw new NTHException("httpAuth jwt is not received");
+        return jwt;
     }
 
     [HttpGet]
