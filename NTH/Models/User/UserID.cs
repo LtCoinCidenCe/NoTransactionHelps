@@ -24,7 +24,7 @@ public partial class UserID
     /// Since going to UserIconHistories can be painful.
     /// Just store a value here to quickly find the UserIcon
     /// </summary>
-    public long UserIconID { get; set; }
+    public Guid UserIconID { get; set; }
     public DateTimeOffset IconChangeDate { get; set; }
     #endregion Profile Icon
 

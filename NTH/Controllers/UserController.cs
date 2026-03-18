@@ -113,29 +113,29 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 	[HttpGet]
 	[Route("Icon/{IconID}")]
 	[ResponseCache(Duration = 60 * 60 * 24 * 30)]
-	public IActionResult GetIconByIconID(long IconID)
+	public IActionResult GetIconByIconID(Guid IconID)
 	{
-		var info = database.UserIconHistories.AsNoTracking().FirstOrDefault(x => x.ID == IconID);
+		var info = database.UserIconHistories.AsNoTracking().FirstOrDefault(x => x.GUID == IconID);
 		if (info is null)
 			return NotFound();
 		byte[] image = info.Icon;
 		return File(image, "image/png", $"{info.UserID}-{info.CreationDate.ToString("s")}.png");
 	}
 
-	[HttpGet]
-	[Route("{ID}/Icon")]
-	[ResponseCache(Duration = 86400)]
-	public IActionResult GetUserIcon(long ID)
-	{
-		long iconID = database.Users.Where(x => x.ID == ID).Select(x => x.UserIconID).FirstOrDefault();
-		if (iconID == 0)
-			return NotFound();
-		var info = database.UserIconHistories.AsNoTracking().FirstOrDefault(x => x.ID == iconID);
-		if (info is null)
-			return NotFound();
-		byte[] image = info.Icon;
-		return File(image, "image/png", $"{info.UserID}-{info.CreationDate.ToString("s")}.png");
-	}
+	// [HttpGet]
+	// [Route("{ID}/Icon")]
+	// [ResponseCache(Duration = 86400)]
+	// public IActionResult GetUserIcon(long ID)
+	// {
+	// 	var iconID = database.Users.Where(x => x.ID == ID).Select(x => x.UserIconID).FirstOrDefault();
+	// 	if (iconID == Guid.Empty)
+	// 		return NotFound();
+	// 	var info = database.UserIconHistories.AsNoTracking().FirstOrDefault(x => x.GUID == iconID);
+	// 	if (info is null)
+	// 		return NotFound();
+	// 	byte[] image = info.Icon;
+	// 	return File(image, "image/png", $"{info.UserID}-{info.CreationDate.ToString("s")}.png");
+	// }
 
 	[HttpPut, Authorize]
 	[Route("{ID}/Icon")]
@@ -178,7 +178,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 			database.SaveChanges();
 			database.Users.Where(x => x.ID == ID)
 				.ExecuteUpdate(setter => setter
-					.SetProperty(u => u.UserIconID, historyItem.ID)
+					.SetProperty(u => u.UserIconID, historyItem.GUID)
 					.SetProperty(u => u.IconChangeDate, newDate));
 			return Ok("OK");
 		}

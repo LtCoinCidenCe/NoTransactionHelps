@@ -6,25 +6,28 @@ using Microsoft.EntityFrameworkCore;
 namespace NTH.Models.User;
 
 [Index(nameof(CreationDate))]
+[Index(nameof(GUID))]
 public class UserIconHistory
 {
-    public const int MAX_ICON_SIZE = 3_000_000; // 3MB
+	public const int MAX_ICON_SIZE = 3_000_000; // 3MB
 
-    #region itsumono
-    public long ID { get; set; }
+	#region itsumono
+	public long ID { get; set; }
 
-    [Column(name: "UserID")]
-    public long UserID { get; set; }
-    [Column(name: "UserID")]
-    [JsonIgnore]
-    public UserID? User { get; set; }
+	[Column(name: "UserID")]
+	public long UserID { get; set; }
+	[Column(name: "UserID")]
+	[JsonIgnore]
+	public UserID? User { get; set; }
 
-    public required DateTimeOffset CreationDate { get; set; } = DateTimeOffset.UtcNow;
+	public required DateTimeOffset CreationDate { get; set; } = DateTimeOffset.UtcNow;
 
-    [JsonIgnore]
-    public bool IsDeleted { get; set; } = false;
-    #endregion itsumono
+	[JsonIgnore]
+	public bool IsDeleted { get; set; } = false;
+	#endregion itsumono
 
-    [MaxLength(MAX_ICON_SIZE)]
-    public byte[] Icon { get; set; } = [];
+	public Guid GUID { get; set; } = Guid.NewGuid();
+
+	[MaxLength(MAX_ICON_SIZE)]
+	public byte[] Icon { get; set; } = [];
 }
