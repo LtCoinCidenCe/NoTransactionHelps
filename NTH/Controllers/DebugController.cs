@@ -60,7 +60,8 @@ AuthorService authorService) : ControllerBase
     public IActionResult TempReturn()
     {
         var urlCreateUser = Url.Action("CreateNewUser", "User");
-        return Ok(urlCreateUser);
+        var urlSetUserRole = Url.Action(nameof(UserController.SetUserRole), "User", new { ID = 9 });
+        return Ok(urlSetUserRole);
     }
 
     [HttpGet]
@@ -112,7 +113,6 @@ AuthorService authorService) : ControllerBase
             return shifeng(x).Result;
         }).ToList();
 
-        var setUserRoleURL = Url.Action(nameof(UserController.SetUserRole), "User");
 
         var firstUser = newUsers.Single(x => x.Username == "FirstUser");
         var testUser = newUsers.Single(x => x.Username == "string");
@@ -122,13 +122,24 @@ AuthorService authorService) : ControllerBase
         var PatientStrategizer = newUsers.Single(x => x.Username == "pstrag");
         var LondonHeathrow = newUsers.Single(x => x.Username == "heathrow");
 
-        userService.SetUserRole(firstUser.ID, UserRoleDTO.SystemAdministrator | UserRoleDTO.Translator);
-        userService.SetUserRole(testUser.ID, UserRoleDTO.SystemAdministrator);
-        userService.SetUserRole(starUser.ID, UserRoleDTO.SystemAdministrator);
-        userService.SetUserRole(PatientStrategizer.ID, UserRoleDTO.Translator);
-        userService.SetUserRole(LondonHeathrow.ID, UserRoleDTO.Translator);
-        userService.SetUserRole(franc.ID, UserRoleDTO.Scriptor);
-        userService.SetUserRole(Angular.ID, UserRoleDTO.Translator | UserRoleDTO.Scriptor);
+        var jwtForRole = getJwtByUser(new UserLoginDTO { Username = "star", Password = "texas" }).Result;
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtForRole);
+
+        var fengdi = async (long ID, UserRoleDTO newRole) =>
+        {
+            var urlSetUserRole = Url.Action(nameof(UserController.SetUserRole), "User", new { ID });
+            var httpResult = await httpClient.PutAsJsonAsync($"{Request.Scheme}://{Request.Host}{urlSetUserRole}", newRole);
+            var resultObject = await httpResult.Content.ReadFromJsonAsync<UserRoleHistory>() ?? throw new NTHException("Debug Set User Role Error");
+            return resultObject;
+        };
+
+        var a2 = fengdi(firstUser.ID, UserRoleDTO.SystemAdministrator | UserRoleDTO.Translator).Result;
+        a2 = fengdi(testUser.ID, UserRoleDTO.SystemAdministrator).Result;
+        a2 = fengdi(starUser.ID, UserRoleDTO.SystemAdministrator).Result;
+        a2 = fengdi(Angular.ID, UserRoleDTO.Translator | UserRoleDTO.Scriptor).Result;
+        a2 = fengdi(franc.ID, UserRoleDTO.Scriptor).Result;
+        a2 = fengdi(PatientStrategizer.ID, UserRoleDTO.Translator).Result;
+        a2 = fengdi(LondonHeathrow.ID, UserRoleDTO.Translator).Result;
 
         var anIconFile = System.IO.File.ReadAllBytes("../鱼卡日yu.png");
         var setProfileIcons = async () =>
