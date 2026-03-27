@@ -17,18 +17,41 @@ namespace NTH.Controllers;
 
 [ApiController]
 [Route("api/Debug")]
-public partial class DebugController(
-ILogger<DebugController> logger,
-ILogger<AuthorController> authorLogger,
-ILogger<UserController> userLogger,
-PostgresContext database,
-UserService userService,
-SupplementaryService supplementaryService,
-AuthorService authorService) : ControllerBase
+public class DebugController : ControllerBase
 {
-    private AuthorController authorController = new AuthorController(authorLogger, database, authorService);
-    private UserController userController = new UserController(userLogger, database, userService);
+    ILogger<DebugController> logger;
+    ILogger<AuthorController> authorLogger;
+    ILogger<UserController> userLogger;
+    PostgresContext database;
+    UserService userService;
+    SupplementaryService supplementaryService;
+    AuthorService authorService;
+
+    private AuthorController authorController;
+    private UserController userController;
     private static HttpClient httpClient = new HttpClient();
+
+    public DebugController(
+        ILogger<DebugController> dilogger,
+        ILogger<AuthorController> diauthorLogger,
+        ILogger<UserController> diuserLogger,
+        PostgresContext didatabase,
+        UserService diuserService,
+        SupplementaryService disupplementaryService,
+        AuthorService diauthorService
+    )
+    {
+        logger = dilogger;
+        authorLogger = diauthorLogger;
+        userLogger = diuserLogger;
+        database = didatabase;
+        userService = diuserService;
+        supplementaryService = disupplementaryService;
+        authorService = diauthorService;
+
+        authorController = new AuthorController(authorLogger, database, authorService);
+        userController = new UserController(userLogger, database, userService);
+    }
 
     /// <summary>
     /// Debug/test mode indicator
@@ -76,7 +99,7 @@ AuthorService authorService) : ControllerBase
     }
 
     [HttpDelete]
-    public IActionResult InitializeDatabase()
+    public async Task<IActionResult> InitializeDatabase()
     {
         logger.Log(LogLevel.Warning, "Database Reinitializing");
         database.Database.EnsureDeleted();
@@ -100,16 +123,16 @@ AuthorService authorService) : ControllerBase
             new() { Username = "heathrow", Displayname = "London Heathrow", Password = "someApexmeme" }
         ];
         var urlCreateUser = Url.Action(nameof(UserController.CreateNewUser), "User");
+        var shifeng = async (NewUserDTO dude) =>
+        {
+            var httpResult = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}{urlCreateUser}", dude);
+            var resultObject = await httpResult.Content.ReadFromJsonAsync<NonSensitiveUserDTO>();
+            if (resultObject is null)
+                throw new NTHException("Debug User Creation Error");
+            return resultObject;
+        };
         var newUsers = newUsersDTO.Select(x =>
         {
-            var shifeng = async (NewUserDTO dude) =>
-            {
-                var httpResult = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}{urlCreateUser}", x);
-                var resultObject = await httpResult.Content.ReadFromJsonAsync<NonSensitiveUserDTO>();
-                if (resultObject is null)
-                    throw new NTHException("Debug User Creation Error");
-                return resultObject;
-            };
             return shifeng(x).Result;
         }).ToList();
 
@@ -122,16 +145,16 @@ AuthorService authorService) : ControllerBase
         var PatientStrategizer = newUsers.Single(x => x.Username == "pstrag");
         var LondonHeathrow = newUsers.Single(x => x.Username == "heathrow");
 
-        var jwtForRole = getJwtByUser(new UserLoginDTO { Username = "star", Password = "texas" }).Result;
+        var jwtForRole = getJwtByUser(new UserLoginDTO { Username = "krk", Password = "McLaren" }).Result;
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtForRole);
 
-        var fengdi = async (long ID, UserRoleDTO newRole) =>
+        async Task<UserRoleHistory> fengdi(long ID, UserRoleDTO newRole)
         {
             var urlSetUserRole = Url.Action(nameof(UserController.SetUserRole), "User", new { ID });
             var httpResult = await httpClient.PutAsJsonAsync($"{Request.Scheme}://{Request.Host}{urlSetUserRole}", newRole);
             var resultObject = await httpResult.Content.ReadFromJsonAsync<UserRoleHistory>() ?? throw new NTHException("Debug Set User Role Error");
             return resultObject;
-        };
+        }
 
         var a2 = fengdi(firstUser.ID, UserRoleDTO.SystemAdministrator | UserRoleDTO.Translator).Result;
         a2 = fengdi(testUser.ID, UserRoleDTO.SystemAdministrator).Result;
@@ -158,7 +181,7 @@ AuthorService authorService) : ControllerBase
             // await Task.WhenAll(iconCalls);
         };
 
-        setProfileIcons().Wait();
+        await setProfileIcons();
 
         // size = 6, [0-5]
         List<DateTimeOffset> times = [
@@ -172,27 +195,20 @@ AuthorService authorService) : ControllerBase
         times.Sort();
 
         string samplePassword = "kissa123";
-        string? salt = null;
-        byte[] hashed = PasswordHasher.GetHashedPassword(samplePassword, ref salt);
-        if (salt is null)
-            throw new PasswordHasherException("salt is not received");
-        var businessman = new UserID
+
+        NewUserDTO businessDTO = new()
         {
-            Username = "business",
             Displayname = "BusinessInside",
-            Password = hashed,
-            PassSalt = salt,
+            Username = "business",
+            Password = samplePassword
         };
-        database.Users.Add(businessman);
-        database.SaveChanges();
-        businessman.DisplaynameHistory.Add(new DisplaynameHistory
-        {
-            UserID = businessman.ID,
-            Displayname = businessman.Displayname,
-            CreationDate = businessman.CreationDate,
-        });
-        userService.SetTitleWords(businessman.ID, "The new king.");
-        userService.SetUserRole(businessman.ID, UserRoleDTO.Translator | UserRoleDTO.Scriptor);
+        var businessman = await shifeng(businessDTO);
+        string jwtForBusinessman = await getJwtByUser(new UserLoginDTO { Username = businessman.Username, Password = samplePassword });
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtForBusinessman);
+        var urlSetBusinessTitleWords = Url.Action(nameof(UserController.SetTitleWords), "User", new { businessman.ID });
+        var titleWordResult = await httpClient.PutAsJsonAsync($"{Request.Scheme}://{Request.Host}{urlSetBusinessTitleWords}", "The new king.");
+        var businessRoleResult = await fengdi(businessman.ID, UserRoleDTO.Translator | UserRoleDTO.Scriptor);
+
         var oneAuthor = new AuthorID()
         {
             Name = "kflat",
@@ -219,8 +235,6 @@ AuthorService authorService) : ControllerBase
         ];
         var creatingAuthors = moreAuthors.Select(x => authorController.CreateNewAuthor(x)).ToList();
 
-        businessman.Contact.Add(new WorkContact() { Author = oneAuthor });
-        businessman.Contact.Add(new WorkContact() { Author = twoAuthor });
         var firstVideo = new VideoID()
         {
             Title = "过♂年",
