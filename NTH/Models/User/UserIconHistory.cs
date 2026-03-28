@@ -14,6 +14,8 @@ public class UserIconHistory
 	#region itsumono
 	public long ID { get; set; }
 
+	public long ByUserAudit { get; set; }
+
 	[Column(name: "UserID")]
 	public long UserID { get; set; }
 	[Column(name: "UserID")]

@@ -9,22 +9,23 @@ namespace NTH.Models.Work;
 [Index(nameof(AuthorID), IsUnique = true)]
 public class WorkContact
 {
-    public long ID { get; set; }
+	public long ID { get; set; }
+	public long ByUserAudit { get; set; }
 
-    public DateTimeOffset ChangeDate { get; set; } = DateTimeOffset.UtcNow;
+	public DateTimeOffset ChangeDate { get; set; } = DateTimeOffset.UtcNow;
 
-    #region User
-    [Column(name: "UserID")]
-    public long UserID { get; set; }
-    [Column(name: "UserID")]
-    [JsonIgnore]
-    public UserID? User { get; set; }
-    #endregion User
+	#region User
+	[Column(name: "UserID")]
+	public long UserID { get; set; }
+	[Column(name: "UserID")]
+	[JsonIgnore]
+	public UserID? User { get; set; }
+	#endregion User
 
-    #region Author
-    [Column(name: "AuthorID")]
-    public long AuthorID { get; set; }
-    [Column(name: "AuthorID")]
-    public AuthorID? Author { get; set; }
-    #endregion Author
+	#region Author
+	[Column(name: "AuthorID")]
+	public long AuthorID { get; set; }
+	[Column(name: "AuthorID")]
+	public AuthorID? Author { get; set; }
+	#endregion Author
 }

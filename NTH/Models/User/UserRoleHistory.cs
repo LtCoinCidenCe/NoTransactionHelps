@@ -7,20 +7,22 @@ namespace NTH.Models.User;
 [Index(nameof(CreationDate))]
 public partial class UserRoleHistory
 {
-    #region itsumono
-    public long ID { get; set; }
+	#region itsumono
+	public long ID { get; set; }
 
-    [Column(name: "UserID")]
-    public long UserID { get; set; }
-    [Column(name: "UserID")]
-    [JsonIgnore]
-    public UserID? User { get; set; }
+	public long ByUserAudit { get; set; }
 
-    public required DateTimeOffset CreationDate { get; set; }
+	[Column(name: "UserID")]
+	public long UserID { get; set; }
+	[Column(name: "UserID")]
+	[JsonIgnore]
+	public UserID? User { get; set; }
 
-    [JsonIgnore]
-    public bool IsDeleted { get; set; } = false;
-    #endregion itsumono
+	public required DateTimeOffset CreationDate { get; set; }
 
-    public UserRoleDTO UserRole { get; set; }
+	[JsonIgnore]
+	public bool IsDeleted { get; set; } = false;
+	#endregion itsumono
+
+	public UserRoleDTO UserRole { get; set; }
 }

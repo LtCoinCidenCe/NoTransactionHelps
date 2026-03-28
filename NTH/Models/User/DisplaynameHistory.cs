@@ -8,21 +8,23 @@ namespace NTH.Models.User;
 [Index(nameof(CreationDate))]
 public partial class DisplaynameHistory
 {
-    #region itsumono
-    public long ID { get; set; }
+	#region itsumono
+	public long ID { get; set; }
 
-    [Column(name: "UserID")]
-    public long UserID { get; set; }
-    [Column(name: "UserID")]
-    [JsonIgnore]
-    public UserID? User { get; set; }
+	public long ByUserAudit { get; set; }
 
-    public required DateTimeOffset CreationDate { get; set; }
+	[Column(name: "UserID")]
+	public long UserID { get; set; }
+	[Column(name: "UserID")]
+	[JsonIgnore]
+	public UserID? User { get; set; }
 
-    [JsonIgnore]
-    public bool IsDeleted { get; set; } = false;
-    #endregion itsumono
+	public required DateTimeOffset CreationDate { get; set; }
 
-    [MaxLength(30)]
-    public required string Displayname { get; set; }
+	[JsonIgnore]
+	public bool IsDeleted { get; set; } = false;
+	#endregion itsumono
+
+	[MaxLength(30)]
+	public required string Displayname { get; set; }
 }
