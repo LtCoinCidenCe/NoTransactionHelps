@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NTH.DBContext;
+using NTH.Middlewares;
 using NTH.Models.User;
 using NTH.Services;
 using NTH.Utilities;
@@ -139,7 +140,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 
 	[HttpPut, Authorize]
 	[Route("{ID}/Icon")]
-	public IActionResult SetUserIcon([FromRoute] long ID, IFormFile icon)
+	public IActionResult SetUserIcon([FromRoute] long ID, [FromServices] RequestingUser requestingUser, IFormFile icon)
 	{
 		if (!ControllerHelper.CheckUserClaimsID(User, ID))
 			return Unauthorized();

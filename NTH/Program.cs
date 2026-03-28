@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using NTH.DBContext;
+using NTH.Middlewares;
 using NTH.Services;
 using NTH.Utilities;
 using NTH.Utilities.Middlewares;
@@ -50,6 +51,7 @@ public class Program
         builder.Services.AddScoped<UserService>();
         builder.Services.AddScoped<AuthorService>();
         builder.Services.AddScoped<SupplementaryService>();
+        builder.Services.AddScoped<RequestingUser>();
         builder.Services.AddAuthentication(options =>
         {
             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -93,6 +95,7 @@ public class Program
 
         app.UseMiddleware<RequestLimiter>();
         app.UseMiddleware<HomepageGuide>();
+        app.UseMiddleware<UserExtractor>();
         app.MapControllers();
 
         // Hangfire 0 retry
