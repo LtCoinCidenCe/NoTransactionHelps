@@ -4,6 +4,7 @@ using Microsoft.OpenApi;
 using NTH.DBContext;
 using NTH.Middlewares;
 using NTH.Services;
+using NTH.SignalRHubs;
 using NTH.Utilities;
 using NTH.Utilities.Middlewares;
 using System.Text;
@@ -69,6 +70,7 @@ public class Program
                 ValidateLifetime = true
             };
         });
+        builder.Services.AddSignalR();
         //builder.Services.AddHangfire(config =>
         //    config.UsePostgreSqlStorage(c =>
         //    c.UseNpgsqlConnection("Host=localhost;Username=nthuser;Password=stillnicedatabase;Database=nthwork;Include Error Detail=True;")));
@@ -92,6 +94,8 @@ public class Program
 
         app.UseAuthentication();
         app.UseAuthorization();
+        
+        app.MapHub<HatsuneHub>("/chatHub");
 
         app.UseMiddleware<RequestLimiter>();
         app.UseMiddleware<HomepageGuide>();
