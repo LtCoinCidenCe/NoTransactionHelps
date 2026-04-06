@@ -4,6 +4,10 @@ namespace NTH.SignalRHubs;
 
 public class HatsuneHub : Hub
 {
+	public override Task OnConnectedAsync()
+	{
+		return base.OnConnectedAsync();
+	}
 	public async Task SendMessagetoChat(string user, string message)
 	{
 		var userClaim = Context.User?.Claims.FirstOrDefault(x => x.Type == "aud");

@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using NTH.DBContext;
 using NTH.Models.Author;
@@ -11,6 +12,7 @@ using NTH.Models.Video;
 using NTH.Models.Work;
 using NTH.Scheduling;
 using NTH.Services;
+using NTH.SignalRHubs;
 using NTH.Utilities;
 
 namespace NTH.Controllers;
@@ -27,6 +29,8 @@ public class DebugController : ControllerBase
 	SupplementaryService supplementaryService;
 	AuthorService authorService;
 
+	IHubContext<HatsuneHub> hatsuneHub;
+
 	private AuthorController authorController;
 	private UserController userController;
 	private static HttpClient httpClient = new HttpClient();
@@ -38,7 +42,8 @@ public class DebugController : ControllerBase
 		PostgresContext didatabase,
 		UserService diuserService,
 		SupplementaryService disupplementaryService,
-		AuthorService diauthorService
+		AuthorService diauthorService,
+		IHubContext<HatsuneHub> dihatsuneHub
 	) : base()
 	{
 		logger = dilogger;
@@ -48,6 +53,7 @@ public class DebugController : ControllerBase
 		userService = diuserService;
 		supplementaryService = disupplementaryService;
 		authorService = diauthorService;
+		hatsuneHub = dihatsuneHub;
 
 		authorController = new AuthorController(authorLogger, database, authorService);
 		userController = new UserController(userLogger, database, userService);
@@ -282,6 +288,14 @@ public class DebugController : ControllerBase
 			.ThenInclude(x => x.Video)
 			.ToList();
 		return users;
+	}
+
+	[HttpPost]
+	[Route("SignalR")]
+	public async Task<IActionResult> SendMessagetoEveryone()
+	{
+		await hatsuneHub.Clients.All.SendAsync("Chatting", new ChatMessage() { User = "Headquarter", Message = "Notification" });
+		return Ok("Broadcasted");
 	}
 
 	[HttpGet]
