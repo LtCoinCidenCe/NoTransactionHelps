@@ -26,7 +26,7 @@ public class Program
         {
             options.AddPolicy("developing", builder =>
             {
-                builder.AllowAnyHeader().AllowAnyMethod()
+                builder.AllowAnyHeader().AllowAnyMethod().AllowCredentials()
                 .SetIsOriginAllowed(origin => new Uri(origin).IsLoopback);
             });
         });
