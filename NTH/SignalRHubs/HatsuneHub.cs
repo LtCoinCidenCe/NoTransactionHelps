@@ -6,7 +6,9 @@ public class HatsuneHub : Hub
 {
 	public async Task SendMessagetoChat(string user, string message)
 	{
-		await Clients.All.SendAsync("Chatting", new ChatMessage() { User = user, Message = message });
+		var userClaim = Context.User?.Claims.FirstOrDefault(x => x.Type == "aud");
+		var userReplied = userClaim?.Value.Substring(2);
+		await Clients.All.SendAsync("Chatting", new ChatMessage() { User = userReplied ?? "", Message = message });
 	}
 }
 
