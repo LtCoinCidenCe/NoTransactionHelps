@@ -120,7 +120,14 @@ public class DebugController : ControllerBase
 			new() { Username = "anguraea", Displayname = "Angular", Password = "whatisthat?" },
 			new() { Username = "oofran", Displayname = "Francais", Password = "bonne1846" },
 			new() { Username = "pstrag", Displayname = "Patient Strategizer", Password = "someApexmeme" },
-			new() { Username = "heathrow", Displayname = "London Heathrow", Password = "someApexmeme" }
+			new() { Username = "heathrow", Displayname = "London Heathrow", Password = "someApexmeme" },
+			new() { Username = "apexTan", Displayname = "apexTan", Password = "someApexmeme" },
+			new() { Username = "calmcalcu", Displayname = "Calm Calculator", Password = "someApexmeme" },
+			new() { Username = "upperstar", Displayname = "Upper Star", Password = "someApexmeme" },
+			new() { Username = "dstriker", Displayname = "Dual Strike", Password = "someApexmeme" },
+			new() { Username = "hoshik", Displayname = "Hoshi no Kaabi", Password = "someApexmeme" },
+			new() { Username = "kirby", Displayname = "WellIamKirby", Password = "someApexmeme" },
+			new() { Username = "fairchild", Displayname = "Fairchild", Password = "someApexmeme" },
 		];
 		var urlCreateUser = Url.Action(nameof(UserController.CreateNewUser), "User");
 		var shifeng = async (NewUserDTO dude) =>
