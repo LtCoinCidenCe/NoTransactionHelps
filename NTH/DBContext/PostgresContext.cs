@@ -42,6 +42,10 @@ public class PostgresContext : DbContext
                 }
             }
         });
+        modelBuilder.Entity<DFT>(entity =>
+        {
+            entity.Property(nameof(DFT.CreationDate)).HasDefaultValueSql("transaction_timestamp()");
+        });
         base.OnModelCreating(modelBuilder);
     }
 
@@ -61,4 +65,6 @@ public class PostgresContext : DbContext
     public DbSet<WorkStatusSupplementary> WorkStatusSupplementary { get; set; }
     public DbSet<WorkTypeSupplementary> WorkTypeSupplementary { get; set; }
     #endregion Supplementary Definition Reference Tables
+
+    public DbSet<DFT> DateFirstTable { get; set; }
 }

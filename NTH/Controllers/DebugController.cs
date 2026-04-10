@@ -308,6 +308,20 @@ public class DebugController : ControllerBase
 		return File(row.Icon, "image/png");
 	}
 
+	[HttpPost]
+	[Route("DFT")]
+	public IActionResult PostDFT()
+	{
+		// Fluent API is required to specify default SQL
+		// This gives 2 rows with same CreationDate
+		database.DateFirstTable.AddRange([
+			new DFT { Content = RandomASCIIGenerator.GetString(9) },
+			new DFT { Content = RandomASCIIGenerator.GetString(9) }
+		]);
+		database.SaveChanges();
+		return Ok("OK");
+	}
+
 	[HttpGet]
 	[Route("fireException")]
 	public IActionResult FireException()
