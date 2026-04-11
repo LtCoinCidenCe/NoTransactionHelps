@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace NTH.Models.User;
 
 [Index(nameof(CreationDate))]
+[Index(nameof(UserID), nameof(ID), IsUnique = true)]
 public partial class DisplaynameHistory
 {
 	#region itsumono

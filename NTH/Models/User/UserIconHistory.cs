@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 namespace NTH.Models.User;
 
 [Index(nameof(CreationDate))]
-[Index(nameof(GUID))]
+[Index(nameof(GUID), IsUnique = true)]
+[Index(nameof(UserID), nameof(ID), IsUnique = true)]
 public class UserIconHistory
 {
 	public const int MAX_ICON_SIZE = 3_000_000; // 3MB
