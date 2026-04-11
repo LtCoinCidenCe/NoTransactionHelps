@@ -227,7 +227,7 @@ public class DebugController : ControllerBase
 		{
 			Name = "cyderl",
 		};
-		var twoAuthorCreation = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}{urlCreateAuthor}", oneAuthor);
+		var twoAuthorCreation = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}{urlCreateAuthor}", twoAuthor);
 		List<NewAuthorDTO> moreAuthors = [
 			new NewAuthorDTO() { Name = "harujiko", },
 			new NewAuthorDTO() { Name = "suyako", AllVideoAuthorized = true },
@@ -245,12 +245,14 @@ public class DebugController : ControllerBase
 		];
 		var creatingAuthors = await Task.WhenAll(moreAuthors.Select(x => httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}{urlCreateAuthor}", x)));
 
-		// var firstVideo = new VideoID()
-		// {
-		// 	Title = "过♂年",
-		// 	BilibiliPage = "https://www.bilibili.com/video/BV1Qs411X7QR",
-		// };
-		// oneAuthor.Videos.Add(firstVideo);
+		var urlCreateVideo = Url.Action(nameof(VideoController.CreateNewVideo), "Video");
+		var firstVideo = new NewVideoDTO
+		{
+			AuthorID = 1,
+			Title = "过♂年",
+			BilibiliPage = "https://www.bilibili.com/video/BV1Qs411X7QR",
+		};
+		var oneVideoCreation = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}{urlCreateVideo}", firstVideo);
 
 		// firstVideo.Works.Add(new WorkID
 		// {
