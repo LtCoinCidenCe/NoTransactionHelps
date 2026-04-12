@@ -1,6 +1,7 @@
 #if DEBUG
 using System.Net.Http.Headers;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -68,14 +69,23 @@ public class DebugController : ControllerBase
 	}
 
 	[HttpGet]
-	[Route("authping")]
+	[Route("[action]")]
 	[Authorize]
-	public IActionResult AuthPing()
+	public IActionResult JWTPing()
 	{
 		var user = User;
 		var httpcontext = HttpContext;
 		string? identity = user.FindFirstValue(ClaimTypes.Anonymous);
 		return Ok("In debug mode, auth");
+	}
+
+	[HttpGet]
+	[Route("[action]")]
+	[Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+	public IActionResult CookiePing()
+	{
+		var user = User;
+		return Ok("In debug mode, cookie");
 	}
 
 	[HttpGet]

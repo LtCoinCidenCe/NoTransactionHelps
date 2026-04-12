@@ -1,5 +1,6 @@
 using System.Collections;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -111,7 +112,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 		return Ok(result);
 	}
 
-	[HttpGet]
+	[HttpGet, Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
 	[Route("Icon/{IconID}")]
 	[ResponseCache(Duration = 60 * 60 * 24 * 30)]
 	public IActionResult GetIconByIconID(Guid IconID)
@@ -120,7 +121,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 		if (info is null)
 			return NotFound();
 		byte[] image = info.Icon;
-		return File(image, "image/png", $"{info.UserID}-{info.CreationDate.ToString("s")}.png");
+		return File(image, "image/png");
 	}
 
 	// [HttpGet]

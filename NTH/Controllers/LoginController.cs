@@ -1,5 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using NTH.DBContext;
@@ -14,7 +17,7 @@ namespace NTH.Controllers;
 public class LoginController(ILogger<LoginController> logger, PostgresContext database, UserService userService) : ControllerBase
 {
     [HttpPost]
-    public ActionResult<string> Login(UserLoginDTO userLoginDTO)
+    public async Task<ActionResult<string>> Login(UserLoginDTO userLoginDTO)
     {
         var user = userService.Login(userLoginDTO);
         if (user is null)
@@ -34,6 +37,16 @@ public class LoginController(ILogger<LoginController> logger, PostgresContext da
             new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtHelper.SECRET)),
             SecurityAlgorithms.HmacSha256));
         var token = new JwtSecurityTokenHandler().WriteToken(jwt);
+
+        // for cookie
+        var claims = new List<Claim>
+        {
+            new Claim("aud", user.UserID.ToString()),
+            new Claim(ClaimTypes.Role, roleString)
+        };
+        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
         return Ok(token);
     }
 }

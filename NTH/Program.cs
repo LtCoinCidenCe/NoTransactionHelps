@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -25,7 +26,7 @@ public class Program
         {
             options.AddPolicy("developing", builder =>
             {
-                builder.AllowAnyHeader().AllowAnyMethod()
+                builder.AllowAnyHeader().AllowAnyMethod().AllowCredentials()
                 .SetIsOriginAllowed(origin => new Uri(origin).IsLoopback);
             });
         });
@@ -55,6 +56,18 @@ public class Program
         builder.Services.AddAuthentication(options =>
         {
             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddCookie(options =>
+        {
+            options.Cookie.Name = "NTHCookie";
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SameSite = SameSiteMode.Strict;
+            options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
+            options.Events = new CookieAuthenticationEvents
+            {
+                OnRedirectToLogin = ctx => { ctx.Response.StatusCode = StatusCodes.Status401Unauthorized; return Task.CompletedTask; },
+                OnRedirectToAccessDenied = ctx => { ctx.Response.StatusCode = StatusCodes.Status403Forbidden; return Task.CompletedTask; }
+            };
         })
         .AddJwtBearer(options =>
         {
