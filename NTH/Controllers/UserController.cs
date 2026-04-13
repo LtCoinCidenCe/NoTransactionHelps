@@ -115,8 +115,13 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 	[HttpGet, Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
 	[Route("Icon/{IconID}")]
 	[ResponseCache(Duration = 60 * 60 * 24 * 30)]
-	public IActionResult GetIconByIconID(Guid IconID)
+	public IActionResult GetIconByIconID([FromRoute] Guid IconID)
 	{
+		// DeniedValues was unsuccessful because the attr needs constants.
+		// Guid is a struct not a basic type, so it could not have constant value.
+		// if empty don't go to the database, let's save the query
+		if (IconID == default)
+			return NotFound();
 		var info = database.UserIconHistories.AsNoTracking().FirstOrDefault(x => x.GUID == IconID);
 		if (info is null)
 			return NotFound();
