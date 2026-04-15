@@ -1,4 +1,5 @@
 #if DEBUG
+using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -108,17 +109,45 @@ public class DebugController : ControllerBase
 		return Ok("OK");
 	}
 
+	/// <summary>
+	/// from rolls-royce engine blade pigtail
+	/// </summary>
+	/// <returns></returns>
+	/// <exception cref="NTHException">should not happen</exception>
 	[HttpDelete]
+	[Route("[action]")]
+	public async Task<ActionResult> InitializeProductionPigtail()
+	{
+		database.Database.EnsureDeleted();
+		database.Database.EnsureCreated();
+		// at least this is controller call, validation like this works
+		NewUserDTO newUser = new() { Username = "Genesis", Displayname = "Genesis begins", Password = "apetonxin9320" };
+		List<ValidationResult> validationResults = [];
+		bool goodValidated = Validator.TryValidateObject(newUser, new ValidationContext(newUser), validationResults, true);
+		if (!goodValidated)
+			throw new NTHException("pigtail generation failure");
+
+		// generic ActionResult<T>.Value fools people
+		var newUserResult = (userController.CreateNewUser(newUser) as CreatedAtActionResult) ?? throw new NTHException("pigtail generation failure");
+		var newUserReturned = (newUserResult.Value as NonSensitiveUserDTO) ?? throw new NTHException("pigtail generation failure");
+		userController.SetUserRole(newUserReturned.ID, UserRoleDTO.SuperAdministrator);
+		return Ok("OK");
+	}
+
+	[HttpDelete]
+	[Route("[action]")]
 	public async Task<IActionResult> InitializeDatabase()
 	{
 		logger.Log(LogLevel.Warning, "Database Reinitializing");
-		database.Database.EnsureDeleted();
-		database.Database.EnsureCreated();
+		await InitializeProductionPigtail();
 
 		supplementaryService.GenerateSupplementaryDefinition();
 
 		userController.ControllerContext = ControllerContext;
 		authorController.ControllerContext = ControllerContext;
+
+		var jwtForFirstUserCreation = getJwtByUser(new UserLoginDTO { Username = "Genesis", Password = "apetonxin9320" }).Result;
+		httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtForFirstUserCreation);
 
 		List<NewUserDTO> newUsersDTO = [
 			new() { Username = "FirstUser", Displayname = "The First Emperor", Password = "someDefault" },

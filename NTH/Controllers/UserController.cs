@@ -14,10 +14,11 @@ using SixLabors.ImageSharp;
 namespace NTH.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/User")]
 public class UserController(ILogger<UserController> logger, PostgresContext database, UserService userService) : ControllerBase
 {
-	[HttpGet, Authorize]
+	[HttpGet]
 	public ICollection GetUsers()
 	{
 		var users = database.Users
@@ -36,7 +37,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 		return users;
 	}
 
-	[HttpGet, Authorize]
+	[HttpGet]
 	[Route("{ID}")]
 	public ActionResult<NonSensitiveUserDTO> GetUser(string ID)
 	{
@@ -49,7 +50,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 	}
 
 	[HttpPost]
-	public ActionResult<NonSensitiveUserDTO> CreateNewUser(NewUserDTO newUser)
+	public ActionResult CreateNewUser(NewUserDTO newUser)
 	{
 		UserID? newUserID = userService.CreateNewUser(newUser);
 		if (newUserID is null)
@@ -57,7 +58,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 		return CreatedAtAction(nameof(CreateNewUser), NonSensitiveUserDTO.FromDBModel(newUserID));
 	}
 
-	[HttpPut, Authorize]
+	[HttpPut]
 	[Route("{ID}/DisplayName")]
 	public IActionResult SetDisplayName(long ID, [Length(2, 30)][FromBody] string newDisplayName)
 	{
@@ -70,7 +71,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 		return Ok(result);
 	}
 
-	[HttpPut, Authorize]
+	[HttpPut]
 	[Route("{ID}/TitleWords")]
 	public IActionResult SetTitleWords(long ID, [MaxLength(250)][FromBody] string newTitleWords)
 	{
@@ -86,7 +87,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 			throw new NTHException("SetTitleWords updated multiple rows");
 	}
 
-	[HttpPut, Authorize]
+	[HttpPut]
 	[Route("{ID}/Password")]
 	public IActionResult SetPassword(long ID, [MinLength(5)][FromBody] string newPassword)
 	{
@@ -102,7 +103,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 			throw new NTHException("SetPassword updated multiple rows");
 	}
 
-	[HttpPut, Authorize]
+	[HttpPut]
 	[Route("{ID}/UserRole")]
 	public IActionResult SetUserRole(long ID, [FromBody] UserRoleDTO newUserRole)
 	{
@@ -110,23 +111,6 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 		if (result is null)
 			return NotFound();
 		return Ok(result);
-	}
-
-	[HttpGet, Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
-	[Route("Icon/{IconID}")]
-	[ResponseCache(Duration = 60 * 60 * 24 * 30)]
-	public IActionResult GetIconByIconID([FromRoute] Guid IconID)
-	{
-		// DeniedValues was unsuccessful because the attr needs constants.
-		// Guid is a struct not a basic type, so it could not have constant value.
-		// if empty don't go to the database, let's save the query
-		if (IconID == default)
-			return NotFound();
-		var info = database.UserIconHistories.AsNoTracking().FirstOrDefault(x => x.GUID == IconID);
-		if (info is null)
-			return NotFound();
-		byte[] image = info.Icon;
-		return File(image, "image/png");
 	}
 
 	// [HttpGet]
@@ -144,7 +128,7 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 	// 	return File(image, "image/png", $"{info.UserID}-{info.CreationDate.ToString("s")}.png");
 	// }
 
-	[HttpPut, Authorize]
+	[HttpPut]
 	[Route("{ID}/Icon")]
 	public IActionResult SetUserIcon([FromRoute] long ID, [FromServices] RequestingUser requestingUser, IFormFile icon)
 	{
@@ -189,6 +173,29 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 					.SetProperty(u => u.IconChangeDate, newDate));
 			return Ok("OK");
 		}
+	}
+}
+
+[ApiController]
+[Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+[Route("api/User")]
+public class UserCookieAssetController(PostgresContext database) : ControllerBase
+{
+	[HttpGet]
+	[Route("Icon/{IconID}")]
+	[ResponseCache(Duration = 60 * 60 * 24 * 30)]
+	public IActionResult GetIconByIconID([FromRoute] Guid IconID)
+	{
+		// DeniedValues was unsuccessful because the attr needs constants.
+		// Guid is a struct not a basic type, so it could not have constant value.
+		// if empty don't go to the database, let's save the query
+		if (IconID == default)
+			return NotFound();
+		var info = database.UserIconHistories.AsNoTracking().FirstOrDefault(x => x.GUID == IconID);
+		if (info is null)
+			return NotFound();
+		byte[] image = info.Icon;
+		return File(image, "image/png");
 	}
 }
 
