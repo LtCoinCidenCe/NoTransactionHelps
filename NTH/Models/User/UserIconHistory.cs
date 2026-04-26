@@ -12,7 +12,7 @@ public class UserIconHistory
 {
 	public const int MAX_ICON_SIZE = 3_000_000; // 3MB
 
-	public Guid GUID { get; set; } = Guid.NewGuid();
+	public Guid GUID { get; set; } = Guid.CreateVersion7();
 
 	[Column(name: "UserID")]
 	public long UserID { get; set; }
