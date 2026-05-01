@@ -25,7 +25,7 @@ public class PostgresContext : DbContext
 
 	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 	{
-		optionsBuilder.UseNpgsql("Host=localhost;Username=nthuser;Password=stillnicedatabase;Database=nthwork")
+		optionsBuilder.UseNpgsql("Host=localhost;Port=30075;Username=nthuser;Password=stillnicedatabase;Database=nthwork;Application Name=NTHBackend")
 			.EnableSensitiveDataLogging();
 		base.OnConfiguring(optionsBuilder);
 	}
