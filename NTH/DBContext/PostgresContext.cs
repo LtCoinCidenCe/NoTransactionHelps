@@ -44,6 +44,11 @@ public class PostgresContext : DbContext
 				}
 			}
 		});
+		// no cascading by default, all foreign key prevents deletion
+		foreach (var foreignKey in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+		{
+			foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
+		}
 		base.OnModelCreating(modelBuilder);
 	}
 
