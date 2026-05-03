@@ -11,6 +11,17 @@
       "applicationUrl": "http://localhost:5139",
       "hotReloadEnabled": false
     },
+    "httpDevHost": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://*:5139",
+      "hotReloadEnabled": false
+    },
     "https": {
       "commandName": "Project",
       "launchBrowser": true,
