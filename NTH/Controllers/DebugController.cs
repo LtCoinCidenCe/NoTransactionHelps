@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NTH.DBContext;
+using NTH.Middlewares;
 using NTH.Models.Author;
 using NTH.Models.User;
 using NTH.Models.Video;
@@ -52,7 +53,7 @@ public class DebugController : ControllerBase
 		authorService = diauthorService;
 
 		authorController = new AuthorController(authorLogger, database, authorService);
-		userController = new UserController(userLogger, database, userService);
+		userController = new UserController(userLogger, database, userService, new RequestingUser());
 	}
 
 	/// <summary>

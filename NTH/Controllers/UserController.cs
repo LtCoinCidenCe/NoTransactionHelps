@@ -16,7 +16,10 @@ namespace NTH.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/User")]
-public class UserController(ILogger<UserController> logger, PostgresContext database, UserService userService) : ControllerBase
+public class UserController(ILogger<UserController> logger,
+	PostgresContext database,
+	UserService userService,
+	[FromServices] RequestingUser requestingUser) : ControllerBase
 {
 	[HttpGet]
 	public ICollection GetUsers()
@@ -62,8 +65,9 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 	[Route("{ID}/DisplayName")]
 	public IActionResult SetDisplayName(long ID, [Length(2, 30)][FromBody] string newDisplayName)
 	{
-		if (!ControllerHelper.CheckUserClaimsID(User, ID))
-			return Unauthorized();
+		if (requestingUser.UserID != ID)
+			if ((requestingUser.UserRole & UserRoleDTO.SystemAdministrator) != UserRoleDTO.SystemAdministrator)
+				return Unauthorized();
 
 		DisplaynameHistory? result = userService.SetDisplayName(ID, newDisplayName, null);
 		if (result is null)
@@ -75,8 +79,9 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 	[Route("{ID}/TitleWords")]
 	public IActionResult SetTitleWords(long ID, [MaxLength(250)][FromBody] string newTitleWords)
 	{
-		if (!ControllerHelper.CheckUserClaimsID(User, ID))
-			return Unauthorized();
+		if (requestingUser.UserID != ID)
+			if ((requestingUser.UserRole & UserRoleDTO.SystemAdministrator) != UserRoleDTO.SystemAdministrator)
+				return Unauthorized();
 
 		int rows = userService.SetTitleWords(ID, newTitleWords);
 		if (rows == 1)
@@ -91,8 +96,9 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 	[Route("{ID}/Password")]
 	public IActionResult SetPassword(long ID, [MinLength(5)][FromBody] string newPassword)
 	{
-		if (!ControllerHelper.CheckUserClaimsID(User, ID))
-			return Unauthorized();
+		if (requestingUser.UserID != ID)
+			if ((requestingUser.UserRole & UserRoleDTO.SystemAdministrator) != UserRoleDTO.SystemAdministrator)
+				return Unauthorized();
 
 		int rows = userService.SetPassword(ID, newPassword);
 		if (rows == 1)
@@ -130,10 +136,11 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 
 	[HttpPut]
 	[Route("{ID}/Icon")]
-	public IActionResult SetUserIcon([FromRoute] long ID, [FromServices] RequestingUser requestingUser, IFormFile icon)
+	public IActionResult SetUserIcon([FromRoute] long ID, IFormFile icon)
 	{
-		if (!ControllerHelper.CheckUserClaimsID(User, ID))
-			return Unauthorized();
+		if (requestingUser.UserID != ID)
+			if ((requestingUser.UserRole & UserRoleDTO.SystemAdministrator) != UserRoleDTO.SystemAdministrator)
+				return Unauthorized();
 		if (icon.Length < 5 || icon.Length > UserIconHistory.MAX_ICON_SIZE)
 			return BadRequest();
 		if (!database.Users.Any(x => x.ID == ID))
@@ -176,6 +183,11 @@ public class UserController(ILogger<UserController> logger, PostgresContext data
 	}
 }
 
+/// <summary>
+/// 希望所有的图片作为静态文件从GUID来获得
+/// cookie验证
+/// </summary>
+/// <param name="database"></param>
 [ApiController]
 [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
 [Route("api/User")]
