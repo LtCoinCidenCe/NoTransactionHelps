@@ -20,7 +20,7 @@ public class PostgresContext : DbContext
 	{
 		logger = diLogger;
 		configuration = diConfiguration;
-		logger.Log(LogLevel.Information, "PostgresContext constructor");
+		//logger.Log(LogLevel.Information, "PostgresContext constructor");
 	}
 
 	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

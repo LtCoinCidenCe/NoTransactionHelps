@@ -17,7 +17,7 @@ public class AuthorController(ILogger<AuthorController> logger, PostgresContext 
 	[HttpGet, Authorize]
 	public IActionResult GetAllAuthors()
 	{
-		var query = database.Authors.Include(x => x.Contact)
+		var data = database.Authors.Include(x => x.Contact)
 			.Select(author => new
 			{
 				author.ID,
@@ -32,9 +32,10 @@ public class AuthorController(ILogger<AuthorController> logger, PostgresContext 
 				author.AdditionalRequirements,
 				author.AdditionalRequirementsChangeDate,
 				author.CreationDate,
-				ContactUserID = author.Contact.Select(x => x.UserID).FirstOrDefault()
-			});
-		return Ok(query);
+				ContactUserIDraw = author.Contact.Select(x => x.UserID).ToList()
+			}).ToList();
+
+		return Ok(data.Select(x => new { x.ID, x.Name, x.YoutubeHomePage, x.NiconicoHomePage, x.BilibiliHomePage, x.TwitterHomePage, x.AuthorizedPerVideo, x.AllVideoAuthorized, x.AuthorizationChangeDate, x.AdditionalRequirements, x.AdditionalRequirementsChangeDate, x.CreationDate, ContactUserID = x.ContactUserIDraw.FirstOrDefault() }));
 	}
 
 	/// <summary>
