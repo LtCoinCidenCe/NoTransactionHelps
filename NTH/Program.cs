@@ -62,7 +62,7 @@ public class Program
 			options.Cookie.Name = "NTHCookie";
 			options.Cookie.HttpOnly = true;
 			options.Cookie.SameSite = SameSiteMode.Strict;
-			options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
+			options.ExpireTimeSpan = TimeSpan.FromMinutes(16);
 			options.Events = new CookieAuthenticationEvents
 			{
 				OnRedirectToLogin = ctx => { ctx.Response.StatusCode = StatusCodes.Status401Unauthorized; return Task.CompletedTask; },

@@ -178,7 +178,7 @@ public class UserController(ILogger<UserController> logger,
 				.ExecuteUpdate(setter => setter
 					.SetProperty(u => u.UserIconID, historyItem.GUID)
 					.SetProperty(u => u.IconChangeDate, newDate));
-			return Ok("OK");
+			return Ok(historyItem.GUID);
 		}
 	}
 }
