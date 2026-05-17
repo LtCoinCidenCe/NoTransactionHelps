@@ -144,7 +144,7 @@ public class UserController(ILogger<UserController> logger,
 		if (icon.Length < 5 || icon.Length > UserIconHistory.MAX_ICON_SIZE)
 			return BadRequest();
 		if (!database.Users.Any(x => x.ID == ID))
-			return BadRequest();
+			return BadRequest("你在干嘛呢？");
 		Stream readStream = icon.OpenReadStream();
 
 		Image image;
