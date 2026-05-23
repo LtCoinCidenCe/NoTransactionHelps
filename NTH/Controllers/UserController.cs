@@ -142,23 +142,23 @@ public class UserController(ILogger<UserController> logger,
 			if ((requestingUser.UserRole & UserRoleDTO.SystemAdministrator) != UserRoleDTO.SystemAdministrator)
 				return Unauthorized();
 		if (icon.Length < 5 || icon.Length > UserIconHistory.MAX_ICON_SIZE)
-			return BadRequest();
+			return BadRequest("你想害我的库？");
 		if (!database.Users.Any(x => x.ID == ID))
-			return BadRequest("你在干嘛呢？");
+			return BadRequest("查无此人");
 		Stream readStream = icon.OpenReadStream();
 
 		Image image;
 		try { image = Image.Load(readStream); }
-		catch (Exception) { return BadRequest("Image file reading error"); }
+		catch (Exception) { return BadRequest("什么破图？"); }
 		using (image)
 		{
 			image.Size.Deconstruct(out int x, out int y);
 			if (x != y)
-				return BadRequest("Not square Image");
+				return BadRequest("不是正方形图片");
 			if (x < 25)
-				return BadRequest("Image too small");
+				return BadRequest("太小");
 			if (x > 800)
-				return BadRequest("Image too big");
+				return BadRequest("太大");
 			using MemoryStream pngStream = new();
 			image.SaveAsPng(pngStream);
 			byte[] bytes = pngStream.ToArray();
