@@ -106,7 +106,6 @@ public class Program
 		app.UseAuthentication();
 		app.UseAuthorization();
 
-		app.UseMiddleware<RequestLimiter>();
 		app.UseMiddleware<HomepageGuide>();
 		app.UseMiddleware<UserExtractor>();
 		app.MapControllers();
