@@ -1,12 +1,10 @@
 #if DEBUG
-using System.ComponentModel.DataAnnotations;
-using System.Net.Http.Headers;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NTH.DBContext;
+using NTH.Filters;
 using NTH.Middlewares;
 using NTH.Models.Author;
 using NTH.Models.User;
@@ -15,6 +13,9 @@ using NTH.Models.Work;
 using NTH.Scheduling;
 using NTH.Services;
 using NTH.Utilities;
+using System.ComponentModel.DataAnnotations;
+using System.Net.Http.Headers;
+using System.Security.Claims;
 
 namespace NTH.Controllers;
 
@@ -352,6 +353,15 @@ public class DebugController : ControllerBase
 		//    TimeSpan.FromSeconds(15)
 		//);
 		return Ok("OK");
+	}
+
+	[HttpGet]
+	[ResourceFilter<UserID>]
+	[ResourceFilter<AuthorID>]
+	[Route("JustException")]
+	public IActionResult ExceptionRaiser()
+	{
+		throw new NTHException("On purpose");
 	}
 }
 #endif
