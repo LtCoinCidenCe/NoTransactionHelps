@@ -8,73 +8,92 @@ namespace NTH.Models.Video;
 
 public class VideoID
 {
-    public const int MAX_THUMBNAIL_SIZE = 3_000_000; // 3MB
+	public const int MAX_THUMBNAIL_SIZE = 3_000_000; // 3MB
+	public const int MAX_TRANSEDTITLE = 200;
+	public const int MAX_TRANSEDINTRO = 5000;
+	/// <summary>
+	/// 1 qian wan
+	/// </summary>
+	public const int MAX_LONGTEXT = 999_9999;
+	public const int MAX_URL = 200;
 
-    public long ID { get; set; }
+	public long ID { get; set; }
+	public long ByUserAudit { get; set; }
 
-    #region Video itself
-    [MaxLength(120)]
-    public string Title { get; set; } = string.Empty;
-    /// <summary>
-    /// jpg png webp ...
-    /// </summary>
-    [MaxLength(6)]
-    public string ThumbnailType { get; set; } = "";
-    [MaxLength(MAX_THUMBNAIL_SIZE)]
-    public byte[] Thumbnail { get; set; } = [];
-    [MaxLength(3000)]
-    public string Introduction { get; set; } = "";
-    [Column(name: "AuthorID"), JsonIgnore]
-    public AuthorID? Author { get; set; }
-    [Column(name: "AuthorID")]
-    public long AuthorID { get; set; }
-    [MaxLength(200)]
-    public string YoutubePage { get; set; } = string.Empty;
-    [MaxLength(200)]
-    public string NiconicoPage { get; set; } = string.Empty;
-    // If any author requests video to be translated for things here...
-    [MaxLength(200)]
-    public string BilibiliPage { get; set; } = string.Empty;
-    public DateTimeOffset UploadDate { get; set; } =
-        new DateTimeOffset(1930, 1, 1, 0, 0, 0, TimeSpan.FromHours(0)); // that's before computer came into reality
-    #endregion Video itself
+	#region Video itself
+	[MaxLength(120)]
+	public string Title { get; set; } = string.Empty;
+	/// <summary>
+	/// jpg png webp ...
+	/// </summary>
+	[MaxLength(6)]
+	public string ThumbnailType { get; set; } = "";
+	[MaxLength(MAX_THUMBNAIL_SIZE)]
+	public byte[] Thumbnail { get; set; } = [];
+	[MaxLength(3000)]
+	public string Introduction { get; set; } = "";
+	[Column(name: "AuthorID"), JsonIgnore]
+	public AuthorID? Author { get; set; }
+	[Column(name: "AuthorID")]
+	public long AuthorID { get; set; }
+	[MaxLength(MAX_URL)]
+	public string YoutubePage { get; set; } = string.Empty;
+	[MaxLength(MAX_URL)]
+	public string NiconicoPage { get; set; } = string.Empty;
+	// If any author requests video to be translated for things here...
+	[MaxLength(MAX_URL)]
+	public string BilibiliPage { get; set; } = string.Empty;
+	public DateTimeOffset UploadDate { get; set; } =
+		new DateTimeOffset(1930, 1, 1, 0, 0, 0, TimeSpan.FromHours(0)); // that's before computer came into reality
+	#endregion Video itself
 
-    #region Authorization
-    public bool AuthorizedPerVideo { get; set; } = false;
-    #endregion Authorization
+	#region Authorization
+	public bool AuthorizedPerVideo { get; set; } = false;
+	#endregion Authorization
 
-    #region Our workers
-    // since we can represent null with many-to-many relations...
-    [JsonIgnore]
-    public List<WorkID> Works { get; set; } = new();
-    public WorkStatus StatusTranslation { get; set; } = WorkStatus.NeverTouched;
-    public WorkStatus StatusScripting { get; set; } = WorkStatus.NeverTouched;
-    public WorkStatus StatusHardSubbing { get; set; } = WorkStatus.NeverTouched;
-    // [Column(name: "TranslatorID"), JsonIgnore]
-    // public UserID? Translator { get; set; }
-    // [Column(name: "TranslatorID")]
-    // public long TranslatorID { get; set; }
-    // [Column(name: "ScripterID"), JsonIgnore]
-    // public UserID? Scripter { get; set; }
-    // [Column(name: "ScripterID")]
-    // public long ScripterID { get; set; }
-    // [Column(name: "HardsubberID"), JsonIgnore]
-    // public UserID? Hardsubber { get; set; }
-    // [Column(name: "HardsubberID")]
-    // public long HardsubberID { get; set; }
-    #endregion Our workers
+	#region Our workers
+	// since we can represent null with many-to-many relations...
+	[JsonIgnore]
+	public List<WorkID> Works { get; set; } = new();
+	public WorkStatus StatusTranslation { get; set; } = WorkStatus.NeverTouched;
+	public WorkStatus StatusScripting { get; set; } = WorkStatus.NeverTouched;
+	public WorkStatus StatusHardSubbing { get; set; } = WorkStatus.NeverTouched;
+	// [Column(name: "TranslatorID"), JsonIgnore]
+	// public UserID? Translator { get; set; }
+	// [Column(name: "TranslatorID")]
+	// public long TranslatorID { get; set; }
+	// [Column(name: "ScripterID"), JsonIgnore]
+	// public UserID? Scripter { get; set; }
+	// [Column(name: "ScripterID")]
+	// public long ScripterID { get; set; }
+	// [Column(name: "HardsubberID"), JsonIgnore]
+	// public UserID? Hardsubber { get; set; }
+	// [Column(name: "HardsubberID")]
+	// public long HardsubberID { get; set; }
+	#endregion Our workers
 
-    #region Work details
-    [MaxLength(800)]
-    public string AdditionalRequirement { get; set; } = string.Empty;
-    [MaxLength(5000)]
-    public string WIntroTranslation = string.Empty;
-    [MaxLength(999_9999)] // 1 qian wan
-    public string WTranslationText { get; set; } = string.Empty;
-    [MaxLength(999_9999)] // 1 qian wan
-    public string WScriptingText { get; set; } = string.Empty;
-    #endregion Work details
+	#region Work details
+	[MaxLength(800)]
+	public string AdditionalRequirement { get; set; } = string.Empty;
 
-    [MaxLength(200)]
-    public string FinishedProductLink { get; set; } = string.Empty;
+	[MaxLength(MAX_TRANSEDTITLE)]
+	public string WTitleTranslation { get; set; } = string.Empty;
+	public DateTimeOffset WTitleChangeDate { get; set; } = DateTimeOffset.MinValue;
+	public long WTitleChangeUser { get; set; } = 0;
+
+	[MaxLength(MAX_TRANSEDINTRO)]
+	public string WIntroTranslation { get; set; } = string.Empty;
+	public DateTimeOffset WIntroChangeDate { get; set; } = DateTimeOffset.MinValue;
+	public long WIntroChangeUser { get; set; } = 0;
+
+	[MaxLength(MAX_LONGTEXT)]
+	public string WTekstTranslation { get; set; } = string.Empty;
+	public DateTimeOffset WTekstChangeDate { get; set; } = DateTimeOffset.MinValue;
+	public long WTekstChangeUser { get; set; } = 0;
+
+	[MaxLength(MAX_LONGTEXT)]
+	public string WScriptingText { get; set; } = string.Empty;
+	[MaxLength(MAX_URL)]
+	public string FinishedProductLink { get; set; } = string.Empty;
+	#endregion Work details
 }

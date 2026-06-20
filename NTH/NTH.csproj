@@ -1,29 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>17e49f14-2fca-4ab1-93ea-9ded49bc5f63</UserSecretsId>
-    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>17e49f14-2fca-4ab1-93ea-9ded49bc5f63</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<PackageId>NTHServer</PackageId>
+		<Version>0.0.1</Version>
+		<Authors>CoinCidenCe</Authors>
+		<Company>VoiceroidBa</Company>
+		<Product></Product>
+		<Description>The application for VoiceroidBa coordination</Description>
+		<AssemblyVersion>0.0.1</AssemblyVersion>
+		<FileVersion>0.0.1</FileVersion>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <!--<PackageReference Include="Hangfire.AspNetCore" Version="1.8.21" />-->
-    <!--<PackageReference Include="Hangfire.PostgreSql" Version="1.20.12" />-->
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.1">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\NTH.DTO\NTH.DTO.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<!--<PackageReference Include="Hangfire.AspNetCore" Version="1.8.21" />-->
+		<!--<PackageReference Include="Hangfire.PostgreSql" Version="1.20.12" />-->
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
+		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.1" />
+	</ItemGroup>
 
 </Project>

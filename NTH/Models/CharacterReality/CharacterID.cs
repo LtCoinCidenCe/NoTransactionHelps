@@ -1,0 +1,27 @@
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+
+namespace NTH.Models.CharacterReality;
+
+[PrimaryKey(nameof(Nameue), nameof(Nameshita))]
+public class CharacterID
+{
+	#region Database
+	[MaxLength(25)]
+	public required string Nameue { get; set; }
+	[MaxLength(25)]
+	public string Nameshita { get; set; } = string.Empty;
+	[MaxLength(1_000_000)]
+	public byte[] Icon { get; set; } = [];
+	[MaxLength(500)]
+	public string Introduction { get; set; } = string.Empty;
+	#endregion Database
+
+
+	#region Calculated Properties
+	public string FullName
+	{
+		get => Nameue + Nameshita;
+	}
+	#endregion Calculated Properties
+}
