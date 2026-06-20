@@ -52,7 +52,7 @@ public class DebugController : ControllerBase
 		supplementaryService = disupplementaryService;
 		authorService = diauthorService;
 
-		authorController = new AuthorController(authorLogger, database, authorService);
+		authorController = new AuthorController(authorLogger, database, authorService, new RequestingUser());
 		userController = new UserController(userLogger, database, userService, new RequestingUser());
 	}
 

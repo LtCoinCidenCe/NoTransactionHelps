@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,43 +6,81 @@ using NTH.Middlewares;
 using NTH.Models.Author;
 using NTH.Models.Work;
 using NTH.Services;
+using SixLabors.ImageSharp;
+using System.ComponentModel.DataAnnotations;
 
 namespace NTH.Controllers;
 
-[ApiController]
-[Route("api/Author")]
-public class AuthorController(ILogger<AuthorController> logger, PostgresContext database, AuthorService authorService) : ControllerBase
+[Authorize, ApiController, Route("api/Author")]
+public class AuthorController(ILogger<AuthorController> logger, PostgresContext database, AuthorService authorService, [FromServices] RequestingUser requestingUser)
+: ControllerBase
 {
-	[HttpGet, Authorize]
+	[HttpGet]
 	public IActionResult GetAllAuthors()
 	{
-		var data = database.Authors.Include(x => x.Contact)
-			.Select(author => new
-			{
-				author.ID,
-				author.Name,
-				author.YoutubeHomePage,
-				author.NiconicoHomePage,
-				author.BilibiliHomePage,
-				author.TwitterHomePage,
-				author.AuthorizedPerVideo,
-				author.AllVideoAuthorized,
-				author.AuthorizationChangeDate,
-				author.AdditionalRequirements,
-				author.AdditionalRequirementsChangeDate,
-				author.CreationDate,
-				ContactUserIDraw = author.Contact.Select(x => x.UserID).ToList()
-			}).ToList();
+		//var data = database.Authors.Include(x => x.Contact)
+		//	.Select(author => new
+		//	{
+		//		// This is to exclude Icon bytes, if the Icon bytes is in the table
+		//		author.ID,
+		//		author.Name,
+		//		author.YoutubeHomePage,
+		//		author.NiconicoHomePage,
+		//		author.BilibiliHomePage,
+		//		author.TwitterHomePage,
+		//		author.AuthorizedPerVideo,
+		//		author.AllVideoAuthorized,
+		//		author.AuthorizationChangeDate,
+		//		author.AdditionalRequirements,
+		//		author.AdditionalRequirementsChangeDate,
+		//		author.CreationDate,
+		//		author.Contact
+		//	}).ToList();
 
-		return Ok(data.Select(x => new { x.ID, x.Name, x.YoutubeHomePage, x.NiconicoHomePage, x.BilibiliHomePage, x.TwitterHomePage, x.AuthorizedPerVideo, x.AllVideoAuthorized, x.AuthorizationChangeDate, x.AdditionalRequirements, x.AdditionalRequirementsChangeDate, x.CreationDate, ContactUserID = x.ContactUserIDraw.FirstOrDefault() }));
+		//return Ok(data.Select(x => new {
+		//	x.ID,
+		//	x.Name,
+		//	x.YoutubeHomePage,
+		//	x.NiconicoHomePage,
+		//	x.BilibiliHomePage,
+		//	x.TwitterHomePage,
+		//	x.AuthorizedPerVideo,
+		//	x.AllVideoAuthorized,
+		//	x.AuthorizationChangeDate,
+		//	x.AdditionalRequirements,
+		//	x.AdditionalRequirementsChangeDate,
+		//	x.CreationDate,
+		//	ContactUserID = x.ContactUserIDraw.FirstOrDefault()
+		//}));
+
+		// This is somehow... huge if someone has changes contact multiple times
+		// But how many times you really need to change people contacting??
+		return Ok(database.Authors.Include(x => x.Contact).Select(x => new
+		{
+			x.ID,
+			x.Name,
+			x.AuthorIconID,
+			x.IconChangeDate,
+			x.YoutubeHomePage,
+			x.NiconicoHomePage,
+			x.BilibiliHomePage,
+			x.TwitterHomePage,
+			x.AuthorizedPerVideo,
+			x.AllVideoAuthorized,
+			x.AuthorizationChangeDate,
+			x.AdditionalRequirements,
+			x.AdditionalRequirementsChangeDate,
+			x.CreationDate,
+			x.Contact
+		}));
 	}
 
 	/// <summary>
 	/// Register a new author. Name should be unique but too lazy to check with mutex.
 	/// </summary>
 	/// <returns></returns>
-	[HttpPost, Authorize]
-	public ActionResult<AuthorID> CreateNewAuthor(NewAuthorDTO newAuthorDTO, [FromServices] RequestingUser requestingUser)
+	[HttpPost]
+	public ActionResult<AuthorID> CreateNewAuthor(NewAuthorDTO newAuthorDTO)
 	{
 		bool existing = database.Authors.AsNoTracking().Any(x => x.Name == newAuthorDTO.Name);
 		if (existing)
@@ -55,7 +92,7 @@ public class AuthorController(ILogger<AuthorController> logger, PostgresContext 
 		return CreatedAtAction(nameof(CreateNewAuthor), author);
 	}
 
-	[HttpPut, Authorize]
+	[HttpPut]
 	[Route("{authorID}/Requirements")]
 	public ActionResult<AdditionalRequirementsHistory> SetAuthorRequirements(long authorID, [FromBody, MaxLength(800)] string requirements)
 	{
@@ -67,6 +104,7 @@ public class AuthorController(ILogger<AuthorController> logger, PostgresContext 
 		var newHistory = new AdditionalRequirementsHistory()
 		{
 			AuthorID = authorID,
+			ByUserAudit = requestingUser.UserID,
 			TensaiRequirements = requirements,
 			CreationDate = timeNow
 		};
@@ -80,7 +118,7 @@ public class AuthorController(ILogger<AuthorController> logger, PostgresContext 
 		return Ok(newHistory);
 	}
 
-	[HttpPut, Authorize]
+	[HttpPut]
 	[Route("{authorID}/Authorization")]
 	public ActionResult<AuthorizationChangeHistory> SetAuthorization(long authorID, [FromBody] AuthorizationChangeDTO newAuth)
 	{
@@ -91,6 +129,7 @@ public class AuthorController(ILogger<AuthorController> logger, PostgresContext 
 		var timeNow = DateTimeOffset.UtcNow;
 		var newHistory = new AuthorizationChangeHistory()
 		{
+			ByUserAudit = requestingUser.UserID,
 			AuthorizedPerVideo = newAuth.AuthorizedPerVideo,
 			AllVideoAuthorized = newAuth.AllVideoAuthorized,
 			AuthorID = authorID,
@@ -107,7 +146,7 @@ public class AuthorController(ILogger<AuthorController> logger, PostgresContext 
 		return Ok(newHistory);
 	}
 
-	[HttpPut, Authorize]
+	[HttpPut]
 	[Route("{authorID}/Contact")]
 	public ActionResult<WorkContact> SetContact(long authorID, [FromBody] long userID)
 	{
@@ -123,29 +162,61 @@ public class AuthorController(ILogger<AuthorController> logger, PostgresContext 
 		if (!existing)
 			return NotFound();
 		var timeNow = DateTimeOffset.UtcNow;
-		var contactRelation = atr.Contact.FirstOrDefault();
-		if (contactRelation is null)
+
+		var newContact = new WorkContact()
 		{
-			var newContact = new WorkContact()
+			ByUserAudit = requestingUser.UserID,
+			ChangeDate = timeNow,
+			UserID = userID,
+			AuthorID = authorID
+		};
+		database.WorkContacts.Add(newContact);
+		database.SaveChanges();
+		return Ok(newContact);
+	}
+
+	[HttpPut]
+	[Route("{ID}/Icon")]
+	public IActionResult SetAuthorIcon([FromRoute] long ID, IFormFile icon)
+	{
+		if (icon.Length < 5 || icon.Length > AuthorIconHistory.MAX_ICON_SIZE)
+			return BadRequest("你想害我的库？");
+		if (!database.Authors.Any(x => x.ID == ID))
+			return BadRequest("查无此作者");
+		Stream readStream = icon.OpenReadStream();
+
+		Image image;
+		try { image = Image.Load(readStream); }
+		catch (Exception) { return BadRequest("什么破图？"); }
+		using (image)
+		{
+			image.Size.Deconstruct(out int x, out int y);
+			if (x != y)
+				return BadRequest("不是正方形图片");
+			if (x < 25)
+				return BadRequest("太小");
+			if (x > 800)
+				return BadRequest("太大");
+			using MemoryStream pngStream = new();
+			image.SaveAsPng(pngStream);
+			byte[] bytes = pngStream.ToArray();
+			if (bytes.Length > AuthorIconHistory.MAX_ICON_SIZE)
+				return BadRequest();
+			DateTimeOffset newDate = DateTimeOffset.UtcNow;
+			var historyItem = new AuthorIconHistory
 			{
-				ChangeDate = timeNow,
-				UserID = userID,
-				AuthorID = authorID
+				ByUserAudit = requestingUser.UserID,
+				AuthorID = ID,
+				Icon = bytes,
+				CreationDate = newDate,
 			};
-			database.WorkContacts.Add(newContact);
+			database.AuthorIconHistories.Add(historyItem);
 			database.SaveChanges();
-			return Ok(newContact);
-		}
-		else
-		{
-			database.WorkContacts
-				.Where(x => x.ID == contactRelation.ID)
+			database.Authors.Where(x => x.ID == ID)
 				.ExecuteUpdate(setter => setter
-					.SetProperty(c => c.UserID, userID)
-					.SetProperty(c => c.ChangeDate, timeNow));
-			contactRelation.UserID = userID;
-			contactRelation.ChangeDate = timeNow;
-			return Ok(contactRelation);
+					.SetProperty(a => a.AuthorIconID, historyItem.GUID)
+					.SetProperty(u => u.IconChangeDate, newDate));
+			return Ok(historyItem.GUID);
 		}
 	}
 }

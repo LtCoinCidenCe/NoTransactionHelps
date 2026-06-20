@@ -9,17 +9,13 @@ namespace NTH.Models.Author;
 [Index(nameof(Name), IsUnique = true)]
 public partial class AuthorID
 {
-	public const int MAX_ICON_SIZE = 3_000_000; // 3MB
 	#region Author Itself
 	public long ID { get; set; }
 	public long ByUserAudit { get; set; }
 	[MaxLength(30)]
 	public required string Name { get; set; }
-	#region Profile Icon
-	[MaxLength(MAX_ICON_SIZE)]
-	public byte[]? Icon { get; set; }
+	public Guid AuthorIconID { get; set; }
 	public DateTimeOffset IconChangeDate { get; set; }
-	#endregion Profile Icon
 	[MaxLength(200)]
 	public string YoutubeHomePage { get; set; } = string.Empty;
 	[MaxLength(200)]
@@ -37,7 +33,7 @@ public partial class AuthorID
 	public DateTimeOffset AuthorizationChangeDate { get; set; }
 	/// <summary>
 	/// the userID who contacts the author
-	/// even though here is a List, there could only be 0 or 1 value.
+	/// List works like a history table, get the one with new biggest ID
 	/// </summary>
 	[JsonIgnore]
 	public List<WorkContact> Contact { get; set; } = new();

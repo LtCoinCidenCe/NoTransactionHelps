@@ -1,23 +1,23 @@
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using Microsoft.EntityFrameworkCore;
 
-namespace NTH.Models.User;
+namespace NTH.Models.Author;
 
 [PrimaryKey(nameof(GUID))]
 [Index(nameof(CreationDate))]
-[Index(nameof(UserID), nameof(ID), IsUnique = true)]
-public class UserIconHistory
+[Index(nameof(AuthorID), nameof(ID), IsUnique = true)]
+public class AuthorIconHistory
 {
 	public const int MAX_ICON_SIZE = 3_000_000; // 3MB
 
 	public Guid GUID { get; set; } = Guid.CreateVersion7();
 
-	[Column(name: "UserID")]
-	public long UserID { get; set; }
-	[Column(name: "UserID"), JsonIgnore]
-	public UserID? User { get; set; }
+	[Column(name: "AuthorID")]
+	public long AuthorID { get; set; }
+	[Column(name: "AuthorID"), JsonIgnore]
+	public AuthorID? Author { get; set; }
 
 	// #region itsumono
 	// let's go little bit different for this "file" like table

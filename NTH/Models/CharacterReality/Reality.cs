@@ -12,7 +12,7 @@ public static class Reality
 			new() { Nameue = "琴葉", Nameshita = "茜", Introduction = "関西弁で喋る百合姉" },
 			new() { Nameue = "琴葉", Nameshita = "葵", Introduction = "標準語で喋る百合妹" },
 			new() { Nameue = "弦巻", Nameshita = "マキ", Introduction = "胸が大きいバンドメンバー" },
-			new() { Nameue = "宮舞", Nameshita = "モカ", Introduction = "もう上しか見えない歌手" },
+			new() { Nameue = "宮舞", Nameshita = "モカ", Introduction = "もう上しか見えないDJ" },
 			new() { Nameue = "紡乃世", Nameshita = "詞音", Introduction = "角という名の、奇抜な髪型をした有名人" },
 			new() { Nameue = "双葉", Nameshita = "湊音", Introduction = "青春怪人" },
 			new() { Nameue = "夏色", Nameshita = "花梨", Introduction = "小樽市のパイセン" },
