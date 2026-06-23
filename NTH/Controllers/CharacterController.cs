@@ -22,8 +22,8 @@ public class CharacterController(PostgresContext database) : ControllerBase
 	[HttpPost]
 	public IActionResult CreateCharacter(NewCharacter newChara)
 	{
-		CharacterID? inProgram = Reality.Characters.FirstOrDefault(x => x.Nameue == newChara.Nameue && x.Nameshita == newChara.Nameshita);
-		if (inProgram is not null)
+		var inProgram = Reality.CharactersByName.ContainsKey(newChara.Nameue + newChara.Nameshita);
+		if (inProgram)
 			return BadRequest("Character already exists.");
 		var newCharacter = new CharacterID()
 		{
