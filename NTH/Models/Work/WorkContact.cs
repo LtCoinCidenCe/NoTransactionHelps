@@ -6,7 +6,11 @@ using NTH.Models.User;
 
 namespace NTH.Models.Work;
 
-[Index(nameof(AuthorID), IsUnique = true)]
+/// <summary>
+/// This should be called WorkContactHistory because it uses history storage style as well.
+/// Query from the Author and the one with new biggest ID is the current data.
+/// </summary>
+[Index(nameof(AuthorID), nameof(ID))]
 public class WorkContact
 {
 	public long ID { get; set; }

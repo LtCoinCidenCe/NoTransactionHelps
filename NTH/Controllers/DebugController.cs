@@ -52,7 +52,7 @@ public class DebugController : ControllerBase
 		supplementaryService = disupplementaryService;
 		authorService = diauthorService;
 
-		authorController = new AuthorController(authorLogger, database, authorService);
+		authorController = new AuthorController(authorLogger, database, authorService, new RequestingUser());
 		userController = new UserController(userLogger, database, userService, new RequestingUser());
 	}
 
@@ -140,6 +140,17 @@ public class DebugController : ControllerBase
 	public async Task<IActionResult> InitializeDatabase()
 	{
 		logger.Log(LogLevel.Warning, "Database Reinitializing");
+
+		byte[] anIconFile;
+		try
+		{
+			anIconFile = System.IO.File.ReadAllBytes("../鱼卡日yu.png");
+		}
+		catch (FileNotFoundException)
+		{
+			throw new NTHException("Debug Initialization 鱼卡日 file not found. Check if this program is running debug.");
+		}
+
 		await InitializeProductionPigtail();
 
 		supplementaryService.GenerateSupplementaryDefinition();
@@ -211,7 +222,6 @@ public class DebugController : ControllerBase
 		a2 = fengdi(PatientStrategizer.ID, UserRoleDTO.Translator).Result;
 		a2 = fengdi(LondonHeathrow.ID, UserRoleDTO.Translator).Result;
 
-		var anIconFile = System.IO.File.ReadAllBytes("../鱼卡日yu.png");
 		var setProfileIcons = async () =>
 		{
 			var jwt = await getJwtByUser(new UserLoginDTO { Username = "star", Password = "texas" });
