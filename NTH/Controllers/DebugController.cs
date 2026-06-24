@@ -34,6 +34,8 @@ public class DebugController : ControllerBase
 	private UserController userController;
 	private static HttpClient httpClient = new HttpClient();
 
+	private Random random = new Random(854);
+
 	public DebugController(
 		ILogger<DebugController> dilogger,
 		ILogger<AuthorController> diauthorLogger,
@@ -266,18 +268,18 @@ public class DebugController : ControllerBase
 		var titleWordResult = await httpClient.PutAsJsonAsync($"{Request.Scheme}://{Request.Host}{urlSetBusinessTitleWords}", "The new king.");
 		var businessRoleResult = await fengdi(businessman.ID, UserRoleDTO.Translator | UserRoleDTO.Scriptor);
 
-		var urlCreateAuthor = Url.Action(nameof(AuthorController.CreateNewAuthor), "Author");
+		var pathCreateAuthor = Url.Action(nameof(AuthorController.CreateNewAuthor), "Author");
 		var oneAuthor = new NewAuthorDTO()
 		{
 			Name = "kflat",
 			TwitterHomePage = "https://x.com/kflat_aasa",
 		};
-		var oneAuthorCreation = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}{urlCreateAuthor}", oneAuthor);
+		var oneAuthorCreation = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}{pathCreateAuthor}", oneAuthor);
 		var twoAuthor = new NewAuthorDTO()
 		{
 			Name = "cyderl",
 		};
-		var twoAuthorCreation = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}{urlCreateAuthor}", twoAuthor);
+		var twoAuthorCreation = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}{pathCreateAuthor}", twoAuthor);
 		List<NewAuthorDTO> moreAuthors = [
 			new NewAuthorDTO() { Name = "harujiko", },
 			new NewAuthorDTO() { Name = "suyako", AllVideoAuthorized = true },
@@ -293,7 +295,17 @@ public class DebugController : ControllerBase
 			new NewAuthorDTO() { Name = "ANA", AuthorizedPerVideo = true, TensaiRequirement = "提供作者主页链接" },
 			new NewAuthorDTO() { Name = "JAL", },
 		];
-		var creatingAuthors = await Task.WhenAll(moreAuthors.Select(x => httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}{urlCreateAuthor}", x)));
+		var creatingAuthors = await Task.WhenAll(moreAuthors.Select(x => httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}{pathCreateAuthor}", x)));
+
+		var pathAuthorContact = () => Url.Action(nameof(AuthorController.SetContact), "Author", new { authorID = random.Next(moreAuthors.Count) + 1 });
+		List<Task<HttpResponseMessage>> contactsMade = [];
+		for (int i = 0; i < moreAuthors.Count * 2; i++)
+		{
+			var contactCall = httpClient.PutAsJsonAsync($"{Request.Scheme}://{Request.Host}{pathAuthorContact()}", random.Next(newUsers.Count - 1) + 1);
+			contactsMade.Add(contactCall);
+		}
+		var contactsMsg = await Task.WhenAll(contactsMade);
+
 
 		var urlCreateVideo = Url.Action(nameof(VideoController.CreateNewVideo), "Video");
 		var firstVideo = new NewVideoDTO
