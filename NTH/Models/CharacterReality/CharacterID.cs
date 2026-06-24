@@ -15,8 +15,8 @@ public class CharacterID
 	public byte[] Icon { get; set; } = [];
 	[MaxLength(500)]
 	public string Introduction { get; set; } = string.Empty;
+	public int? Age { get; set; }
 	#endregion Database
-
 
 	#region Calculated Properties
 	public string FullName
