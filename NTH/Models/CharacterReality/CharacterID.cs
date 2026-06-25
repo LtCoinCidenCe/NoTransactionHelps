@@ -11,8 +11,8 @@ public class CharacterID
 	public required string Nameue { get; set; }
 	[MaxLength(25)]
 	public string Nameshita { get; set; } = string.Empty;
-	[MaxLength(1_000_000)]
-	public byte[] Icon { get; set; } = [];
+	[MaxLength(25)]
+	public string IconFilename { get; set; } = string.Empty; // let it be a static file
 	[MaxLength(500)]
 	public string Introduction { get; set; } = string.Empty;
 	public int? Age { get; set; }
