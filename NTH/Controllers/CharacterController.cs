@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NTH.DBContext;
@@ -7,8 +8,7 @@ using NTH.Models.CharacterReality;
 
 namespace NTH.Controllers;
 
-[ApiController]
-[Route("api/Character")]
+[Authorize, ApiController, Route("api/Character")]
 public class CharacterController(PostgresContext database) : ControllerBase
 {
 	[HttpGet]

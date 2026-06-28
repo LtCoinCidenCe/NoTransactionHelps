@@ -34,7 +34,7 @@ public class DebugController : ControllerBase
 	private UserController userController;
 	private static HttpClient httpClient = new HttpClient();
 
-	private Random random = new Random(854);
+	private Random random = new Random(894);
 
 	public DebugController(
 		ILogger<DebugController> dilogger,
