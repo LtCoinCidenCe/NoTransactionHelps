@@ -7,7 +7,6 @@ using NTH.Middlewares;
 using NTH.Services;
 using NTH.SignalRHubs;
 using NTH.Utilities;
-using NTH.Utilities.Middlewares;
 using System.Text;
 
 namespace NTH;
