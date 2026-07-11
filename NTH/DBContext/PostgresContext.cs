@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using NTH.Models.Author;
 using NTH.Models.CharacterReality;
 using NTH.Models.GeographicPlaceReality;
+using NTH.Models.LiaoTian;
 using NTH.Models.User;
 using NTH.Models.Video;
 using NTH.Models.Work;
@@ -63,6 +64,8 @@ public class PostgresContext : DbContext
 	public DbSet<AdditionalRequirementsHistory> AdditionalRequirementsHistories { get; set; }
 	public DbSet<VideoID> Videos { get; set; }
 	public DbSet<WorkID> Works { get; set; }
+
+	public DbSet<Message> LiaoTianJiLu { get; set; }
 
 	#region World Reality Information
 	// 这边数据库希望只记录增加的项，已知的尽可能代码里写出

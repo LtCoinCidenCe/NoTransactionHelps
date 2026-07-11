@@ -5,6 +5,7 @@ using Microsoft.OpenApi;
 using NTH.DBContext;
 using NTH.Middlewares;
 using NTH.Services;
+using NTH.SignalRHubs;
 using NTH.Utilities;
 using NTH.Utilities.Middlewares;
 using System.Text;
@@ -81,7 +82,25 @@ public class Program
 				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtHelper.SECRET)),
 				ValidateLifetime = true
 			};
+			// for signalR
+			options.Events = new JwtBearerEvents
+			{
+				OnMessageReceived = context =>
+				{
+					var accessToken = context.Request.Query["access_token"];
+
+					// If the request is for our hub...
+					var path = context.HttpContext.Request.Path;
+					if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/api/LiaoTianHub"))
+					{
+						// Read the token out of the query string
+						context.Token = accessToken;
+					}
+					return Task.CompletedTask;
+				}
+			};
 		});
+		builder.Services.AddSignalR();
 		//builder.Services.AddHangfire(config =>
 		//    config.UsePostgreSqlStorage(c =>
 		//    c.UseNpgsqlConnection("Host=localhost;Username=nthuser;Password=stillnicedatabase;Database=nthwork;Include Error Detail=True;")));
@@ -105,6 +124,8 @@ public class Program
 
 		app.UseAuthentication();
 		app.UseAuthorization();
+
+		app.MapHub<LiaoTianHub>("/api/LiaoTianHub").RequireAuthorization();
 
 		app.UseMiddleware<HomepageGuide>();
 		app.UseMiddleware<UserExtractor>();
