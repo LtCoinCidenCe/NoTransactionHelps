@@ -9,7 +9,7 @@ using NTH.Models.CharacterReality;
 namespace NTH.Controllers;
 
 [Authorize, ApiController, Route("api/Character")]
-public class CharacterController(PostgresContext database) : ControllerBase
+public class CharacterController(SQLiteContext database) : ControllerBase
 {
 	[HttpGet]
 	public ImmutableList<CharacterID> GetCharacters()

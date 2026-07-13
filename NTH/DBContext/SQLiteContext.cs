@@ -1,56 +1,41 @@
 using Microsoft.EntityFrameworkCore;
 using NTH.Models.Author;
 using NTH.Models.CharacterReality;
-using NTH.Models.GeographicPlaceReality;
 using NTH.Models.LiaoTian;
 using NTH.Models.User;
 using NTH.Models.Video;
 using NTH.Models.Work;
+using NTH.Utilities;
 
 namespace NTH.DBContext;
 
-public class PostgresContext : DbContext
+public class SQLiteContext : DbContext
 {
-	private ILogger<PostgresContext> logger;
+	private ILogger<SQLiteContext> logger;
 	private IConfiguration configuration;
-
-	public PostgresContext(DbContextOptions<PostgresContext> options,
-	ILogger<PostgresContext> diLogger,
-	IConfiguration diConfiguration)
-	: base(options)
+	private string NTHDataPath;
+	public SQLiteContext(DbContextOptions<SQLiteContext> options,
+	ILogger<SQLiteContext> diLogger,
+	IConfiguration diConfiguration) : base(options)
 	{
 		logger = diLogger;
 		configuration = diConfiguration;
-		//logger.Log(LogLevel.Information, "PostgresContext constructor");
+		NTHDataPath = configuration["NTHDataPath"] ?? throw new NTHException("NTHDataPath configuration is not provided");
 	}
 
 	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 	{
-		optionsBuilder.UseNpgsql("Host=localhost;Port=30075;Username=nthuser;Password=stillnicedatabase;Database=nthwork;Application Name=NTHBackend")
-			.EnableSensitiveDataLogging();
-		base.OnConfiguring(optionsBuilder);
+		optionsBuilder.UseSqlite($"Data Source={NTHDataPath}NTHdatabase.db")
+		.EnableSensitiveDataLogging();
 	}
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		// this is useful
-		modelBuilder.Entity<UserID>(entity =>
-		{
-			var props = typeof(UserID).GetProperties();
-			foreach (var prop in props)
-			{
-				if (prop.Name.EndsWith("Date"))
-				{
-					entity.Property(prop.Name).HasDefaultValueSql("transaction_timestamp()");
-				}
-			}
-		});
 		// no cascading by default, all foreign key prevents deletion
 		foreach (var foreignKey in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
 		{
 			foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
 		}
-		base.OnModelCreating(modelBuilder);
 	}
 
 	public DbSet<UserID> Users { get; set; }

@@ -14,7 +14,7 @@ namespace NTH.Controllers;
 
 [ApiController]
 [Route("api/Login")]
-public class LoginController(ILogger<LoginController> logger, PostgresContext database, UserService userService) : ControllerBase
+public class LoginController(ILogger<LoginController> logger, SQLiteContext database, UserService userService) : ControllerBase
 {
 	[HttpPost]
 	public async Task<ActionResult<string>> Login(UserLoginDTO userLoginDTO)

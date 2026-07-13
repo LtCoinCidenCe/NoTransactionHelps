@@ -17,7 +17,7 @@ namespace NTH.Controllers;
 [Authorize]
 [Route("api/User")]
 public class UserController(ILogger<UserController> logger,
-	PostgresContext database,
+	SQLiteContext database,
 	UserService userService,
 	[FromServices] RequestingUser requestingUser) : ControllerBase
 {
@@ -191,7 +191,7 @@ public class UserController(ILogger<UserController> logger,
 [ApiController]
 [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
 [Route("api/User")]
-public class UserCookieAssetController(PostgresContext database) : ControllerBase
+public class UserCookieAssetController(SQLiteContext database) : ControllerBase
 {
 	[HttpGet]
 	[Route("Icon/{IconID}")]

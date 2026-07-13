@@ -5,12 +5,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace NTH.Models.User;
 
-[PrimaryKey(nameof(GUID))]
 [Index(nameof(CreationDate))]
 [Index(nameof(UserID), nameof(ID), IsUnique = true)]
 public class UserIconHistory
 {
 	public const int MAX_ICON_SIZE = 3_000_000; // 3MB
+
+	public long ID { get; set; }
 
 	public Guid GUID { get; set; } = Guid.CreateVersion7();
 
@@ -21,8 +22,8 @@ public class UserIconHistory
 
 	// #region itsumono
 	// let's go little bit different for this "file" like table
-	[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-	public long ID { get; set; }
+	// [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+	// public long ID { get; set; }
 
 	public long ByUserAudit { get; set; }
 

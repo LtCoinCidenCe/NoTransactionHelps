@@ -12,7 +12,7 @@ namespace NTH.Controllers;
 
 [ApiController]
 [Route("api/Video")]
-public class VideoController(ILogger<VideoController> logger, PostgresContext database) : ControllerBase
+public class VideoController(ILogger<VideoController> logger, SQLiteContext database) : ControllerBase
 {
 	[HttpGet, Authorize]
 	[Route("AllAuthorizedVideo")]

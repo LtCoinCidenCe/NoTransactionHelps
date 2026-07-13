@@ -17,7 +17,7 @@ namespace NTH.Controllers;
 /// <param name="liaotianHub"></param>
 /// <param name="requestingUser"></param>
 [Authorize, ApiController, Route("api/LiaoTian")]
-public class LiaoTianController([FromServices] PostgresContext database,
+public class LiaoTianController([FromServices] SQLiteContext database,
 	[FromServices] IHubContext<LiaoTianHub> liaotianHub,
 	[FromServices] RequestingUser requestingUser) : ControllerBase
 {
@@ -42,6 +42,11 @@ public class LiaoTianController([FromServices] PostgresContext database,
 		return database.LiaoTianJiLu.Where(x => x.ID > lastReceivedChatID);
 	}
 
+	/// <summary>
+	/// 往前指定读70条
+	/// </summary>
+	/// <param name="oldestMsg"></param>
+	/// <returns></returns>
 	[HttpGet, Route("Take70")]
 	public IQueryable<Message> Take70Message([FromQuery, Required] long oldestMsg)
 	{

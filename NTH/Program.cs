@@ -48,7 +48,7 @@ public class Program
 				{ new OpenApiSecuritySchemeReference(au, document), new List<string>() }
 			});
 		});
-		builder.Services.AddDbContext<PostgresContext>();
+		builder.Services.AddDbContext<SQLiteContext>();
 		builder.Services.AddScoped<UserService>();
 		builder.Services.AddScoped<AuthorService>();
 		builder.Services.AddScoped<SupplementaryService>();

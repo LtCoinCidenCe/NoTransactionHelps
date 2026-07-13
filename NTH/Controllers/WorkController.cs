@@ -11,7 +11,7 @@ namespace NTH.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/Work")]
-public class WorkController(PostgresContext database) : ControllerBase
+public class WorkController(SQLiteContext database) : ControllerBase
 {
     [HttpPatch]
     [Route("{vID}/Title")]

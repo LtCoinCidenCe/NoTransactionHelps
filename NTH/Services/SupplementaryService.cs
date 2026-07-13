@@ -6,7 +6,7 @@ using NTH.Models.Work;
 
 namespace NTH.Services;
 
-public class SupplementaryService(PostgresContext database)
+public class SupplementaryService(SQLiteContext database)
 {
 #if DEBUG
     public void GenerateSupplementaryDefinition()

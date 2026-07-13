@@ -25,7 +25,7 @@ public class DebugController : ControllerBase
 	ILogger<DebugController> logger;
 	ILogger<AuthorController> authorLogger;
 	ILogger<UserController> userLogger;
-	PostgresContext database;
+	SQLiteContext database;
 	UserService userService;
 	SupplementaryService supplementaryService;
 	AuthorService authorService;
@@ -40,7 +40,7 @@ public class DebugController : ControllerBase
 		ILogger<DebugController> dilogger,
 		ILogger<AuthorController> diauthorLogger,
 		ILogger<UserController> diuserLogger,
-		PostgresContext didatabase,
+		SQLiteContext didatabase,
 		UserService diuserService,
 		SupplementaryService disupplementaryService,
 		AuthorService diauthorService

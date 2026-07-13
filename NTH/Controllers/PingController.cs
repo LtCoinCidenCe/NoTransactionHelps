@@ -6,7 +6,7 @@ namespace NTH.Controllers;
 
 [ApiController]
 [Route("api/Ping")]
-public class PingController(PostgresContext database) : ControllerBase
+public class PingController(SQLiteContext database) : ControllerBase
 {
     [HttpGet]
     public IActionResult Ping()
