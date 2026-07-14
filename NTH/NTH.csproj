@@ -19,15 +19,18 @@
 	<ItemGroup>
 		<!--<PackageReference Include="Hangfire.AspNetCore" Version="1.8.21" />-->
 		<!--<PackageReference Include="Hangfire.PostgreSql" Version="1.20.12" />-->
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.8" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8">
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.9" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.9" />
-		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.1" />
+
+		<!-- https://sixlabors.com/posts/licence-enforcement-changes/ -->
+		<PackageReference Include="SixLabors.ImageSharp" Version="4.0.0" />
+
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
 	</ItemGroup>
 
 </Project>
