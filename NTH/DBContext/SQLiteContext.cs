@@ -25,7 +25,7 @@ public class SQLiteContext : DbContext
 
 	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 	{
-		optionsBuilder.UseSqlite($"Data Source={NTHDataPath}NTHdatabase.db")
+		optionsBuilder.UseSqlite($"Data Source={NTHDataPath}/NTHdatabase.db")
 		.EnableSensitiveDataLogging();
 	}
 

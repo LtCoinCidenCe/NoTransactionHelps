@@ -105,7 +105,7 @@ public class Program
 		//    c.UseNpgsqlConnection("Host=localhost;Username=nthuser;Password=stillnicedatabase;Database=nthwork;Include Error Detail=True;")));
 		//builder.Services.AddHangfireServer();
 
-		var app = builder.Build();
+		app = builder.Build();
 
 		// Configure the HTTP request pipeline.
 		if (app.Environment.IsDevelopment())
@@ -135,4 +135,6 @@ public class Program
 
 		app.Run();
 	}
+
+	public static WebApplication app = null!;
 }

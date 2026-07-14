@@ -1,14 +1,17 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using NTH.DBContext;
+using NTH.Middlewares;
 using NTH.Models.User;
 using NTH.Services;
 using NTH.Utilities;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace NTH.Controllers;
 
@@ -48,5 +51,15 @@ public class LoginController(ILogger<LoginController> logger, SQLiteContext data
 
 		await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 		return Ok(token);
+	}
+
+	[HttpDelete, Route("salainen/shutdown"), Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+	public IActionResult ShutdownProgram([FromServices] RequestingUser requestingUser)
+	{
+		// 因为SQLite需要
+		if (requestingUser.UserID != 1) // 超级用户权力大，好的有用都给他
+			return NotFound();
+		Program.app.StopAsync();
+		return Ok("OK");
 	}
 }
