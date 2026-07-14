@@ -136,5 +136,5 @@ public class Program
 		app.Run();
 	}
 
-	public static WebApplication app = null!;
+	public static WebApplication app = null!; // just small assurance grammar
 }

@@ -1,1 +1,0 @@
-import{q as r,p as s}from"./chunk-UIGDSWPH-BnG1xc6t.js";async function a({params:e}){const t=Number.parseInt(e.id);return Number.isNaN(t)?new Response("that's not a userID",{status:400}):t}const u=r(function({params:t,loaderData:n}){return s.jsx("div",{children:t.id})});export{a as clientLoader,u as default};
