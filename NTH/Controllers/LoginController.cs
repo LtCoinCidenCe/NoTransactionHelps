@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NTH.DBContext;
 using NTH.Middlewares;
@@ -103,9 +104,28 @@ public class LoginController(ILogger<LoginController> logger, SQLiteContext data
 	public async Task<IActionResult> InvitationTokenValidation
 		([FromQuery, Required] long ID, [FromQuery, Required, MinLength(14)] string token)
 	{
-		var salasana = Convert.FromBase64String(token);
+		var dbToken = await database.UserInvitationLinks.FirstOrDefaultAsync(x => x.ID == ID);
+		if (dbToken is null)
+			return NotFound();
+		byte[] salasana;
+		try { salasana = Convert.FromBase64String(token); }
+		catch (FormatException) { return BadRequest(); }
+
 		var aes0 = Aes.Create();
-		return NotFound();
+		byte[] outBuffer = new byte[300];
+
+		var ok = aes0.TryDecryptCfb(salasana, dbToken.IV, outBuffer, out var bytesLength);
+		if (!ok)
+			return BadRequest("What are you trying to do?");
+		Array.Resize(ref outBuffer, bytesLength);
+
+		InvitationToken? originalToken;
+		try { originalToken = JsonSerializer.Deserialize<InvitationToken>(outBuffer) ?? throw new JsonException("null is not what I wanted"); }
+		catch (JsonException) { return BadRequest("It must be correct json"); }
+
+		if (dbToken.ByUserAudit != originalToken.ByUserAudit || dbToken.CreationDate != originalToken.CreationDate)
+			return BadRequest("Where the heck did you get the token from?");
+		return Ok("OK");
 	}
 
 	[HttpGet, Route("InvitedAccountCreation")]
@@ -130,4 +150,5 @@ public class InvitationToken
 {
 	public long ByUserAudit { get; set; }
 	public DateTimeOffset CreationDate { get; set; }
+	public int ConfidentNumber { get; set; } = Random.Shared.Next();
 }

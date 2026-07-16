@@ -42,6 +42,7 @@ public class SQLiteContext : DbContext
 	public DbSet<UserIconHistory> UserIconHistories { get; set; }
 	public DbSet<DisplaynameHistory> UserDisplaynameHistories { get; set; }
 	public DbSet<UserRoleHistory> UserRoleHistories { get; set; }
+	public DbSet<UserInvitationLink> UserInvitationLinks { get; set; }
 	public DbSet<WorkContact> WorkContacts { get; set; }
 	public DbSet<AuthorID> Authors { get; set; }
 	public DbSet<AuthorIconHistory> AuthorIconHistories { get; set; }
