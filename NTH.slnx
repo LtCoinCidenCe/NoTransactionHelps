@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".runsettings" />
+  </Folder>
   <Project Path="NTH.Tests/NTH.Tests.csproj" Id="5639470b-9c19-4f45-9dbe-c3d04461945b" />
   <Project Path="NTH/NTH.csproj" />
 </Solution>

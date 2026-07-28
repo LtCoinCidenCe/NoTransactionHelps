@@ -115,6 +115,11 @@ public class Program
 			//app.UseHangfireDashboard();
 			app.UseCors("developing");
 		}
+		else if (app.Environment.IsStaging())
+		{
+			app.UseSwagger();
+			app.UseSwaggerUI();
+		}
 
 		app.UseHttpsRedirection();
 		app.MapStaticAssets().ShortCircuit();
