@@ -1,18 +1,12 @@
 #if DEBUG
 using System.ComponentModel.DataAnnotations;
-using System.Net.Http.Headers;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using NTH.DBContext;
 using NTH.Middlewares;
-using NTH.Models.Author;
 using NTH.Models.User;
-using NTH.Models.Video;
-using NTH.Models.Work;
-using NTH.Scheduling;
 using NTH.Services;
 using NTH.Utilities;
 
@@ -25,14 +19,16 @@ public class DebugController : ControllerBase
 	ILogger<DebugController> logger;
 	ILogger<AuthorController> authorLogger;
 	ILogger<UserController> userLogger;
+	ILogger<VideoController> videoLogger;
 	SQLiteContext database;
 	UserService userService;
 	SupplementaryService supplementaryService;
 	AuthorService authorService;
+	IConfiguration configuration;
 
 	private AuthorController authorController;
 	private UserController userController;
-	private static HttpClient httpClient = new HttpClient();
+	private VideoController videoController;
 
 	private Random random = new Random(894);
 
@@ -40,22 +36,27 @@ public class DebugController : ControllerBase
 		ILogger<DebugController> dilogger,
 		ILogger<AuthorController> diauthorLogger,
 		ILogger<UserController> diuserLogger,
+		ILogger<VideoController> divideoLogger,
 		SQLiteContext didatabase,
 		UserService diuserService,
 		SupplementaryService disupplementaryService,
-		AuthorService diauthorService
+		AuthorService diauthorService,
+		IConfiguration diConfiguration
 	) : base()
 	{
 		logger = dilogger;
 		authorLogger = diauthorLogger;
 		userLogger = diuserLogger;
+		videoLogger = divideoLogger;
 		database = didatabase;
 		userService = diuserService;
 		supplementaryService = disupplementaryService;
 		authorService = diauthorService;
+		configuration = diConfiguration;
 
 		authorController = new AuthorController(authorLogger, database, authorService, new RequestingUser());
 		userController = new UserController(userLogger, database, userService, new RequestingUser());
+		videoController = new VideoController(videoLogger, database, new RequestingUser());
 	}
 
 	/// <summary>
@@ -92,24 +93,15 @@ public class DebugController : ControllerBase
 		return Ok("In debug mode, cookie");
 	}
 
-	[HttpGet]
-	[Route("tempReturn")]
-	public IActionResult TempReturn()
+	private NonSensitiveUserDTO shifeng(NewUserDTO userDude)
 	{
-		var urlCreateUser = Url.Action("CreateNewUser", "User");
-		var urlSetUserRole = Url.Action(nameof(UserController.SetUserRole), "User", new { ID = 9 });
-		return Ok(urlSetUserRole);
-	}
-
-	[HttpGet]
-	[Route("httpAuth")]
-	public async Task<IActionResult> HttpGo()
-	{
-		var asyncCall = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}/api/Login", new UserLoginDTO() { Username = "star", Password = "texas" });
-		var jwt = await asyncCall.Content.ReadAsStringAsync();
-		if (string.IsNullOrEmpty(jwt))
-			throw new NTHException("httpAuth jwt is not received");
-		return Ok("OK");
+		List<ValidationResult> validationResults = [];
+		bool goodValidated = Validator.TryValidateObject(userDude, new ValidationContext(userDude), validationResults, true);
+		if (!goodValidated)
+			throw new NTHException("Debug hardcoded users validation failed.");
+		var newUserResult = (userController.CreateNewUser(userDude) as CreatedAtActionResult) ?? throw new NTHException("Debug hardcoded users creation failed");
+		var newUserReturned = (newUserResult.Value as NonSensitiveUserDTO) ?? throw new NTHException("Debug hardcoded users return failed");
+		return newUserReturned;
 	}
 
 	/// <summary>
@@ -128,12 +120,12 @@ public class DebugController : ControllerBase
 		List<ValidationResult> validationResults = [];
 		bool goodValidated = Validator.TryValidateObject(newUser, new ValidationContext(newUser), validationResults, true);
 		if (!goodValidated)
-			throw new NTHException("pigtail generation failure");
+			throw new NTHException("pigtail generation failure. First User Validation.");
 
 		// generic ActionResult<T>.Value fools people
-		var newUserResult = (userController.CreateNewUser(newUser) as CreatedAtActionResult) ?? throw new NTHException("pigtail generation failure");
-		var newUserReturned = (newUserResult.Value as NonSensitiveUserDTO) ?? throw new NTHException("pigtail generation failure");
-		userController.SetUserRole(newUserReturned.ID, UserRoleDTO.SuperAdministrator);
+		var newUserResult = (userController.CreateNewUser(newUser) as CreatedAtActionResult) ?? throw new NTHException("pigtail generation failure, First user creation");
+		var newUserReturned = (newUserResult.Value as NonSensitiveUserDTO) ?? throw new NTHException("pigtail generation failure, First user return");
+		userController.SetUserRole(newUserReturned.ID, UserRoleDTO.God);
 		return Ok("OK");
 	}
 
@@ -146,7 +138,7 @@ public class DebugController : ControllerBase
 		byte[] anIconFile;
 		try
 		{
-			anIconFile = System.IO.File.ReadAllBytes("../鱼卡日yu.png");
+			anIconFile = System.IO.File.ReadAllBytes("./鱼卡日yu.png");
 		}
 		catch (FileNotFoundException)
 		{
@@ -157,12 +149,21 @@ public class DebugController : ControllerBase
 
 		supplementaryService.GenerateSupplementaryDefinition();
 
+		// size = 6, [0-5]
+		List<DateTimeOffset> times = [
+			new DateTimeOffset(2024, 5, 6, 12, 25, 30, TimeSpan.Zero),
+			new DateTimeOffset(2025, 2, 9, 7, 4, 21, TimeSpan.Zero),
+			new DateTimeOffset(2024, 7, 9, 20, 43, 44, TimeSpan.Zero),
+			new DateTimeOffset(2024, 12, 25, 12, 25, 3, TimeSpan.Zero),
+			new DateTimeOffset(2025, 9, 4, 23, 55, 0, TimeSpan.Zero),
+			new DateTimeOffset(2025, 11, 3, 6, 12, 9, TimeSpan.Zero)
+		];
+		times.Sort();
+
 		userController.ControllerContext = ControllerContext;
 		authorController.ControllerContext = ControllerContext;
 
-		var jwtForFirstUserCreation = getJwtByUser(new UserLoginDTO { Username = "Genesis", Password = "apetonxin9320" }).Result;
-		httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtForFirstUserCreation);
-
+		string samplePassword = "kissa123";
 		List<NewUserDTO> newUsersDTO = [
 			new() { Username = "FirstUser", Displayname = "The First Emperor", Password = "someDefault" },
 			new() { Username = "krk", Displayname = "Kimi Räikkönen", Password = "McLaren" },
@@ -181,21 +182,9 @@ public class DebugController : ControllerBase
 			new() { Username = "hoshik", Displayname = "Hoshi no Kaabi", Password = "someApexmeme" },
 			new() { Username = "kirby", Displayname = "WellIamKirby", Password = "someApexmeme" },
 			new() { Username = "fairchild", Displayname = "Fairchild", Password = "someApexmeme" },
+			new() { Displayname = "BusinessInside", Username = "business", Password = samplePassword }
 		];
-		var urlCreateUser = Url.Action(nameof(UserController.CreateNewUser), "User");
-		var shifeng = async (NewUserDTO dude) =>
-		{
-			var httpResult = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}{urlCreateUser}", dude);
-			var resultObject = await httpResult.Content.ReadFromJsonAsync<NonSensitiveUserDTO>();
-			if (resultObject is null)
-				throw new NTHException("Debug User Creation Error");
-			return resultObject;
-		};
-		var newUsers = newUsersDTO.Select(x =>
-		{
-			return shifeng(x).Result;
-		}).ToList();
-
+		var newUsers = newUsersDTO.Select(shifeng).ToList();
 
 		var firstUser = newUsers.Single(x => x.Username == "FirstUser");
 		var testUser = newUsers.Single(x => x.Username == "string");
@@ -204,83 +193,29 @@ public class DebugController : ControllerBase
 		var franc = newUsers.Single(x => x.Username == "oofran");
 		var PatientStrategizer = newUsers.Single(x => x.Username == "pstrag");
 		var LondonHeathrow = newUsers.Single(x => x.Username == "heathrow");
+		var businessman = newUsers.Single(x => x.Username == "business");
+		userController.SetUserRole(firstUser.ID, UserRoleDTO.SystemAdministrator | UserRoleDTO.Translator);
+		userController.SetUserRole(testUser.ID, UserRoleDTO.SystemAdministrator);
+		userController.SetUserRole(starUser.ID, UserRoleDTO.SystemAdministrator);
+		userController.SetUserRole(Angular.ID, UserRoleDTO.Translator | UserRoleDTO.Scriptor);
+		userController.SetUserRole(franc.ID, UserRoleDTO.Scriptor);
+		userController.SetUserRole(PatientStrategizer.ID, UserRoleDTO.Translator);
+		userController.SetUserRole(LondonHeathrow.ID, UserRoleDTO.Translator);
 
-		var jwtForRole = getJwtByUser(new UserLoginDTO { Username = "krk", Password = "McLaren" }).Result;
-		httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtForRole);
+		userController = new UserController(userLogger, database, userService, new RequestingUser() { UserID = starUser.ID, UserRole = UserRoleDTO.SystemAdministrator });
 
-		async Task<UserRoleHistory> fengdi(long ID, UserRoleDTO newRole)
+		for (int i = 1; i <= 6; i++)
 		{
-			var urlSetUserRole = Url.Action(nameof(UserController.SetUserRole), "User", new { ID });
-			var httpResult = await httpClient.PutAsJsonAsync($"{Request.Scheme}://{Request.Host}{urlSetUserRole}", newRole);
-			var resultObject = await httpResult.Content.ReadFromJsonAsync<UserRoleHistory>() ?? throw new NTHException("Debug Set User Role Error");
-			return resultObject;
+			userController.SetUserIcon(i, new FormFile(new MemoryStream(anIconFile), 0, anIconFile.Length, "icon", "鱼卡日yu.png"));
 		}
 
-		var a2 = fengdi(firstUser.ID, UserRoleDTO.SystemAdministrator | UserRoleDTO.Translator).Result;
-		a2 = fengdi(testUser.ID, UserRoleDTO.SystemAdministrator).Result;
-		a2 = fengdi(starUser.ID, UserRoleDTO.SystemAdministrator).Result;
-		a2 = fengdi(Angular.ID, UserRoleDTO.Translator | UserRoleDTO.Scriptor).Result;
-		a2 = fengdi(franc.ID, UserRoleDTO.Scriptor).Result;
-		a2 = fengdi(PatientStrategizer.ID, UserRoleDTO.Translator).Result;
-		a2 = fengdi(LondonHeathrow.ID, UserRoleDTO.Translator).Result;
+		userController = new UserController(userLogger, database, userService, new RequestingUser() { UserID = businessman.ID, UserRole = UserRoleDTO.User });
+		authorController = new AuthorController(authorLogger, database, authorService, new RequestingUser() { UserID = businessman.ID, UserRole = UserRoleDTO.User });
+		var businessRoleResult = userController.SetUserRole(businessman.ID, UserRoleDTO.Translator | UserRoleDTO.Scriptor);
 
-		var setProfileIcons = async () =>
-		{
-			var jwt = await getJwtByUser(new UserLoginDTO { Username = "star", Password = "texas" });
-			httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-			using var content = new MultipartFormDataContent();
-			content.Add(new ByteArrayContent(anIconFile), "icon", "鱼卡日yu.png");
-			List<Task<HttpResponseMessage>> iconCalls = new();
-			for (int i = 1; i <= 6; i++)
-			{
-				var URLi = $"{Request.Scheme}://{Request.Host}/api/User/{i}/Icon";
-				var iconCall = await httpClient.PutAsync(URLi, content);
-				// iconCalls.Add(iconCall);
-			}
-			// await Task.WhenAll(iconCalls);
-		};
-
-		await setProfileIcons();
-
-		// size = 6, [0-5]
-		List<DateTimeOffset> times = [
-			new DateTimeOffset(2024, 5, 6, 12, 25, 30, TimeSpan.Zero),
-			new DateTimeOffset(2025, 2, 9, 7, 4, 21, TimeSpan.Zero),
-			new DateTimeOffset(2024, 7, 9, 20, 43, 44, TimeSpan.Zero),
-			new DateTimeOffset(2024, 12, 25, 12, 25, 3, TimeSpan.Zero),
-			new DateTimeOffset(2025, 9, 4, 23, 55, 0, TimeSpan.Zero),
-			new DateTimeOffset(2025, 11, 3, 6, 12, 9, TimeSpan.Zero)
-		];
-		times.Sort();
-
-		string samplePassword = "kissa123";
-
-		NewUserDTO businessDTO = new()
-		{
-			Displayname = "BusinessInside",
-			Username = "business",
-			Password = samplePassword
-		};
-		var businessman = await shifeng(businessDTO);
-		string jwtForBusinessman = await getJwtByUser(new UserLoginDTO { Username = businessman.Username, Password = samplePassword });
-		httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtForBusinessman);
-		var urlSetBusinessTitleWords = Url.Action(nameof(UserController.SetTitleWords), "User", new { businessman.ID });
-		var titleWordResult = await httpClient.PutAsJsonAsync($"{Request.Scheme}://{Request.Host}{urlSetBusinessTitleWords}", "The new king.");
-		var businessRoleResult = await fengdi(businessman.ID, UserRoleDTO.Translator | UserRoleDTO.Scriptor);
-
-		var pathCreateAuthor = Url.Action(nameof(AuthorController.CreateNewAuthor), "Author");
-		var oneAuthor = new NewAuthorDTO()
-		{
-			Name = "kflat",
-			TwitterHomePage = "https://x.com/kflat_aasa",
-		};
-		var oneAuthorCreation = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}{pathCreateAuthor}", oneAuthor);
-		var twoAuthor = new NewAuthorDTO()
-		{
-			Name = "cyderl",
-		};
-		var twoAuthorCreation = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}{pathCreateAuthor}", twoAuthor);
 		List<NewAuthorDTO> moreAuthors = [
+			new NewAuthorDTO() { Name = "kflat", TwitterHomePage = "https://x.com/kflat_aasa" },
+			new NewAuthorDTO() { Name = "cyderl", },
 			new NewAuthorDTO() { Name = "harujiko", },
 			new NewAuthorDTO() { Name = "suyako", AllVideoAuthorized = true },
 			new NewAuthorDTO() { Name = "awawa", AuthorizedPerVideo = true, TensaiRequirement = "提供作者主页链接" },
@@ -295,85 +230,18 @@ public class DebugController : ControllerBase
 			new NewAuthorDTO() { Name = "ANA", AuthorizedPerVideo = true, TensaiRequirement = "提供作者主页链接" },
 			new NewAuthorDTO() { Name = "JAL", },
 		];
-		var creatingAuthors = await Task.WhenAll(moreAuthors.Select(x => httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}{pathCreateAuthor}", x)));
+		moreAuthors.Select(authorController.CreateNewAuthor);
 
-		var pathAuthorContact = () => Url.Action(nameof(AuthorController.SetContact), "Author", new { authorID = random.Next(moreAuthors.Count) + 1 });
-		List<Task<HttpResponseMessage>> contactsMade = [];
 		for (int i = 0; i < moreAuthors.Count * 2; i++)
 		{
-			var contactCall = httpClient.PutAsJsonAsync($"{Request.Scheme}://{Request.Host}{pathAuthorContact()}", random.Next(newUsers.Count - 1) + 1);
-			contactsMade.Add(contactCall);
+			authorController.SetContact(authorID: random.Next(moreAuthors.Count) + 1, userID: random.Next(newUsers.Count) + 1);
 		}
-		var contactsMsg = await Task.WhenAll(contactsMade);
 
-
-		var urlCreateVideo = Url.Action(nameof(VideoController.CreateNewVideo), "Video");
-		var firstVideo = new NewVideoDTO
-		{
-			AuthorID = 1,
-			Title = "过♂年",
-			BilibiliPage = "https://www.bilibili.com/video/BV1Qs411X7QR",
-		};
-		var oneVideoCreation = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}{urlCreateVideo}", firstVideo);
-
-		// firstVideo.Works.Add(new WorkID
-		// {
-		// 	UserID = firstUser.ID,
-		// 	FinishingDate = DateTimeOffset.UtcNow,
-		// });
-		// firstVideo.StatusTranslation = WorkStatus.Assigned;
-		// database.SaveChanges();
+		videoController = new VideoController(videoLogger, database, new RequestingUser() { UserID = 2, UserRole = UserRoleDTO.SystemAdministrator });
+		videoController.CreateNewVideo(new NewVideoDTO { AuthorID = 1, Title = "过♂年", BilibiliPage = "https://www.bilibili.com/video/BV1Qs411X7QR" });
 
 		logger.Log(LogLevel.Warning, "Database debug initialized.");
 		return Ok("Initialized");
-	}
-
-	private async Task<string> getJwtByUser(UserLoginDTO loginUser)
-	{
-		var authCall = await httpClient.PostAsJsonAsync($"{Request.Scheme}://{Request.Host}/api/Login", loginUser);
-		var jwt = await authCall.Content.ReadAsStringAsync();
-		if (string.IsNullOrEmpty(jwt))
-			throw new NTHException("httpAuth jwt is not received");
-		return jwt;
-	}
-
-	[HttpGet]
-	[Route("GetUsers")]
-	public List<UserID> GetUsers()
-	{
-		var users = database.Users
-			// .AsSplitQuery()
-			.AsSingleQuery()
-			.AsNoTracking()
-			.Include(x => x.DisplaynameHistory)
-			.Include(x => x.UserRoleHistory)
-			.Include(x => x.Contact)
-			.ThenInclude(contact => contact.Author)
-			.Include(x => x.Works)
-			.ThenInclude(x => x.Video)
-			.ToList();
-		return users;
-	}
-
-	[HttpGet]
-	[Route("UserIcon/{ID}")]
-	public ActionResult GetIconbyID(long ID)
-	{
-		var row = database.UserIconHistories.AsNoTracking().FirstOrDefault(x => x.ID == ID);
-		if (row is null)
-			return NotFound();
-		return File(row.Icon, "image/png");
-	}
-
-	[HttpGet]
-	[Route("fireException")]
-	public IActionResult FireException()
-	{
-		//BackgroundJob.Schedule(
-		//    () => SchedulingTasks.ThrowException(),
-		//    TimeSpan.FromSeconds(15)
-		//);
-		return Ok("OK");
 	}
 }
 #endif
