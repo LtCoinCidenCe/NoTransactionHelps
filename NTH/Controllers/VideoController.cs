@@ -12,7 +12,7 @@ namespace NTH.Controllers;
 
 [ApiController]
 [Route("api/Video")]
-public class VideoController(ILogger<VideoController> logger, PostgresContext database) : ControllerBase
+public class VideoController(ILogger<VideoController> logger, SQLiteContext database, [FromServices] RequestingUser requestingUser) : ControllerBase
 {
 	[HttpGet, Authorize]
 	[Route("AllAuthorizedVideo")]
@@ -43,7 +43,7 @@ public class VideoController(ILogger<VideoController> logger, PostgresContext da
 	}
 
 	[HttpPost, Authorize]
-	public IActionResult CreateNewVideo([FromBody] NewVideoDTO newVideoDTO, [FromServices] RequestingUser requestingUser)
+	public IActionResult CreateNewVideo([FromBody] NewVideoDTO newVideoDTO)
 	{
 		var author = database.Authors.Where(x => x.ID == newVideoDTO.AuthorID).Select(x => new { x.ID, x.Name }).FirstOrDefault();
 		if (author is null)

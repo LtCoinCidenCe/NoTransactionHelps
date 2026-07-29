@@ -25,7 +25,7 @@ public partial class UserID
 	/// Just store a value here to quickly find the UserIcon
 	/// </summary>
 	public Guid UserIconID { get; set; }
-	public DateTimeOffset IconChangeDate { get; set; }
+	public DateTimeOffset IconChangeDate { get; set; } = DateTimeOffset.UtcNow;
 	#endregion Profile Icon
 
 	#region Display name
@@ -33,13 +33,13 @@ public partial class UserID
 	[MaxLength(30)]
 	public required string Displayname { get; set; }
 	public List<DisplaynameHistory> DisplaynameHistory { get; set; } = new();
-	public DateTimeOffset DisplaynameChangeDate { get; set; }
+	public DateTimeOffset DisplaynameChangeDate { get; set; } = DateTimeOffset.UtcNow;
 	#endregion Display name
 
 	#region TitleWords
 	[MaxLength(250)]
 	public string TitleWords { get; set; } = string.Empty;
-	public DateTimeOffset TitleWordsChangeDate { get; set; }
+	public DateTimeOffset TitleWordsChangeDate { get; set; } = DateTimeOffset.UtcNow;
 	#endregion TitleWords
 
 	#region Password
@@ -47,13 +47,13 @@ public partial class UserID
 	public required byte[] Password { get; set; }
 	[MaxLength(5)]
 	public string PassSalt { get; set; } = "     ";
-	public DateTimeOffset PasswordChangeDate { get; set; }
+	public DateTimeOffset PasswordChangeDate { get; set; } = DateTimeOffset.UtcNow;
 	#endregion Password
 
 	#region User Roles
 	public UserRoleDTO UserRole { get; set; }
 	public List<UserRoleHistory> UserRoleHistory { get; set; } = new();
-	public DateTimeOffset UserRoleChangeDate { get; set; }
+	public DateTimeOffset UserRoleChangeDate { get; set; } = DateTimeOffset.UtcNow;
 	#endregion User Roles
 
 	#region AllWorks
@@ -61,6 +61,6 @@ public partial class UserID
 	public List<WorkID> Works { get; set; } = new();
 	#endregion AllWorks
 
-	public DateTimeOffset CreationDate { get; set; }
+	public DateTimeOffset CreationDate { get; set; } = DateTimeOffset.UtcNow;
 	public bool IsDeleted { get; set; } = false;
 }

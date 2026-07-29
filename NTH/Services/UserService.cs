@@ -6,7 +6,7 @@ using NTH.Utilities;
 
 namespace NTH.Services;
 
-public class UserService(PostgresContext database)
+public class UserService(SQLiteContext database)
 {
     /// <summary>
     /// 

@@ -46,7 +46,7 @@
     "migrations add": {
       "commandName": "Executable",
       "executablePath": "dotnet",
-      "commandLineArgs": "ef migrations add InitialVersion --context PostgresContext",
+      "commandLineArgs": "ef migrations add InitialVersion --context SQLiteContext",
       "workingDirectory": ".",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
@@ -60,6 +60,15 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
+    },
+    "httpNotDevelopment": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "MyWantedEnvironment"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://localhost:5139",
+      "hotReloadEnabled": false
     }
   },
   "$schema": "https://json.schemastore.org/launchsettings.json"

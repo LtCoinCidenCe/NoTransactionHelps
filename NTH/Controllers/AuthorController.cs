@@ -12,7 +12,7 @@ using System.ComponentModel.DataAnnotations;
 namespace NTH.Controllers;
 
 [Authorize, ApiController, Route("api/Author")]
-public class AuthorController(ILogger<AuthorController> logger, PostgresContext database, AuthorService authorService, [FromServices] RequestingUser requestingUser)
+public class AuthorController(ILogger<AuthorController> logger, SQLiteContext database, AuthorService authorService, [FromServices] RequestingUser requestingUser)
 : ControllerBase
 {
 	[HttpGet]

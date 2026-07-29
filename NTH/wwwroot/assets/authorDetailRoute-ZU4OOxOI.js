@@ -1,1 +1,0 @@
-import{q as e,p as i}from"./chunk-UIGDSWPH-BnG1xc6t.js";async function a({params:t}){console.debug("authorDetailRoute:",t.id)}const r=e(function({params:o}){return i.jsx("div",{children:o.id})});export{a as clientLoader,r as default};

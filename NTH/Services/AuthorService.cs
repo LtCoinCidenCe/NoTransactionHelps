@@ -3,7 +3,7 @@ using NTH.Models.Author;
 
 namespace NTH.Services;
 
-public class AuthorService(PostgresContext database)
+public class AuthorService(SQLiteContext database)
 {
     public AuthorizationChangeHistory? SetAuthorization(long ID, bool AuthorizedPerVideo, bool AllVideoAuthorized, DateTimeOffset? dateTime)
     {

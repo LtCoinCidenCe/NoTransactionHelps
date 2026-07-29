@@ -1,4 +1,6 @@
-namespace NTH.Utilities.Middlewares;
+using NTH.Utilities;
+
+namespace NTH.Middlewares;
 
 public class HomepageGuide(RequestDelegate next)
 {
@@ -16,7 +18,9 @@ public class HomepageGuide(RequestDelegate next)
 	public async Task InvokeAsync(HttpContext context)
 	{
 		await next(context);
-		if (context.Response.HasStarted)
+		if (context.Response.HasStarted
+			|| context.Request.Method == "CONNECT" // for websocket
+			|| context.WebSockets.IsWebSocketRequest) // for websocket
 		{
 			return;
 		}
