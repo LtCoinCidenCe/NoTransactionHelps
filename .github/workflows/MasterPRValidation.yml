@@ -12,6 +12,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v7
+    - name: Create NTHdata/dlpdata
+      run: mkdir ${{ runner.temp }}/dlpdata
+    - name: Setup Python
+      uses: actions/setup-python@v7
+      with:
+        python-version: '3.14'
+    - name: Install yt-dlp
+      run: 'python3 -m pip install -U "yt-dlp[default]"'
     - name: Setup .NET
       uses: actions/setup-dotnet@v6
       with:
