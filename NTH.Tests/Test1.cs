@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NTH.Controllers;
+using NTH.DBContext;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -56,5 +59,13 @@ public sealed class Test1
 		var response = await client.GetAsync("api/ping");
 		response.EnsureSuccessStatusCode();
 		Assert.AreEqual(200, (int)response.StatusCode);
+	}
+
+	[TestMethod]
+	public async Task BasicTableDataExists()
+	{
+		SQLiteContext dbContext = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<SQLiteContext>();
+		Assert.IsTrue(dbContext.Users.Any());
+		Assert.IsNotNull(dbContext.Users.FirstOrDefault(x => x.Username == "apexTan"));
 	}
 }
