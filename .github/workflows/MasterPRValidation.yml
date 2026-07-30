@@ -19,6 +19,7 @@ jobs:
     - name: Replace Path in appsettings.Staging.json
       run: jq --arg newpath ${{ runner.temp }} '.NTHDataPath = $newpath' ./NTH/appsettings.Staging.json > tmp.json && mv tmp.json ./NTH/appsettings.Staging.json
     - name: Print new appsettings.Staging.json
+      if: ${{ contains(github.event.pull_request.body, 'workflowDebug') }}
       run: cat ./NTH/appsettings.Staging.json
     - name: Build
       run: dotnet build -c Debug NTH.slnx

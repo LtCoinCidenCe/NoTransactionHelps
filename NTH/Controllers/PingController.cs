@@ -8,17 +8,26 @@ namespace NTH.Controllers;
 [Route("api/Ping")]
 public class PingController(SQLiteContext database) : ControllerBase
 {
-    [HttpGet]
-    public IActionResult Ping()
-    {
-        database.Users.Any();
-        return Ok("OK");
-    }
+	[HttpGet]
+	public IActionResult Ping()
+	{
+		database.Users.Any();
+		return Ok("OK");
+	}
 
-    [HttpPut, Authorize]
-    [Route("Authorized")]
-    public IActionResult AuthorizedPing()
-    {
-        return Ok("OK");
-    }
+	[HttpGet, Authorize]
+	[Route("Authorized")]
+	public IActionResult AuthorizedPing()
+	{
+		return Ok("OK");
+	}
+
+	[HttpGet]
+	[Route("Started")]
+	public IActionResult HealthCheck()
+	{
+		database.ProgramStarts.Add(new());
+		database.SaveChanges();
+		return Ok("Healthy");
+	}
 }

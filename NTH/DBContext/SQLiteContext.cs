@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using NTH.Models.Author;
 using NTH.Models.CharacterReality;
 using NTH.Models.LiaoTian;
+using NTH.Models.NTH;
 using NTH.Models.User;
 using NTH.Models.Video;
 using NTH.Models.Work;
@@ -37,6 +38,8 @@ public class SQLiteContext : DbContext
 			foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
 		}
 	}
+
+	public DbSet<ProgramStart> ProgramStarts { get; set; }
 
 	public DbSet<UserID> Users { get; set; }
 	public DbSet<UserIconHistory> UserIconHistories { get; set; }

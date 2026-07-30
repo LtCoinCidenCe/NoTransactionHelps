@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Hosting.Server.Features;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using NTH.DBContext;
@@ -135,10 +138,25 @@ public class Program
 		app.UseMiddleware<UserExtractor>();
 		app.MapControllers();
 
-		// Hangfire 0 retry
-		//GlobalConfiguration.Configuration.UseFilter(new AutomaticRetryAttribute { Attempts = 0 });
+		var configuration = app.Services.GetService<IConfiguration>() ?? throw new NTHException("Why IConfiguration is null???");
+		var nthDataPath = configuration.GetValue<string>("NTHDataPath") ?? throw new NTHException("You need to provide a valid NTHDataPath in appsettings.json");
 
-		app.Run();
+		app.Lifetime.ApplicationStarted.Register(() =>
+		{
+			var server = app.Services.GetRequiredService<IServer>();
+			var addresses = server.Features.GetRequiredFeature<IServerAddressesFeature>();
+			// exception does not stop the program here.
+			if (addresses.Addresses.Count == 0)
+				throw new NTHException("No addresses in server features.");
+			string firstAddress = addresses.Addresses.First();
+			string statedURL = $"{firstAddress}/api/Ping/Started";
+			using var http = new HttpClient();
+			if (!http.GetAsync(statedURL).Wait(6000))
+				throw new NTHException("Failed to ping the started URL.");
+		});
+
+		app.Start();
+		app.WaitForShutdown();
 	}
 
 	public static WebApplication app = null!; // just small assurance grammar
