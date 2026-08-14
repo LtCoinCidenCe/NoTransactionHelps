@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using NTH.Controllers.Filters;
@@ -35,11 +35,11 @@ public class LiaoTianController([FromServices] SQLiteContext database,
 	[HttpGet, Route("History")]
 	public IQueryable<Message> GetChatHistory([FromQuery, Required] long lastReceivedChatID)
 	{
-		var max = database.LiaoTianJiLu.Max(x => x.ID);
+		long? max = database.LiaoTianJiLu.Max(x => (long?)x.ID); // haha just convert to long? to avoid exception when table is empty
 		if (lastReceivedChatID + 70 < max)
-			return database.LiaoTianJiLu.OrderByDescending(x => x.ID).Take(70);
+			return database.LiaoTianJiLu.Where(x => x.ID > lastReceivedChatID);
 		// history too long return newest instead
-		return database.LiaoTianJiLu.Where(x => x.ID > lastReceivedChatID);
+		return database.LiaoTianJiLu.OrderByDescending(x => x.ID).Take(70);
 	}
 
 	/// <summary>
