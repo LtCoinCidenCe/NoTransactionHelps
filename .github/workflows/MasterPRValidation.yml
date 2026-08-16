@@ -29,7 +29,9 @@ jobs:
     - name: Print new appsettings.Staging.json
       if: ${{ contains(github.event.pull_request.body, 'workflowDebug') }}
       run: cat ./NTH/appsettings.Staging.json
-    - name: Build
+    - name: Build Debug
       run: dotnet build -c Debug NTH.slnx
     - name: Test
       run: dotnet test --no-build --solution NTH.slnx --verbosity normal --settings .runsettings --coverage
+    - name: Build Release
+      run: dotnet build -c Release NTH/NTH.csproj
