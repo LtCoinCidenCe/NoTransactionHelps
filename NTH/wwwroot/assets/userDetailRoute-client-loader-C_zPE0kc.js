@@ -1,0 +1,1 @@
+async function e({params:e}){let t=Number.parseInt(e.id);if(Number.isNaN(t))throw Error(`that's not a userID`);return t}export{e as clientLoader};

@@ -1,0 +1,1 @@
+async function e({}){let e=localStorage.getItem(`NTHUsername`),t=localStorage.getItem(`NTHPassword`);return e===null&&(e=``),t===null&&(t=``),{username:e,password:t}}export{e as clientLoader};

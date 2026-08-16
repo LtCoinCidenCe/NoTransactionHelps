@@ -1,0 +1,1 @@
+import{o as e,t}from"./jsx-runtime-C3TH8vwL.js";var n=t(),r=e(function({params:e}){return(0,n.jsx)(`div`,{children:e.id})});export{r as default};

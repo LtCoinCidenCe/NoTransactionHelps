@@ -1,0 +1,1 @@
+import{B as e,W as t}from"./utils-B6XY_LWc.js";import{i as n}from"./types-ClvWwKsl.js";var r=(0,t(e(),1).createContext)({users:[],usersMap:new Map,currentUser:n,setUsers:()=>{},updateCurrentUser:()=>{}});export{r as t};
