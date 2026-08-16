@@ -1,0 +1,1 @@
+async function e({params:e}){console.debug(`authorDetailRoute:`,e.id)}export{e as clientLoader};

@@ -1,0 +1,1 @@
+var e=`/assets/futagotoYukari-Dm3BDc8E.png`;export{e as t};

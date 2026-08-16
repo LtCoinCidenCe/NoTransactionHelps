@@ -1,0 +1,1 @@
+async function e(){console.debug(`GlobalLayout ClientLoader`)}export{e as clientLoader};

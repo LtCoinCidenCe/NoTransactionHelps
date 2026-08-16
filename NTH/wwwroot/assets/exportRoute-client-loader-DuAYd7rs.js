@@ -1,0 +1,1 @@
+async function e({}){console.log(`exportRoute clientLoader`)}export{e as clientLoader};
