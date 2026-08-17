@@ -13,6 +13,10 @@ jobs:
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.x
+      - name: Fill current commit hash in for program
+        run: sed -i "s|Not a release commit|$(git rev-parse HEAD)|" NTH/PipelineGitCommit.cs
+      - name: Test Release
+        run: dotnet test --solution NTH.slnx -c Release --progress true --settings .runsettings --coverage
       - name: Publish Release
         run: dotnet publish -p:PublishProfile=NTH/Properties/PublishProfiles/LinuxReleaseProfile.pubxml NTH/NTH.csproj
       - name: list files

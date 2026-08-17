@@ -32,6 +32,6 @@ jobs:
     - name: Build Debug
       run: dotnet build -c Debug NTH.slnx
     - name: Test
-      run: dotnet test --no-build --solution NTH.slnx --verbosity normal --settings .runsettings --coverage
+      run: dotnet test --no-build --solution NTH.slnx --progress true --settings .runsettings --coverage
     - name: Build Release
       run: dotnet build -c Release NTH/NTH.csproj

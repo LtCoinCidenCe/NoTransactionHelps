@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Testing;
+﻿#if DEBUG
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NTH.Controllers;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 namespace NTH.Tests;
 
 [TestClass]
-public sealed class Test1
+public sealed class TestDebug
 {
 	private static readonly WebApplicationFactory<Program> _factory = new();
 	private static readonly HttpClient client = _factory.CreateClient();
@@ -68,4 +69,12 @@ public sealed class Test1
 		Assert.IsTrue(dbContext.Users.Any());
 		Assert.IsNotNull(dbContext.Users.FirstOrDefault(x => x.Username == "apexTan"));
 	}
+
+	[TestMethod]
+	public async Task DebugAvailable()
+	{
+		var isDebug = await client.GetAsync("api/Debug/ping");
+		Assert.AreEqual("In debug mode", await isDebug.Content.ReadAsStringAsync());
+	}
 }
+#endif
