@@ -1,0 +1,21 @@
+name: 'Build Release'
+
+on:
+  push:
+    branches: ["Release"]
+
+jobs:
+  Building:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.x
+      - name: Build Release
+        run: dotnet build -p:PublishProfile=NTH/Properties/PublishProfiles/LinuxReleaseProfile.pubxml NTH/NTH.csproj
+      - name: list files
+        run: ls -alF
+      - name: list NTH files
+        run: ls -alF NTH/
