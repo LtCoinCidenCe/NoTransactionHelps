@@ -19,3 +19,5 @@ jobs:
         run: ls -alF
       - name: list NTH files
         run: ls -alF NTH/
+      - name: list output folder
+        run: ls -alF /home/runner/work/NoTransactionHelps/NoTransactionHelps/NTH/bin/Release/net10.0/linux-x64/publish/
