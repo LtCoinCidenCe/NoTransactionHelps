@@ -13,8 +13,8 @@ jobs:
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.x
-      - name: Build Release
-        run: dotnet build -p:PublishProfile=NTH/Properties/PublishProfiles/LinuxReleaseProfile.pubxml NTH/NTH.csproj
+      - name: Publish Release
+        run: dotnet publish -p:PublishProfile=NTH/Properties/PublishProfiles/LinuxReleaseProfile.pubxml NTH/NTH.csproj
       - name: list files
         run: ls -alF
       - name: list NTH files
