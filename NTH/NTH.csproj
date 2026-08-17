@@ -7,13 +7,13 @@
     <UserSecretsId>17e49f14-2fca-4ab1-93ea-9ded49bc5f63</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <PackageId>NTHServer</PackageId>
-    <Version>0.0.1</Version>
+    <Version>0.0.2</Version>
     <Authors>CoinCidenCe</Authors>
     <Company>VoiceroidBa</Company>
     <Product></Product>
     <Description>The application for VoiceroidBa coordination</Description>
-    <AssemblyVersion>0.0.1</AssemblyVersion>
-    <FileVersion>0.0.1</FileVersion>
+    <AssemblyVersion>0.0.2</AssemblyVersion>
+    <FileVersion>0.0.2</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
