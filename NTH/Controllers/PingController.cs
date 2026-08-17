@@ -30,4 +30,11 @@ public class PingController(SQLiteContext database) : ControllerBase
 		database.SaveChanges();
 		return Ok("Healthy");
 	}
+
+	[HttpGet]
+	[Route("Commit")]
+	public string GetCommit()
+	{
+		return PipelineGitCommit.CurrentCommitHash;
+	}
 }
