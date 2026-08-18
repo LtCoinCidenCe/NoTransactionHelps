@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: '0'
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
         with:
@@ -19,9 +21,20 @@ jobs:
         run: dotnet test --solution NTH.slnx -c Release --progress true --settings .runsettings --coverage
       - name: Publish Release
         run: dotnet publish -p:PublishProfile=NTH/Properties/PublishProfiles/LinuxReleaseProfile.pubxml NTH/NTH.csproj
-      - name: list files
-        run: ls -alF
-      - name: list NTH files
-        run: ls -alF NTH/
+      # - name: list files
+      #   run: ls -alF
+      # - name: list NTH files
+      #   run: ls -alF NTH/
+      - name: show pwd
+        run: pwd
       - name: list output folder
         run: ls -alF /home/runner/work/NoTransactionHelps/NoTransactionHelps/NTH/bin/Release/net10.0/linux-x64/publish/
+      - name: zip the artifact
+        run: zip -r NTHartifact-linux-x64.zip /home/runner/work/NoTransactionHelps/NoTransactionHelps/NTH/bin/Release/net10.0/linux-x64/publish/
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@1.75.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRY_RUN: true
+          TAG_CONTEXT: branch
+          DEFAULT_BUMP: patch
