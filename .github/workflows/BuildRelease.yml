@@ -16,7 +16,7 @@ jobs:
         with:
           dotnet-version: 10.x
       - name: Fill current commit hash in for program
-        run: sed -i "s|Not a release commit|$(git rev-parse HEAD)|" NTH/PipelineGitCommit.cs
+        run: sed -i "s|Not a release commit|${{ github.sha }}|" NTH/PipelineGitCommit.cs
       - name: Test Release
         run: dotnet test --solution NTH.slnx -c Release --progress true --settings .runsettings --coverage
       - name: Publish Release
