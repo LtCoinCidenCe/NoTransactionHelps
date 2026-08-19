@@ -28,13 +28,13 @@ jobs:
       - name: show pwd
         run: pwd
       - name: list output folder
-        run: ls -alF /home/runner/work/NoTransactionHelps/NoTransactionHelps/NTH/bin/Release/net10.0/linux-x64/publish/
+        run: ls -alF NTH/bin/Release/net10.0/linux-x64/publish/
       - name: zip the artifact
-        run: zip -r NTHartifact-linux-x64.zip /home/runner/work/NoTransactionHelps/NoTransactionHelps/NTH/bin/Release/net10.0/linux-x64/publish/
+        run: zip -r NTHartifact-linux-x64.zip NTH/bin/Release/net10.0/linux-x64/publish/
       - name: Bump version and push tag
         uses: anothrNick/github-tag-action@1.75.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DRY_RUN: true
+          DRY_RUN: false
           TAG_CONTEXT: branch
           DEFAULT_BUMP: patch
