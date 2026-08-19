@@ -29,8 +29,8 @@ jobs:
         run: pwd
       - name: list output folder
         run: ls -alF NTH/bin/Release/net10.0/linux-x64/publish/
-      - name: zip the artifact
-        run: zip -r NTHartifact-linux-x64.zip NTH/bin/Release/net10.0/linux-x64/publish/
+      # - name: zip the artifact
+      #   run: zip -r NTHartifact-linux-x64.zip NTH/bin/Release/net10.0/linux-x64/publish/
       - name: Bump version and push tag
         uses: anothrNick/github-tag-action@1.75.0
         id: tagGeneration
@@ -42,7 +42,7 @@ jobs:
       - name: Archive production artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: Planned for ${{ steps.tagGeneration.outputs.new_tag }}
-          path: NTHartifact-linux-x64.zip
+          name: NTHartifact-linux-x64-${{ steps.tagGeneration.outputs.new_tag }}.zip
+          path: NTH/bin/Release/net10.0/linux-x64/publish/
           retention-days: 5
     
