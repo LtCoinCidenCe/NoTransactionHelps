@@ -33,8 +33,16 @@ jobs:
         run: zip -r NTHartifact-linux-x64.zip NTH/bin/Release/net10.0/linux-x64/publish/
       - name: Bump version and push tag
         uses: anothrNick/github-tag-action@1.75.0
+        id: tagGeneration
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DRY_RUN: false
+          DRY_RUN: true
           TAG_CONTEXT: branch
           DEFAULT_BUMP: patch
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: Planned for ${{ steps.tagGeneration.outputs.new_tag }}
+          path: NTHartifact-linux-x64.zip
+          retention-days: 5
+    
