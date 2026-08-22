@@ -9,19 +9,40 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: '0'
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.x
       - name: Fill current commit hash in for program
-        run: sed -i "s|Not a release commit|$(git rev-parse HEAD)|" NTH/PipelineGitCommit.cs
+        run: sed -i "s|Not a release commit|${{ github.sha }}|" NTH/PipelineGitCommit.cs
       - name: Test Release
         run: dotnet test --solution NTH.slnx -c Release --progress true --settings .runsettings --coverage
       - name: Publish Release
         run: dotnet publish -p:PublishProfile=NTH/Properties/PublishProfiles/LinuxReleaseProfile.pubxml NTH/NTH.csproj
-      - name: list files
-        run: ls -alF
-      - name: list NTH files
-        run: ls -alF NTH/
+      # - name: list files
+      #   run: ls -alF
+      # - name: list NTH files
+      #   run: ls -alF NTH/
+      - name: show pwd
+        run: pwd
       - name: list output folder
-        run: ls -alF /home/runner/work/NoTransactionHelps/NoTransactionHelps/NTH/bin/Release/net10.0/linux-x64/publish/
+        run: ls -alF NTH/bin/Release/net10.0/linux-x64/publish/
+      # - name: zip the artifact
+      #   run: zip -r NTHartifact-linux-x64.zip NTH/bin/Release/net10.0/linux-x64/publish/
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@1.75.0
+        id: tagGeneration
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRY_RUN: true
+          TAG_CONTEXT: branch
+          DEFAULT_BUMP: patch
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: NTHartifact-linux-x64-${{ steps.tagGeneration.outputs.new_tag }}.zip
+          path: NTH/bin/Release/net10.0/linux-x64/publish/
+          retention-days: 5
+    
