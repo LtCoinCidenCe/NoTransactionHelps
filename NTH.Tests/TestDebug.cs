@@ -4,8 +4,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NTH.Controllers;
 using NTH.DBContext;
+using NTH.Services;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace NTH.Tests;
@@ -75,6 +79,21 @@ public sealed class TestDebug
 	{
 		var isDebug = await client.GetAsync("api/Debug/ping");
 		Assert.AreEqual("In debug mode", await isDebug.Content.ReadAsStringAsync());
+	}
+
+	[TestMethod]
+	public async Task VeryPrimitiveDLPthing()
+	{
+		var jwtcall = await client.PostAsJsonAsync("api/Login", new UserLoginDTO { Username = "string", Password = "string" });
+		jwtcall.EnsureSuccessStatusCode();
+		var jwt = await jwtcall.Content.ReadAsStringAsync();
+		var request = new HttpRequestMessage(HttpMethod.Post, "api/Author/dlp");
+		request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+		request.Content = JsonContent.Create(6);
+		var response = await client.SendAsync(request);
+		response.EnsureSuccessStatusCode();
+		var dlpFiles = Directory.EnumerateFiles(Program.dlpPath).ToList();
+		Assert.IsGreaterThan(2, dlpFiles.Count);
 	}
 }
 #endif

@@ -140,6 +140,8 @@ public class Program
 
 		var configuration = app.Services.GetService<IConfiguration>() ?? throw new NTHException("Why IConfiguration is null???");
 		var nthDataPath = configuration.GetValue<string>("NTHDataPath") ?? throw new NTHException("You need to provide a valid NTHDataPath in appsettings.json");
+		dlpPath = Path.Join(nthDataPath, "dlpFolder");
+		Directory.CreateDirectory(dlpPath);
 
 		app.Lifetime.ApplicationStarted.Register(() =>
 		{
@@ -159,5 +161,6 @@ public class Program
 		app.WaitForShutdown();
 	}
 
+	public static string dlpPath = null!;
 	public static WebApplication app = null!; // just small assurance grammar
 }
