@@ -228,7 +228,7 @@ public class AuthorController(ILogger<AuthorController> logger, SQLiteContext da
 	public IActionResult YTDLPOnAuthor([FromBody] int authorNicoID)
 	{
 		var worker = new Process();
-		worker.StartInfo.FileName = "yt-dlp.exe";
+		worker.StartInfo.FileName = "yt-dlp";
 		worker.StartInfo.Arguments = "--write-thumbnail --write-description --write-info-json --no-download --no-cache-dir --force-overwrites https://www.nicovideo.jp/user/118691209";
 		worker.StartInfo.WorkingDirectory = Program.dlpPath;
 		worker.StartInfo.RedirectStandardOutput = true;
