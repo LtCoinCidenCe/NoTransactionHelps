@@ -19,16 +19,16 @@ jobs:
         run: sed -i "s|Not a release commit|${{ github.sha }}|" NTH/PipelineGitCommit.cs
       - name: Test Release
         run: dotnet test --solution NTH.slnx -c Release --progress true --settings .runsettings --coverage
-      - name: Publish Release
+      - name: Publish Release(Linux)
         run: dotnet publish -p:PublishProfile=NTH/Properties/PublishProfiles/LinuxReleaseProfile.pubxml NTH/NTH.csproj
       # - name: list files
       #   run: ls -alF
       # - name: list NTH files
       #   run: ls -alF NTH/
-      - name: show pwd
-        run: pwd
-      - name: list output folder
-        run: ls -alF NTH/bin/Release/net10.0/linux-x64/publish/
+      # - name: show pwd
+      #   run: pwd
+      # - name: list output folder
+      #   run: ls -alF NTH/bin/Release/net10.0/linux-x64/publish/
       # - name: zip the artifact
       #   run: zip -r NTHartifact-linux-x64.zip NTH/bin/Release/net10.0/linux-x64/publish/
       - name: Bump version and push tag
@@ -39,10 +39,18 @@ jobs:
           DRY_RUN: true
           TAG_CONTEXT: branch
           DEFAULT_BUMP: patch
-      - name: Archive production artifacts
+      - name: Archive production artifacts(Linux)
         uses: actions/upload-artifact@v7
         with:
           name: NTHartifact-linux-x64-${{ steps.tagGeneration.outputs.new_tag }}.zip
           path: NTH/bin/Release/net10.0/linux-x64/publish/
           retention-days: 5
-    
+
+      - name: Publish Release(Windows)
+        run: dotnet publish -p:PublishProfile=NTH/Properties/PublishProfiles/WindowsReleaseProfile.pubxml NTH/NTH.csproj
+      - name: Archive production artifacts(Windows)
+        uses: actions/upload-artifact@v7
+        with:
+          name: NTHartifact-win-x64-${{ steps.tagGeneration.outputs.new_tag }}.zip
+          path: NTH/bin/Release/net10.0/win-x64/publish/
+          retention-days: 5
