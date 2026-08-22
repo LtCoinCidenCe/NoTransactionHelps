@@ -39,10 +39,18 @@ jobs:
           DRY_RUN: true
           TAG_CONTEXT: branch
           DEFAULT_BUMP: patch
-      - name: Archive production artifacts
+      - name: Archive production artifacts(Linux)
         uses: actions/upload-artifact@v7
         with:
           name: NTHartifact-linux-x64-${{ steps.tagGeneration.outputs.new_tag }}.zip
           path: NTH/bin/Release/net10.0/linux-x64/publish/
           retention-days: 5
-    
+
+      - name: Publish Release(Windows)
+        run: dotnet publish -p:PublishProfile=NTH/Properties/PublishProfiles/WindowsReleaseProfile.pubxml NTH/NTH.csproj
+      - name: Archive production artifacts(Windows)
+        uses: actions/upload-artifact@v7
+        with:
+          name: NTHartifact-win-x64-${{ steps.tagGeneration.outputs.new_tag }}.zip
+          path: NTH/bin/Release/net10.0/win-x64/publish/
+          retention-days: 5
