@@ -8,11 +8,14 @@ using NTH.Models.Work;
 using NTH.Services;
 using SixLabors.ImageSharp;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 
 namespace NTH.Controllers;
 
 [Authorize, ApiController, Route("api/Author")]
+#pragma warning disable CS9113 // 参数未读。
 public class AuthorController(ILogger<AuthorController> logger, SQLiteContext database, AuthorService authorService, [FromServices] RequestingUser requestingUser)
+#pragma warning restore CS9113 // 参数未读。
 : ControllerBase
 {
 	[HttpGet]
@@ -218,6 +221,21 @@ public class AuthorController(ILogger<AuthorController> logger, SQLiteContext da
 					.SetProperty(u => u.IconChangeDate, newDate));
 			return Ok(historyItem.GUID);
 		}
+	}
+
+	[HttpPost]
+	[Route("dlp")]
+	public IActionResult YTDLPOnAuthor([FromBody] int authorNicoID)
+	{
+		var worker = new Process();
+		worker.StartInfo.FileName = "yt-dlp.exe";
+		worker.StartInfo.Arguments = "--write-thumbnail --write-description --write-info-json --no-download --no-cache-dir --force-overwrites https://www.nicovideo.jp/user/118691209";
+		worker.StartInfo.WorkingDirectory = Program.dlpPath;
+		worker.StartInfo.RedirectStandardOutput = true;
+		worker.Start();
+		worker.WaitForExit(TimeSpan.FromMinutes(1.5));
+		var sr = worker.StandardOutput.ReadToEnd();
+		return Ok(sr);
 	}
 }
 
