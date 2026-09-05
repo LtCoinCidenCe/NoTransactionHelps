@@ -12,26 +12,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v7
-    - name: Create NTHdata/dlpdata
-      run: mkdir ${{ runner.temp }}/dlpdata
+
     - name: Setup Python
       uses: actions/setup-python@v7
       with:
         python-version: '3.14'
+
     - name: Install yt-dlp
       run: 'python3 -m pip install -U "yt-dlp[default]"'
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v6
       with:
         dotnet-version: 10.x
+
     - name: Replace Path in appsettings.Staging.json
       run: jq --arg newpath ${{ runner.temp }} '.NTHDataPath = $newpath' ./NTH/appsettings.Staging.json > tmp.json && mv tmp.json ./NTH/appsettings.Staging.json
+
     - name: Print new appsettings.Staging.json
       if: ${{ contains(github.event.pull_request.body, 'workflowDebug') }}
       run: cat ./NTH/appsettings.Staging.json
+
     - name: Build Debug
       run: dotnet build -c Debug NTH.slnx
+
     - name: Test
       run: dotnet test --no-build --solution NTH.slnx --progress true --settings .runsettings --coverage
+
     - name: Build Release
       run: dotnet build -c Release NTH/NTH.csproj
+
+    - name: Archive NTHData for this run
+      uses: actions/upload-artifact@v7
+      with:
+        name: NTHData.zip
+        path: ${{ runner.temp }}
+        retention-days: 3

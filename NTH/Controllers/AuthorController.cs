@@ -225,17 +225,16 @@ public class AuthorController(ILogger<AuthorController> logger, SQLiteContext da
 
 	[HttpPost]
 	[Route("dlp")]
-	public IActionResult YTDLPOnAuthor([FromBody] int authorNicoID)
+	public async Task<IActionResult> YTDLPOnAuthor([FromServices] YtdlpInstanceService ytdlpInstanceService, [FromBody] int authorNicoID)
 	{
-		var worker = new Process();
-		worker.StartInfo.FileName = "yt-dlp";
-		worker.StartInfo.Arguments = "--write-thumbnail --write-description --write-info-json --no-download --no-cache-dir --force-overwrites https://www.nicovideo.jp/user/118691209";
-		worker.StartInfo.WorkingDirectory = Program.dlpPath;
-		worker.StartInfo.RedirectStandardOutput = true;
-		worker.Start();
-		worker.WaitForExit(TimeSpan.FromMinutes(1.5));
-		var sr = worker.StandardOutput.ReadToEnd();
-		return Ok(sr);
+		await ytdlpInstanceService.EnqueueTaskAsync(new YtdlpTask()
+		{
+			Site = Utilities.SiteDeVideo.Niconico,
+			TypeDeExtraction = Utilities.TypeDeExtraction.User,
+			ID = authorNicoID.ToString(),
+			ByUserAudit = requestingUser.UserID
+		});
+		return Ok("OK");
 	}
 }
 

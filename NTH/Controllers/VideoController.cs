@@ -12,7 +12,9 @@ namespace NTH.Controllers;
 
 [ApiController]
 [Route("api/Video")]
+#pragma warning disable CS9113 // 参数未读。
 public class VideoController(ILogger<VideoController> logger, SQLiteContext database, [FromServices] RequestingUser requestingUser) : ControllerBase
+#pragma warning restore CS9113 // 参数未读。
 {
 	[HttpGet, Authorize]
 	[Route("AllAuthorizedVideo")]

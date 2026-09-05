@@ -3,7 +3,9 @@ using NTH.Models.LiaoTian;
 
 namespace NTH.SignalRHubs;
 
+#pragma warning disable CS9113 // 参数未读。
 public class LiaoTianHub(ILogger<LiaoTianHub> logger) : Hub<List<Message>>
+#pragma warning restore CS9113 // 参数未读。
 {
 	public override async Task OnConnectedAsync()
 	{

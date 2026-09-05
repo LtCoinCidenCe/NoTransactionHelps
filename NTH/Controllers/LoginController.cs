@@ -136,11 +136,13 @@ public class LoginController(ILogger<LoginController> logger, SQLiteContext data
 	}
 
 	[HttpDelete, Route("salainen/shutdown"), Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-	public IActionResult ShutdownProgram([FromServices] RequestingUser requestingUser)
+	public IActionResult ShutdownProgram([FromServices] RequestingUser requestingUser, [FromServices] YtdlpInstanceService ytdlpInstanceService)
 	{
 		// 因为SQLite需要优雅关机
 		if (requestingUser.UserID != 1) // 超级用户权力大，好的有用都给他
 			return NotFound();
+		ytdlpInstanceService.ChannelClosing();
+		YtdlpInstanceService.TaskStation.Wait();
 		Program.app.StopAsync();
 		return Ok("OK");
 	}

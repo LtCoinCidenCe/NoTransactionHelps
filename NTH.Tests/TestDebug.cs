@@ -19,6 +19,7 @@ public sealed class TestDebug
 {
 	private static readonly WebApplicationFactory<Program> _factory = new();
 	private static readonly HttpClient client = _factory.CreateClient();
+	private static string bossJWT = string.Empty;
 
 	[AssemblyInitialize]
 	public static void AssemblyInit(TestContext context)
@@ -38,10 +39,14 @@ public sealed class TestDebug
 		// This method is called once for the test class, before any tests of the class are run.
 		var response = await client.DeleteAsync($"api/Debug/{nameof(DebugController.InitializeDatabase)}");
 		response.EnsureSuccessStatusCode();
+
+		var bossCall = await client.PostAsJsonAsync("api/Login", new UserLoginDTO { Username = "Genesis", Password = "apetonxin9320" });
+		bossCall.EnsureSuccessStatusCode();
+		bossJWT = await bossCall.Content.ReadAsStringAsync();
 	}
 
 	[ClassCleanup]
-	public static void ClassCleanup()
+	public static async Task ClassCleanup()
 	{
 		// This method is called once for the test class, after all tests of the class are run.
 	}
@@ -89,9 +94,18 @@ public sealed class TestDebug
 		var jwt = await jwtcall.Content.ReadAsStringAsync();
 		var request = new HttpRequestMessage(HttpMethod.Post, "api/Author/dlp");
 		request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-		request.Content = JsonContent.Create(6);
+		request.Content = JsonContent.Create(118691209); // an author
 		var response = await client.SendAsync(request);
 		response.EnsureSuccessStatusCode();
+
+		for (int i = 0; i < 3; i++)
+		{
+			if (YtdlpInstanceService.TaskStation.CurrentCount == 0)
+				break;
+			await Task.Delay(1000);
+		}
+		await YtdlpInstanceService.TaskStation.WaitAsync();
+
 		var dlpFiles = Directory.EnumerateFiles(Program.dlpPath).ToList();
 		Assert.IsGreaterThan(2, dlpFiles.Count);
 	}

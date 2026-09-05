@@ -103,6 +103,7 @@ public class Program
 			};
 		});
 		builder.Services.AddSignalR();
+		builder.Services.AddSingleton<YtdlpInstanceService>();
 		//builder.Services.AddHangfire(config =>
 		//    config.UsePostgreSqlStorage(c =>
 		//    c.UseNpgsqlConnection("Host=localhost;Username=nthuser;Password=stillnicedatabase;Database=nthwork;Include Error Detail=True;")));

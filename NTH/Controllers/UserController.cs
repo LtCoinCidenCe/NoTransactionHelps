@@ -16,10 +16,12 @@ namespace NTH.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/User")]
+#pragma warning disable CS9113 // 参数未读。
 public class UserController(ILogger<UserController> logger,
 	SQLiteContext database,
 	UserService userService,
 	[FromServices] RequestingUser requestingUser) : ControllerBase
+#pragma warning restore CS9113 // 参数未读。
 {
 	[HttpGet]
 	public ICollection GetUsers()
