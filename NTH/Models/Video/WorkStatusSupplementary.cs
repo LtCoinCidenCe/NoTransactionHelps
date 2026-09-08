@@ -6,17 +6,17 @@ namespace NTH.Models.Video;
 [PrimaryKey(nameof(ID))]
 public class WorkStatusSupplementary
 {
-    [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public int ID { get; set; }
-    public required string WorkStatusName { get; set; }
-    public static List<WorkStatusSupplementary> GetDefinitionList()
-    {
-        WorkStatus[] wsValues = Enum.GetValues<WorkStatus>();
-        return wsValues.Select(
-            item => new WorkStatusSupplementary
-            {
-                ID = (int)item,
-                WorkStatusName = item.ToString()
-            }).ToList();
-    }
+	[DatabaseGenerated(DatabaseGeneratedOption.None)]
+	public int ID { get; set; }
+	public required string WorkStatusName { get; set; }
+	public static List<WorkStatusSupplementary> GetDefinitionList()
+	{
+		WorkStatus[] wsValues = Enum.GetValues<WorkStatus>();
+		return wsValues.Select(
+			item => new WorkStatusSupplementary
+			{
+				ID = (int)item,
+				WorkStatusName = item.ToString()
+			}).ToList();
+	}
 }

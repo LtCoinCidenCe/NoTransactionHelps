@@ -69,5 +69,6 @@ public class SQLiteContext : DbContext
 	public DbSet<UserRoleSupplementary> UserRoleSupplementary { get; set; }
 	public DbSet<WorkStatusSupplementary> WorkStatusSupplementary { get; set; }
 	public DbSet<WorkTypeSupplementary> WorkTypeSupplementary { get; set; }
+	public DbSet<DLPTaskStatusSupplementary> DLPTaskStatusSupplementary { get; set; }
 	#endregion Supplementary Definition Reference Tables
 }
