@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NTH.Models.Author;
 using NTH.Models.CharacterReality;
+using NTH.Models.DLPTask;
 using NTH.Models.LiaoTian;
 using NTH.Models.NTH;
 using NTH.Models.User;
@@ -53,6 +54,8 @@ public class SQLiteContext : DbContext
 	public DbSet<AdditionalRequirementsHistory> AdditionalRequirementsHistories { get; set; }
 	public DbSet<VideoID> Videos { get; set; }
 	public DbSet<WorkID> Works { get; set; }
+
+	public DbSet<DLPTaskID> DLPTasks { get; set; }
 
 	public DbSet<Message> LiaoTianJiLu { get; set; }
 

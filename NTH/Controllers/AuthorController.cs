@@ -229,9 +229,9 @@ public class AuthorController(ILogger<AuthorController> logger, SQLiteContext da
 	{
 		await ytdlpInstanceService.EnqueueTaskAsync(new YtdlpTask()
 		{
-			Site = Utilities.SiteDeVideo.Niconico,
+			SiteDeVideo = Utilities.SiteDeVideo.Niconico,
 			TypeDeExtraction = Utilities.TypeDeExtraction.User,
-			ID = authorNicoID.ToString(),
+			SubjectID = authorNicoID.ToString(),
 			ByUserAudit = requestingUser.UserID
 		});
 		return Ok("OK");
