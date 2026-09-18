@@ -1,8 +1,9 @@
-using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using NTH.Models.Video;
 using NTH.Models.Work;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using static System.Net.WebRequestMethods;
 
 namespace NTH.Models.Author;
 
@@ -18,8 +19,7 @@ public partial class AuthorID
 	public DateTimeOffset IconChangeDate { get; set; }
 	[MaxLength(200)]
 	public string YoutubeHomePage { get; set; } = string.Empty;
-	[MaxLength(200)]
-	public string NiconicoHomePage { get; set; } = string.Empty;
+	public long NiconicoID { get; set; }
 	[MaxLength(200)]
 	public string BilibiliHomePage { get; set; } = string.Empty;
 	[MaxLength(200)]
@@ -53,4 +53,8 @@ public partial class AuthorID
 	public DateTimeOffset CreationDate { get; set; }
 	// we are not going to delete the authors anyway
 	// public bool IsDeleted { get; set; } = false;
+
+	#region Calculated Properties
+	public string NiconicoHomePage { get => $"https://www.nicovideo.jp/user/{NiconicoID}"; }
+	#endregion Calculated Properties
 }

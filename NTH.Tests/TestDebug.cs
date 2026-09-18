@@ -106,7 +106,7 @@ public sealed class TestDebug
 		}
 		await YtdlpInstanceService.TaskStation.WaitAsync();
 
-		var dlpFiles = Directory.EnumerateFiles(Program.dlpPath).ToList();
+		var dlpFiles = Directory.EnumerateFiles(YtdlpInstanceService.dlpPath).ToList();
 		Assert.IsGreaterThan(2, dlpFiles.Count);
 	}
 }

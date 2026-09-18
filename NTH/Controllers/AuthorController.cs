@@ -253,8 +253,7 @@ public class NewAuthorDTO
 	public required string Name { get; set; }
 	[MaxLength(200)]
 	public string YoutubeHomePage { get; set; } = string.Empty;
-	[MaxLength(200)]
-	public string NiconicoHomePage { get; set; } = string.Empty;
+	public long NiconicoHomePage { get; set; }
 	[MaxLength(200)]
 	public string BilibiliHomePage { get; set; } = string.Empty;
 	[MaxLength(200)]
@@ -278,7 +277,7 @@ public static class NewAuthorDTOExtension
 		{
 			Name = newAuthorDTO.Name,
 			YoutubeHomePage = newAuthorDTO.YoutubeHomePage,
-			NiconicoHomePage = newAuthorDTO.NiconicoHomePage,
+			NiconicoID = newAuthorDTO.NiconicoHomePage,
 			BilibiliHomePage = newAuthorDTO.BilibiliHomePage,
 			TwitterHomePage = newAuthorDTO.TwitterHomePage,
 			AuthorizedPerVideo = newAuthorDTO.AuthorizedPerVideo,

@@ -1,9 +1,9 @@
-﻿#pragma warning disable IDE1006 // 命名样式
+#pragma warning disable IDE1006 // 命名样式
 using System.ComponentModel.DataAnnotations;
 
 namespace NTH.dlpJSONs;
 
-public class VideoNicoTruth
+public class VideoNicoInfo
 {
 	[MaxLength(11)]
 	public required string id { get; set; }

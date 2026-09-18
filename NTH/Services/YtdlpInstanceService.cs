@@ -84,9 +84,9 @@ public class YtdlpInstanceService
 				task.TaskID = record.ID;
 				await secondChannel.Writer.WriteAsync(task);
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				throw;
+				logger.LogError("{ex}", ex);
 			}
 		}
 	}
@@ -108,8 +108,8 @@ public class YtdlpInstanceService
 			{
 				using var worker = new Process();
 				worker.StartInfo.FileName = "yt-dlp";
-				worker.StartInfo.Arguments = $"--write-thumbnail --write-description --write-info-json --no-download --no-cache-dir --force-overwrites https://www.nicovideo.jp/user/{task.SubjectID}";
-				worker.StartInfo.WorkingDirectory = Program.dlpPath;
+				worker.StartInfo.Arguments = $"--write-thumbnail --write-description --write-info-json --no-download --no-cache-dir --force-overwrites {task.URL}";
+				worker.StartInfo.WorkingDirectory = dlpPath;
 				worker.StartInfo.RedirectStandardOutput = true;
 				worker.StartInfo.RedirectStandardError = true;
 				worker.Start();
@@ -117,17 +117,18 @@ public class YtdlpInstanceService
 				var sr = worker.StandardOutput.ReadToEnd();
 				var se = worker.StandardError.ReadToEnd();
 				logger.LogWarning(message: "{se}", se);
-				if (string.IsNullOrEmpty(se))
-				{
-					await database.DLPTasks.Where(x => x.ID == task.TaskID)
-						.ExecuteUpdateAsync(setter => setter.SetProperty(y => y.Status, DLPTaskStatus.Done));
-				}
-				else
+
+				if (!string.IsNullOrEmpty(se))
 				{
 					await database.DLPTasks.Where(x => x.ID == task.TaskID)
 						.ExecuteUpdateAsync(setter =>
 						setter.SetProperty(y => y.Status, DLPTaskStatus.Warning)
 						.SetProperty(y => y.ErrorMessage, se));
+				}
+				else
+				{
+					await database.DLPTasks.Where(x => x.ID == task.TaskID)
+						.ExecuteUpdateAsync(setter => setter.SetProperty(y => y.Status, x => x.Status == DLPTaskStatus.Warning ? x.Status : DLPTaskStatus.Done));
 				}
 			}
 			catch (Exception ex)
@@ -142,6 +143,7 @@ public class YtdlpInstanceService
 		}
 	}
 
+	public static string dlpPath = null!;
 	public static SemaphoreSlim TaskStation = new(1, 1);
 	private readonly IServiceScopeFactory scopeFactory; // for resolving database instance
 	private readonly ILogger<YtdlpInstanceService> logger;
