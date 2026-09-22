@@ -137,7 +137,6 @@ public class YtdlpInstanceService
 					.ExecuteUpdateAsync(setter =>
 					setter.SetProperty(y => y.Status, DLPTaskStatus.Failed)
 					.SetProperty(y => y.ErrorMessage, ex.Message));
-				throw;
 			}
 			TaskStation.Release();
 		}

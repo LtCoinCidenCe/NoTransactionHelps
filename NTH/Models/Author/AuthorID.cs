@@ -57,4 +57,6 @@ public partial class AuthorID
 	#region Calculated Properties
 	public string NiconicoHomePage { get => $"https://www.nicovideo.jp/user/{NiconicoID}"; }
 	#endregion Calculated Properties
+
+	public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

@@ -32,14 +32,19 @@ public class VideoID
 	public byte[] Thumbnail { get; set; } = [];
 	[MaxLength(3000)]
 	public string Introduction { get; set; } = "";
+	public List<string> Tags { get; set; } = [];
 	[Column(name: "AuthorID"), JsonIgnore]
 	public AuthorID? Author { get; set; }
 	[Column(name: "AuthorID")]
 	public long AuthorID { get; set; }
+	public int Duration { get; set; } // in seconds
+	public int CommentCount { get; set; }
+	public int Like_Count { get; set; }
+	public long ViewCount { get; set; }
 	[MaxLength(MAX_URL)]
 	public string YoutubePage { get; set; } = string.Empty;
 	[MaxLength(MAX_URL)]
-	public string NiconicoPage { get; set; } = string.Empty;
+	public string NiconicoID { get; set; } = string.Empty;
 	// If any author requests video to be translated for things here...
 	[MaxLength(MAX_URL)]
 	public string BilibiliPage { get; set; } = string.Empty;
@@ -96,4 +101,6 @@ public class VideoID
 	[MaxLength(MAX_URL)]
 	public string FinishedProductLink { get; set; } = string.Empty;
 	#endregion Work details
+
+	public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 }
