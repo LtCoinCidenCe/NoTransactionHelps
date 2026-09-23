@@ -190,11 +190,11 @@ public class YtdlpInstanceService
 							info = file.Info;
 						if (file.ImageBytes.Length > 4)
 							thumbnail = file.ImageBytes;
-						if (info is not null && thumbnail.Length > 4)
-						{
-							videos.Add(new VideoNicoDecoded { Info = info, ImageBytes = thumbnail });
-							break;
-						}
+					}
+					if (info is not null && thumbnail.Length > 4)
+					{
+						videos.Add(new VideoNicoDecoded { Info = info, ImageBytes = thumbnail });
+						continue;
 					}
 					if (!hasIssue)
 						await database.DLPTasks.Where(x => x.ID == task.TaskID)
