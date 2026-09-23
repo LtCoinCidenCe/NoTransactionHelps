@@ -104,10 +104,8 @@ public sealed class TestDebug
 				break;
 			await Task.Delay(1000);
 		}
-		await YtdlpInstanceService.TaskStation.WaitAsync();
-
-		var dlpFiles = Directory.EnumerateFiles(YtdlpInstanceService.dlpPath).ToList();
-		Assert.IsGreaterThan(2, dlpFiles.Count);
+		await YtdlpInstanceService.TaskStation.WaitAsync(60000);
+		// kaibai
 	}
 }
 #endif

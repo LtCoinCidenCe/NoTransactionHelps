@@ -21,6 +21,7 @@ public class YtdlpTask
 	public required string SubjectID;
 	public required long ByUserAudit;
 	public string? URL;
+	public DateTimeOffset TimeDeStorage;
 }
 
 public class VideoNicoProcessingInfo
@@ -102,6 +103,7 @@ public class YtdlpInstanceService
 				await database.DLPTasks.AddAsync(record);
 				await database.SaveChangesAsync();
 				task.TaskID = record.ID;
+				task.TimeDeStorage = record.CreationDate;
 				await secondChannel.Writer.WriteAsync(task);
 			}
 			catch (Exception ex)
@@ -247,7 +249,7 @@ public class YtdlpInstanceService
 							CreationDate = creationDate,
 							UpdatedAt = creationDate
 						};
-						
+
 						Guid guid = Guid.CreateVersion7();
 						var savedPath = Path.Join(VideoCookieAssetController.VideoIconPath, guid.ToString() + ".jpg");
 						await File.WriteAllBytesAsync(savedPath, video.ImageBytes);
@@ -274,12 +276,20 @@ public class YtdlpInstanceService
 			}
 			finally
 			{
+				try { Directory.Delete(Path.Join(dlpOldPath, task.SubjectID, task.TimeDeStorage.ToString("yyyyMMdd"))); }
+				catch (DirectoryNotFoundException) { }
+
+				// This is verbose and dumb
+				Directory.CreateDirectory(Path.Join(dlpOldPath, task.SubjectID));
+				Directory.Move(dlpPath, Path.Join(dlpOldPath, task.SubjectID, task.TimeDeStorage.ToString("yyyyMMdd")));
+				Directory.CreateDirectory(dlpPath);
 				TaskStation.Release();
 			}
 		}
 	}
 
 	public static string dlpPath = null!;
+	public static string dlpOldPath = null!;
 	public static SemaphoreSlim TaskStation = new(1, 1);
 	private readonly IServiceScopeFactory scopeFactory; // for resolving database instance
 	private readonly ILogger<YtdlpInstanceService> logger;
