@@ -3,7 +3,6 @@ using NTH.Models.Video;
 using NTH.Models.Work;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using static System.Net.WebRequestMethods;
 
 namespace NTH.Models.Author;
 
@@ -50,13 +49,12 @@ public partial class AuthorID
 	public List<VideoID> Videos { get; set; } = new();
 	#endregion :n Video
 
-	public DateTimeOffset CreationDate { get; set; }
+	public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+	public DateTimeOffset CreationDate { get; set; } = DateTimeOffset.UtcNow;
 	// we are not going to delete the authors anyway
 	// public bool IsDeleted { get; set; } = false;
 
 	#region Calculated Properties
 	public string NiconicoHomePage { get => $"https://www.nicovideo.jp/user/{NiconicoID}"; }
 	#endregion Calculated Properties
-
-	public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

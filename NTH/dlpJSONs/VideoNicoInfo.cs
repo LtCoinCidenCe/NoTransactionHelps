@@ -15,8 +15,14 @@ public class VideoNicoInfo
 	public required string title { get; set; }
 	[MaxLength(4000)]
 	public string description { get; set; } = string.Empty;
-	public int duration { get; set; } // in seconds
-	public long timestamp { get; set; } // uploaded, read like Javascript new Date(timestamp*1000)
+	/// <summary>
+	/// in seconds
+	/// </summary>
+	public int duration { get; set; }
+	/// <summary>
+	/// uploaded, read like Javascript new Date(timestamp*1000)
+	/// </summary>
+	public long timestamp { get; set; }
 	public int comment_count { get; set; }
 	public int like_count { get; set; }
 	public long view_count { get; set; }

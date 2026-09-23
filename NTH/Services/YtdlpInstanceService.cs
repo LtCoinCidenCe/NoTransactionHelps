@@ -1,8 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using NTH.DBContext;
+using NTH.dlpJSONs;
+using NTH.Models.Author;
 using NTH.Models.DLPTask;
+using NTH.Models.Video;
 using NTH.Utilities;
+using SixLabors.ImageSharp;
 using System.Diagnostics;
+using System.Text.Json;
 using System.Threading.Channels;
 
 namespace NTH.Services;
@@ -15,6 +20,20 @@ public class YtdlpTask
 	public required string SubjectID;
 	public required long ByUserAudit;
 	public string? URL;
+}
+
+public class VideoNicoProcessingInfo
+{
+	public required string File;
+	public required string FullPath;
+	public VideoNicoInfo? Info;
+	public byte[] ImageBytes = [];
+}
+
+public class VideoNicoDecoded
+{
+	public required VideoNicoInfo Info;
+	public required byte[] ImageBytes;
 }
 
 public class YtdlpInstanceService
@@ -106,6 +125,8 @@ public class YtdlpInstanceService
 			await TaskStation.WaitAsync();
 			try
 			{
+				bool hasIssue = false;
+
 				using var worker = new Process();
 				worker.StartInfo.FileName = "yt-dlp";
 				worker.StartInfo.Arguments = $"--write-thumbnail --write-description --write-info-json --no-download --no-cache-dir --force-overwrites {task.URL}";
@@ -120,25 +141,135 @@ public class YtdlpInstanceService
 
 				if (!string.IsNullOrEmpty(se))
 				{
+					hasIssue = true;
 					await database.DLPTasks.Where(x => x.ID == task.TaskID)
 						.ExecuteUpdateAsync(setter =>
 						setter.SetProperty(y => y.Status, DLPTaskStatus.Warning)
 						.SetProperty(y => y.ErrorMessage, se));
 				}
-				else
+
+				var dlpFiles = Directory.EnumerateFiles(dlpPath).Select(x => new VideoNicoProcessingInfo { File = Path.GetFileName(x), FullPath = x }).ToList();
+				dlpFiles.RemoveAll(x => x.File.StartsWith("NA ["));
+				foreach (var file in dlpFiles)
+				{
+					try
+					{
+						if (file.FullPath.EndsWith(".info.json", StringComparison.OrdinalIgnoreCase))
+						{
+							using var jsonStream = File.OpenRead(file.FullPath);
+							file.Info = await JsonSerializer.DeserializeAsync<VideoNicoInfo>(jsonStream);
+						}
+						else if (file.FullPath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase))
+						{
+							using var imageStream = File.OpenRead(file.FullPath);
+							Image.Load(imageStream);
+							file.ImageBytes = await File.ReadAllBytesAsync(file.FullPath);
+						}
+					}
+					catch (Exception)
+					{
+						if (!hasIssue)
+							await database.DLPTasks.Where(x => x.ID == task.TaskID)
+								.ExecuteUpdateAsync(setter =>
+								setter.SetProperty(y => y.Status, DLPTaskStatus.Warning)
+								.SetProperty(y => y.ErrorMessage, $"File {file.File} not loaded correctly."));
+						hasIssue = true;
+					}
+				}
+				var groupedFiles = dlpFiles.GroupBy(x => x.File.Substring(0, 10)).ToList();
+
+				var videos = new List<VideoNicoDecoded>();
+
+				foreach (var group in groupedFiles)
+				{
+					VideoNicoInfo? info = null;
+					byte[] thumbnail = [];
+					foreach (var file in group)
+					{
+						if (file.Info is not null)
+							info = file.Info;
+						if (file.ImageBytes.Length > 4)
+							thumbnail = file.ImageBytes;
+						if (info is not null && thumbnail.Length > 4)
+						{
+							videos.Add(new VideoNicoDecoded { Info = info, ImageBytes = thumbnail });
+							break;
+						}
+					}
+					if (!hasIssue)
+						await database.DLPTasks.Where(x => x.ID == task.TaskID)
+							.ExecuteUpdateAsync(setter =>
+							setter.SetProperty(y => y.Status, DLPTaskStatus.Warning)
+							.SetProperty(y => y.ErrorMessage, $"Missing info or thumbnail: {group.Key}"));
+					hasIssue = true;
+				}
+
+				if (!videos.All(x => x.Info.uploader_id == task.SubjectID))
+					throw new NTHException($"Uploader ID mismatch. Expected: {task.SubjectID}, Found: {string.Join(", ", videos.Select(x => x.Info.uploader_id).Distinct())}");
+
+				long subjectLong = long.Parse(task.SubjectID);
+				AuthorID? author = await database.Authors.AsNoTracking().FirstOrDefaultAsync(x => x.NiconicoID == subjectLong);
+				if (author is null)
+				{
+					DateTimeOffset creationDate = DateTimeOffset.UtcNow;
+					author = new AuthorID()
+					{
+						ByUserAudit = task.ByUserAudit,
+						Name = videos.First().Info.uploader,
+						NiconicoID = subjectLong,
+						CreationDate = creationDate,
+						UpdatedAt = creationDate
+					};
+					database.Authors.Add(author);
+					await database.SaveChangesAsync();
+				}
+				foreach (var video in videos)
+				{
+					string videoID = video.Info.id;
+					VideoID? found = database.Videos.FirstOrDefault(x => x.NiconicoID == videoID);
+					if (found is null)
+					{
+						DateTimeOffset creationDate = DateTimeOffset.UtcNow;
+						var newVideo = new VideoID()
+						{
+							ByUserAudit = task.ByUserAudit,
+							Title = video.Info.title,
+							ThumbnailType = "jpg",
+							Thumbnail = video.ImageBytes,
+							Introduction = video.Info.description,
+							Tags = video.Info.tags,
+							AuthorID = author.ID,
+							Duration = video.Info.duration,
+							CommentCount = video.Info.comment_count,
+							ViewCount = video.Info.view_count,
+							Like_Count = video.Info.like_count,
+							NiconicoID = videoID,
+							UploadDate = DateTimeOffset.FromUnixTimeSeconds(video.Info.timestamp),
+							CreationDate = creationDate,
+							UpdatedAt = creationDate
+						};
+						database.Videos.Add(newVideo);
+						await database.SaveChangesAsync();
+					}
+				}
+
+				if (!hasIssue)
 				{
 					await database.DLPTasks.Where(x => x.ID == task.TaskID)
 						.ExecuteUpdateAsync(setter => setter.SetProperty(y => y.Status, x => x.Status == DLPTaskStatus.Warning ? x.Status : DLPTaskStatus.Done));
 				}
 			}
-			catch (Exception ex)
+			catch (Exception ex) // task level failure
 			{
 				await database.DLPTasks.Where(x => x.ID == task.TaskID)
 					.ExecuteUpdateAsync(setter =>
 					setter.SetProperty(y => y.Status, DLPTaskStatus.Failed)
 					.SetProperty(y => y.ErrorMessage, ex.Message));
 			}
-			TaskStation.Release();
+			finally
+			{
+				TaskStation.Release();
+			}
 		}
 	}
 

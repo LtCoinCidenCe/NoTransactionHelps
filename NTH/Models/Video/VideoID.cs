@@ -37,7 +37,10 @@ public class VideoID
 	public AuthorID? Author { get; set; }
 	[Column(name: "AuthorID")]
 	public long AuthorID { get; set; }
-	public int Duration { get; set; } // in seconds
+	/// <summary>
+	/// in seconds
+	/// </summary>
+	public int Duration { get; set; }
 	public int CommentCount { get; set; }
 	public int Like_Count { get; set; }
 	public long ViewCount { get; set; }
@@ -102,5 +105,6 @@ public class VideoID
 	public string FinishedProductLink { get; set; } = string.Empty;
 	#endregion Work details
 
+	public DateTimeOffset CreationDate { get; set; } = DateTimeOffset.UtcNow;
 	public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 }
