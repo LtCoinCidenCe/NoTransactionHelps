@@ -1,5 +1,4 @@
-using System.ComponentModel.DataAnnotations;
-using System.Net.Mime;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +6,8 @@ using NTH.DBContext;
 using NTH.Middlewares;
 using NTH.Models.Video;
 using NTH.Utilities;
+using SixLabors.ImageSharp;
+using System.ComponentModel.DataAnnotations;
 
 namespace NTH.Controllers;
 
@@ -45,18 +46,17 @@ public class VideoController(ILogger<VideoController> logger, SQLiteContext data
 	}
 
 	[HttpPost, Authorize]
-	public IActionResult CreateNewVideo([FromBody] NewVideoDTO newVideoDTO)
+	public async Task<IActionResult> CreateNewVideo([FromBody] NewVideoDTO newVideoDTO)
 	{
 		var author = database.Authors.Where(x => x.ID == newVideoDTO.AuthorID).Select(x => new { x.ID, x.Name }).FirstOrDefault();
 		if (author is null)
 			return NotFound("Author not found");
+		var newDate = DateTimeOffset.UtcNow;
 		var newVideo = new VideoID()
 		{
 			ByUserAudit = requestingUser.UserID,
 			AuthorID = author.ID,
 			Title = newVideoDTO.Title,
-			ThumbnailType = newVideoDTO.ThumbnailType,
-			Thumbnail = newVideoDTO.Thumbnail,
 			Introduction = newVideoDTO.Introduction,
 			YoutubePage = newVideoDTO.YoutubePage,
 			NiconicoID = newVideoDTO.NiconicoPage,
@@ -64,88 +64,64 @@ public class VideoController(ILogger<VideoController> logger, SQLiteContext data
 			UploadDate = newVideoDTO.UploadDate,
 			AuthorizedPerVideo = newVideoDTO.AuthorizedPerVideo,
 			AdditionalRequirement = newVideoDTO.AdditionalRequirement,
-			FinishedProductLink = newVideoDTO.FinishedProductLink
+			FinishedProductLink = newVideoDTO.FinishedProductLink,
+			CreationDate = newDate,
+			UpdatedAt = newDate
 		};
+		// Thumbnail handling
+		if (!string.IsNullOrWhiteSpace(newVideoDTO.ThumbnailType) && newVideoDTO.Thumbnail.Length >= 5)
+		{
+			Image image;
+			try { image = Image.Load(newVideoDTO.Thumbnail); }
+			catch (Exception) { return BadRequest("什么破图？"); }
+			using (image)
+			{
+				image.Size.Deconstruct(out int x, out int y);
+				Guid guid = Guid.CreateVersion7();
+				var savedPath = Path.Join(VideoCookieAssetController.VideoIconPath, guid.ToString() + newVideoDTO.ThumbnailType);
+				await System.IO.File.WriteAllBytesAsync(savedPath, newVideoDTO.Thumbnail);
+				newVideo.ThumbnailGUID = guid;
+				newVideo.ThumbnailChangeDate = DateTimeOffset.UtcNow;
+			}
+		}
+
 		database.Videos.Add(newVideo);
 		database.SaveChanges();
+
 		return Ok(newVideoDTO);
 	}
 
 	[HttpPut, Authorize]
 	[Route("{ID}/Thumbnail")]
-	public IActionResult SetVideoThumbnail(long ID, IFormFile file)
+	public async Task<IActionResult> SetVideoThumbnail(long ID, IFormFile file)
 	{
-		string extension = "";
-		switch (file.ContentType)
-		{
-			case MediaTypeNames.Image.Jpeg:
-				extension = "jpg";
-				break;
-			case MediaTypeNames.Image.Png:
-				extension = "png";
-				break;
-			case MediaTypeNames.Image.Webp:
-				extension = "webp";
-				break;
-			case MediaTypeNames.Image.Tiff:
-				extension = "tiff";
-				break;
-			default:
-				return BadRequest();
-		}
-		long nn = file.Length;
-		if (nn < 5 || nn > VideoID.MAX_THUMBNAIL_SIZE)
+		if (file.Length < 5 || file.Length > VideoID.MAX_THUMBNAIL_SIZE)
 			return BadRequest();
-		int n = (int)nn;
-		if (!database.Videos.Any(x => x.ID == ID))
-			return BadRequest();
+		if (string.IsNullOrEmpty(Path.GetExtension(file.FileName)))
+			return BadRequest("没后缀名啊");
 		using Stream readStream = file.OpenReadStream();
-		byte[] bytes = new byte[n];
-		int ready = readStream.Read(bytes, 0, n);
-		if (ready != n)
-			throw new NTHException("video thumbnail stream guard");
-		int updates = database.Videos.Where(z => z.ID == ID)
-			.ExecuteUpdate(setter =>
-				setter.SetProperty(x => x.ThumbnailType, extension)
-					.SetProperty(x => x.Thumbnail, bytes));
-		if (updates != 1)
-			throw new NTHException("video executeupdate guard");
-		return Ok("OK");
-	}
+		byte[] bytes1 = new byte[file.Length];
+		await readStream.ReadExactlyAsync(bytes1);
+		Image image;
+		try { image = Image.Load(bytes1); }
+		catch (Exception) { return BadRequest("什么破图？"); }
+		using (image)
+		{
+			image.Size.Deconstruct(out int x, out int y);
+			Guid guid = Guid.CreateVersion7();
+			var savedPath = Path.Join(VideoCookieAssetController.VideoIconPath, guid.ToString() + Path.GetExtension(file.FileName).ToLower());
+			await System.IO.File.WriteAllBytesAsync(savedPath, bytes1);
 
-	[HttpGet]
-	[Route("{ID}/Thumbnail")]
-	[ResponseCache(Duration = 86400 * 10)]
-	public IActionResult GetVideoThumbnail(long ID)
-	{
-		var rkgk = database.Videos
-			.Where(x => x.ID == ID)
-			.Select(x => new { x.Title, x.Thumbnail, x.ThumbnailType })
-			.FirstOrDefault();
-		if (rkgk is null || rkgk.Thumbnail.Length < 5)
-			return NotFound();
-		string mime = "unknown";
-		if ("avif".Equals(rkgk.ThumbnailType, StringComparison.CurrentCultureIgnoreCase))
-			mime = MediaTypeNames.Image.Avif;
-		else if ("bmp".Equals(rkgk.ThumbnailType, StringComparison.CurrentCultureIgnoreCase))
-			mime = MediaTypeNames.Image.Bmp;
-		else if ("gif".Equals(rkgk.ThumbnailType, StringComparison.CurrentCultureIgnoreCase))
-			mime = MediaTypeNames.Image.Gif;
-		else if ("ico".Equals(rkgk.ThumbnailType, StringComparison.CurrentCultureIgnoreCase))
-			mime = MediaTypeNames.Image.Icon;
-		else if ("jpg".Equals(rkgk.ThumbnailType, StringComparison.CurrentCultureIgnoreCase))
-			mime = MediaTypeNames.Image.Jpeg;
-		else if ("jpeg".Equals(rkgk.ThumbnailType, StringComparison.CurrentCultureIgnoreCase))
-			mime = MediaTypeNames.Image.Jpeg;
-		else if ("png".Equals(rkgk.ThumbnailType, StringComparison.CurrentCultureIgnoreCase))
-			mime = MediaTypeNames.Image.Png;
-		else if ("svg".Equals(rkgk.ThumbnailType, StringComparison.CurrentCultureIgnoreCase))
-			mime = MediaTypeNames.Image.Svg;
-		else if ("tiff".Equals(rkgk.ThumbnailType, StringComparison.CurrentCultureIgnoreCase))
-			mime = MediaTypeNames.Image.Tiff;
-		else if ("webp".Equals(rkgk.ThumbnailType, StringComparison.CurrentCultureIgnoreCase))
-			mime = MediaTypeNames.Image.Webp;
-		return File(rkgk.Thumbnail, mime, $"{rkgk.Title}.{rkgk.ThumbnailType}");
+			DateTimeOffset newDate = DateTimeOffset.UtcNow;
+			int updates = database.Videos.Where(z => z.ID == ID)
+				.ExecuteUpdate(setter => setter
+					.SetProperty(x => x.ThumbnailGUID, guid)
+					.SetProperty(x => x.ThumbnailChangeDate, newDate));
+			if (updates != 1)
+				throw new NTHException("video executeupdate guard");
+		}
+
+		return Ok("OK");
 	}
 
 	[HttpGet, Authorize]
@@ -197,6 +173,37 @@ public class VideoController(ILogger<VideoController> logger, SQLiteContext data
 	}
 }
 
+
+/// <summary>
+/// 希望所有的图片作为静态文件从GUID来获得
+/// cookie验证
+/// </summary>
+[ApiController]
+[Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+[Route("api/Video")]
+public class VideoCookieAssetController : ControllerBase
+{
+	[HttpGet]
+	[Route("Thumbnail/{IconID}")]
+	[ResponseCache(Duration = 60 * 60 * 24 * 30)]
+	public IActionResult GetIconByIconID([FromRoute] Guid IconID)
+	{
+		if (IconID == default)
+			return NotFound();
+		List<string> extensions = ["png", "jpg", "jpeg", "webp"];
+		foreach (var ext in extensions)
+		{
+			var potentialFile = Path.Join(VideoIconPath, IconID.ToString() + '.' + ext);
+			if (System.IO.File.Exists(potentialFile))
+				return File(System.IO.File.Open(potentialFile, FileMode.Open), "image/" + ext);
+		}
+		return NotFound();
+	}
+
+	public static string VideoIconPath = null!;
+}
+
+
 public class NewVideoDTO
 {
 	public const int MAX_THUMBNAIL_SIZE = 3_000_000; // 3MB
@@ -209,6 +216,7 @@ public class NewVideoDTO
 	/// jpg png webp ...
 	/// </summary>
 	[MaxLength(6)]
+	[AllowedValues("png", "jpg", "jpeg", "webp", "", null)]
 	public string ThumbnailType { get; set; } = "";
 	[MaxLength(MAX_THUMBNAIL_SIZE)]
 	public byte[] Thumbnail { get; set; } = [];

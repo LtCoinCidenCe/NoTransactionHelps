@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +9,6 @@ using NTH.Models.Work;
 using NTH.Services;
 using SixLabors.ImageSharp;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 
 namespace NTH.Controllers;
 
@@ -180,16 +180,20 @@ public class AuthorController(ILogger<AuthorController> logger, SQLiteContext da
 
 	[HttpPut]
 	[Route("{ID}/Icon")]
-	public IActionResult SetAuthorIcon([FromRoute] long ID, IFormFile icon)
+	public async Task<IActionResult> SetAuthorIcon([FromRoute] long ID, IFormFile icon)
 	{
 		if (icon.Length < 5 || icon.Length > AuthorIconHistory.MAX_ICON_SIZE)
 			return BadRequest("你想害我的库？");
 		if (!database.Authors.Any(x => x.ID == ID))
 			return BadRequest("查无此作者");
-		Stream readStream = icon.OpenReadStream();
+		if (string.IsNullOrEmpty(Path.GetExtension(icon.FileName)))
+			return BadRequest("没后缀名啊");
+		using Stream readStream = icon.OpenReadStream();
+		byte[] bytes1 = new byte[icon.Length];
+		await readStream.ReadExactlyAsync(bytes1);
 
 		Image image;
-		try { image = Image.Load(readStream); }
+		try { image = Image.Load(bytes1); }
 		catch (Exception) { return BadRequest("什么破图？"); }
 		using (image)
 		{
@@ -200,21 +204,19 @@ public class AuthorController(ILogger<AuthorController> logger, SQLiteContext da
 				return BadRequest("太小");
 			if (x > 800)
 				return BadRequest("太大");
-			using MemoryStream pngStream = new();
-			image.SaveAsPng(pngStream);
-			byte[] bytes = pngStream.ToArray();
-			if (bytes.Length > AuthorIconHistory.MAX_ICON_SIZE)
-				return BadRequest();
-			DateTimeOffset newDate = DateTimeOffset.UtcNow;
+
+			var newDate = DateTimeOffset.UtcNow;
 			var historyItem = new AuthorIconHistory
 			{
 				ByUserAudit = requestingUser.UserID,
 				AuthorID = ID,
-				Icon = bytes,
 				CreationDate = newDate,
 			};
-			database.AuthorIconHistories.Add(historyItem);
-			database.SaveChanges();
+			var savedPath = Path.Join(AuthorCookieAssetController.AuthorIconPath, historyItem.GUID.ToString() + Path.GetExtension(icon.FileName).ToLower());
+			await System.IO.File.WriteAllBytesAsync(savedPath, bytes1);
+
+			await database.AuthorIconHistories.AddAsync(historyItem);
+			await database.SaveChangesAsync();
 			database.Authors.Where(x => x.ID == ID)
 				.ExecuteUpdate(setter => setter
 					.SetProperty(a => a.AuthorIconID, historyItem.GUID)
@@ -237,6 +239,39 @@ public class AuthorController(ILogger<AuthorController> logger, SQLiteContext da
 		return Ok("OK");
 	}
 }
+
+/// <summary>
+/// 希望所有的图片作为静态文件从GUID来获得
+/// cookie验证
+/// </summary>
+[ApiController]
+[Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+[Route("api/Author")]
+public class AuthorCookieAssetController : ControllerBase
+{
+	[HttpGet]
+	[Route("Icon/{IconID}")]
+	[ResponseCache(Duration = 60 * 60 * 24 * 30)]
+	public IActionResult GetIconByIconID([FromRoute] Guid IconID)
+	{
+		if (IconID == default)
+			return NotFound();
+		List<string> extensions = ["png", "jpg", "jpeg", "webp"];
+		foreach (var ext in extensions)
+		{
+			var potentialFile = Path.Join(AuthorIconPath, IconID.ToString() + '.' + ext);
+			if (System.IO.File.Exists(potentialFile))
+				return File(System.IO.File.Open(potentialFile, FileMode.Open), "image/" + ext);
+		}
+		return NotFound();
+	}
+	public static string AuthorIconPath = null!;
+}
+
+
+
+
+
 
 public class AuthorizationChangeDTO
 {

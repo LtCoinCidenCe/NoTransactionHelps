@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using NTH.Controllers;
 using NTH.DBContext;
 using NTH.dlpJSONs;
 using NTH.Models.Author;
@@ -162,7 +163,7 @@ public class YtdlpInstanceService
 						else if (file.FullPath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase))
 						{
 							using var imageStream = File.OpenRead(file.FullPath);
-							Image.Load(imageStream);
+							using var _temp = Image.Load(imageStream);
 							file.ImageBytes = await File.ReadAllBytesAsync(file.FullPath);
 						}
 					}
@@ -234,8 +235,6 @@ public class YtdlpInstanceService
 						{
 							ByUserAudit = task.ByUserAudit,
 							Title = video.Info.title,
-							ThumbnailType = "jpg",
-							Thumbnail = video.ImageBytes,
 							Introduction = video.Info.description,
 							Tags = video.Info.tags,
 							AuthorID = author.ID,
@@ -248,6 +247,13 @@ public class YtdlpInstanceService
 							CreationDate = creationDate,
 							UpdatedAt = creationDate
 						};
+						
+						Guid guid = Guid.CreateVersion7();
+						var savedPath = Path.Join(VideoCookieAssetController.VideoIconPath, guid.ToString() + ".jpg");
+						await File.WriteAllBytesAsync(savedPath, video.ImageBytes);
+						newVideo.ThumbnailGUID = guid;
+						newVideo.ThumbnailChangeDate = creationDate;
+
 						database.Videos.Add(newVideo);
 						await database.SaveChangesAsync();
 					}

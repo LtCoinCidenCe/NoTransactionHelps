@@ -23,13 +23,8 @@ public class VideoID
 	#region Video itself
 	[MaxLength(120)]
 	public string Title { get; set; } = string.Empty;
-	/// <summary>
-	/// jpg png webp ...
-	/// </summary>
-	[MaxLength(6)]
-	public string ThumbnailType { get; set; } = "";
-	[MaxLength(MAX_THUMBNAIL_SIZE)]
-	public byte[] Thumbnail { get; set; } = [];
+	public Guid ThumbnailGUID { get; set; }
+	public DateTimeOffset ThumbnailChangeDate { get; set; }
 	[MaxLength(3000)]
 	public string Introduction { get; set; } = "";
 	public List<string> Tags { get; set; } = [];
@@ -105,6 +100,6 @@ public class VideoID
 	public string FinishedProductLink { get; set; } = string.Empty;
 	#endregion Work details
 
-	public DateTimeOffset CreationDate { get; set; } = DateTimeOffset.UtcNow;
-	public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+	public DateTimeOffset CreationDate { get; set; }
+	public DateTimeOffset UpdatedAt { get; set; }
 }

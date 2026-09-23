@@ -67,7 +67,7 @@ public class Debug2Controller(SQLiteContext database) : ControllerBase
 				else if (file.FullPath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase))
 				{
 					using var imageStream = System.IO.File.OpenRead(file.FullPath);
-					Image.Load(imageStream);
+					using var temp = Image.Load(imageStream);
 					file.ImageBytes = await System.IO.File.ReadAllBytesAsync(file.FullPath);
 				}
 			}

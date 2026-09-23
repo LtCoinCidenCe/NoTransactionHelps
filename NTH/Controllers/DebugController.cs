@@ -206,7 +206,9 @@ public class DebugController : ControllerBase
 
 		for (int i = 1; i <= 6; i++)
 		{
-			userController.SetUserIcon(i, new FormFile(new MemoryStream(anIconFile), 0, anIconFile.Length, "icon", "鱼卡日yu.png"));
+			var useDisposeStream = new MemoryStream(anIconFile);
+			await userController.SetUserIcon(i, new FormFile(useDisposeStream, 0, anIconFile.Length, "icon", "鱼卡日yu.png"));
+			useDisposeStream.Dispose();
 		}
 
 		userController = new UserController(userLogger, database, userService, new RequestingUser() { UserID = businessman.ID, UserRole = UserRoleDTO.User });
@@ -238,7 +240,7 @@ public class DebugController : ControllerBase
 		}
 
 		videoController = new VideoController(videoLogger, database, new RequestingUser() { UserID = 2, UserRole = UserRoleDTO.SystemAdministrator });
-		videoController.CreateNewVideo(new NewVideoDTO { AuthorID = 1, Title = "过♂年", BilibiliPage = "https://www.bilibili.com/video/BV1Qs411X7QR" });
+		await videoController.CreateNewVideo(new NewVideoDTO { AuthorID = 1, Title = "过♂年", BilibiliPage = "https://www.bilibili.com/video/BV1Qs411X7QR" });
 
 		logger.Log(LogLevel.Warning, "Database debug initialized.");
 		return Ok("Initialized");

@@ -138,7 +138,7 @@ public class UserController(ILogger<UserController> logger,
 
 	[HttpPut]
 	[Route("{ID}/Icon")]
-	public IActionResult SetUserIcon([FromRoute] long ID, IFormFile icon)
+	public async Task<IActionResult> SetUserIcon([FromRoute] long ID, IFormFile icon)
 	{
 		if (requestingUser.UserID != ID)
 			if ((requestingUser.UserRole & UserRoleDTO.SystemAdministrator) != UserRoleDTO.SystemAdministrator)
@@ -147,10 +147,14 @@ public class UserController(ILogger<UserController> logger,
 			return BadRequest("你想害我的库？");
 		if (!database.Users.Any(x => x.ID == ID))
 			return BadRequest("查无此人");
-		Stream readStream = icon.OpenReadStream();
+		if (string.IsNullOrEmpty(Path.GetExtension(icon.FileName)))
+			return BadRequest("没后缀名啊");
+		using Stream readStream = icon.OpenReadStream();
+		byte[] bytes1 = new byte[icon.Length];
+		await readStream.ReadExactlyAsync(bytes1);
 
 		Image image;
-		try { image = Image.Load(readStream); }
+		try { image = Image.Load(bytes1); }
 		catch (Exception) { return BadRequest("什么破图？"); }
 		using (image)
 		{
@@ -161,21 +165,18 @@ public class UserController(ILogger<UserController> logger,
 				return BadRequest("太小");
 			if (x > 800)
 				return BadRequest("太大");
-			using MemoryStream pngStream = new();
-			image.SaveAsPng(pngStream);
-			byte[] bytes = pngStream.ToArray();
-			if (bytes.Length > UserIconHistory.MAX_ICON_SIZE)
-				return BadRequest();
+
 			DateTimeOffset newDate = DateTimeOffset.UtcNow;
 			var historyItem = new UserIconHistory
 			{
 				UserID = ID,
-				Icon = bytes,
 				CreationDate = newDate,
 			};
+			var savedPath = Path.Join(UserCookieAssetController.UserIconPath, historyItem.GUID.ToString() + Path.GetExtension(icon.FileName).ToLower());
+			await System.IO.File.WriteAllBytesAsync(savedPath, bytes1);
 			// we don't solve high concurrency icon creation
-			database.UserIconHistories.Add(historyItem);
-			database.SaveChanges();
+			await database.UserIconHistories.AddAsync(historyItem);
+			await database.SaveChangesAsync();
 			database.Users.Where(x => x.ID == ID)
 				.ExecuteUpdate(setter => setter
 					.SetProperty(u => u.UserIconID, historyItem.GUID)
@@ -189,28 +190,29 @@ public class UserController(ILogger<UserController> logger,
 /// 希望所有的图片作为静态文件从GUID来获得
 /// cookie验证
 /// </summary>
-/// <param name="database"></param>
 [ApiController]
 [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
 [Route("api/User")]
-public class UserCookieAssetController(SQLiteContext database) : ControllerBase
+public class UserCookieAssetController : ControllerBase
 {
 	[HttpGet]
 	[Route("Icon/{IconID}")]
 	[ResponseCache(Duration = 60 * 60 * 24 * 30)]
 	public IActionResult GetIconByIconID([FromRoute] Guid IconID)
 	{
-		// DeniedValues was unsuccessful because the attr needs constants.
-		// Guid is a struct not a basic type, so it could not have constant value.
-		// if empty don't go to the database, let's save the query
 		if (IconID == default)
 			return NotFound();
-		var info = database.UserIconHistories.AsNoTracking().FirstOrDefault(x => x.GUID == IconID);
-		if (info is null)
-			return NotFound();
-		byte[] image = info.Icon;
-		return File(image, "image/png");
+		List<string> extensions = ["png", "jpg", "jpeg", "webp"];
+		foreach (var ext in extensions)
+		{
+			var potentialFile = Path.Join(UserIconPath, IconID.ToString() + '.' + ext);
+			if (System.IO.File.Exists(potentialFile))
+				return File(System.IO.File.Open(potentialFile, FileMode.Open), "image/" + ext);
+		}
+		return NotFound();
 	}
+
+	public static string UserIconPath = null!;
 }
 
 public partial class NonSensitiveUserDTO
