@@ -40,6 +40,11 @@ public class VideoNicoDecoded
 
 public class YtdlpInstanceService
 {
+	/// <summary>
+	/// The object would be added to service provider as a singleton so the scopefactory is used to create db units
+	/// </summary>
+	/// <param name="diLogger"></param>
+	/// <param name="diScopeFactory"></param>
 	public YtdlpInstanceService(ILogger<YtdlpInstanceService> diLogger, IServiceScopeFactory diScopeFactory)
 	{
 		logger = diLogger;
@@ -122,6 +127,8 @@ public class YtdlpInstanceService
 			logger.LogError("Failed to resolve SQLiteContext from service provider.");
 			throw new NTHException("Failed to resolve SQLiteContext for DLPTask");
 		}
+		using HttpClient httpClient = new();
+		httpClient.Timeout = TimeSpan.FromSeconds(20);
 
 		await foreach (var task in secondChannel.Reader.ReadAllAsync())
 		{
@@ -211,10 +218,10 @@ public class YtdlpInstanceService
 					throw new NTHException($"Uploader ID mismatch. Expected: {task.SubjectID}, Found: {string.Join(", ", videos.Select(x => x.Info.uploader_id).Distinct())}");
 
 				long subjectLong = long.Parse(task.SubjectID);
+				DateTimeOffset creationDate = DateTimeOffset.UtcNow;
 				AuthorID? author = await database.Authors.AsNoTracking().FirstOrDefaultAsync(x => x.NiconicoID == subjectLong);
 				if (author is null)
 				{
-					DateTimeOffset creationDate = DateTimeOffset.UtcNow;
 					author = new AuthorID()
 					{
 						ByUserAudit = task.ByUserAudit,
@@ -225,6 +232,36 @@ public class YtdlpInstanceService
 					};
 					database.Authors.Add(author);
 					await database.SaveChangesAsync();
+
+
+					// user icon
+
+					try // just suppress it, author icon may be null
+					{
+						var iconHttp = await httpClient.GetAsync($"https://img.nicoprofile.nimg.jp/usericon/{subjectLong / 10000}/{subjectLong}.jpg");
+						if (iconHttp.IsSuccessStatusCode)
+						{
+							var iconFile = await iconHttp.Content.ReadAsByteArrayAsync();
+							if (iconFile.Length > AuthorIconHistory.MAX_ICON_SIZE)
+								throw new NTHException("你想害我的库？");
+							using var image = Image.Load(iconFile);
+							var historyItem = new AuthorIconHistory()
+							{
+								AuthorID = author.ID,
+								CreationDate = creationDate,
+								ByUserAudit = task.ByUserAudit
+							};
+							var savedPath = Path.Join(AuthorCookieAssetController.AuthorIconPath, historyItem.GUID.ToString() + ".jpg");
+							await File.WriteAllBytesAsync(savedPath, iconFile);
+							await database.AuthorIconHistories.AddAsync(historyItem);
+							await database.SaveChangesAsync();
+							await database.Authors.Where(x => x.ID == author.ID)
+								.ExecuteUpdateAsync(setter => setter
+									.SetProperty(a => a.AuthorIconID, historyItem.GUID)
+									.SetProperty(u => u.IconChangeDate, creationDate));
+						}
+					}
+					catch (Exception) { }
 				}
 				foreach (var video in videos)
 				{
@@ -232,7 +269,6 @@ public class YtdlpInstanceService
 					VideoID? found = database.Videos.FirstOrDefault(x => x.NiconicoID == videoID);
 					if (found is null)
 					{
-						DateTimeOffset creationDate = DateTimeOffset.UtcNow;
 						var newVideo = new VideoID()
 						{
 							ByUserAudit = task.ByUserAudit,

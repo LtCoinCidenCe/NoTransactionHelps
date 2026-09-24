@@ -1,11 +1,11 @@
 ﻿#if DEBUG
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NTH.Controllers;
 using NTH.DBContext;
 using NTH.Services;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -20,6 +20,11 @@ public sealed class TestDebug
 	private static readonly WebApplicationFactory<Program> _factory = new();
 	private static readonly HttpClient client = _factory.CreateClient();
 	private static string bossJWT = string.Empty;
+
+	// MSTest automatically sets the TestContext property before each test runs.
+	// MSTest.Analyzers includes a diagnostic suppressor that removes CS8618
+	// (non-nullable property uninitialized) for this property.
+	public TestContext TestContext { get; set; }
 
 	[AssemblyInitialize]
 	public static void AssemblyInit(TestContext context)
@@ -94,7 +99,7 @@ public sealed class TestDebug
 		var jwt = await jwtcall.Content.ReadAsStringAsync();
 		var request = new HttpRequestMessage(HttpMethod.Post, "api/Author/dlp");
 		request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-		request.Content = JsonContent.Create(118691209); // an author
+		request.Content = JsonContent.Create(118691209); // an author くうい
 		var response = await client.SendAsync(request);
 		response.EnsureSuccessStatusCode();
 
@@ -104,8 +109,11 @@ public sealed class TestDebug
 				break;
 			await Task.Delay(1000);
 		}
-		await YtdlpInstanceService.TaskStation.WaitAsync(60000);
-		// kaibai
+		await YtdlpInstanceService.TaskStation.WaitAsync(TestContext.CancellationToken);
+		SQLiteContext dbContext = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<SQLiteContext>();
+		var author = await dbContext.Authors.Include(x => x.Videos).AsNoTracking().FirstOrDefaultAsync(x => x.Name == "くうい");
+		Assert.IsNotNull(author, "Targeted author is not documented");
+		Assert.IsGreaterThan(3, author.Videos.Count, "Targeted videos are not documented enough");
 	}
 }
 #endif
