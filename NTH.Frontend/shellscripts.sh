@@ -1,0 +1,1 @@
+docker run -t --rm -v ../:/workFolder -w /workFolder/NTH.Frontend node:24-trixie node copydist.cjs

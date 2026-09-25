@@ -6,3 +6,5 @@ dotnet ef migrations script InitialVersion --output Script/script.sql
 dotnet ef database update
 
 dotnet test --solution NTH.slnx --settings .runsettings --coverage
+
+nvm install 26
