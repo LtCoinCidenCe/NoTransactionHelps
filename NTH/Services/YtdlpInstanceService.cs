@@ -36,6 +36,10 @@ public class VideoNicoDecoded
 {
 	public required VideoNicoInfo Info;
 	public required byte[] ImageBytes;
+	public override string ToString()
+	{
+		return $"{Info.uploader} {Info.id} {Info.title}";
+	}
 }
 
 public class YtdlpInstanceService
