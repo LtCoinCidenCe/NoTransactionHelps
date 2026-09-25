@@ -1,0 +1,1 @@
+import{B as e,U as t}from"./utils-Zmze1OpG.js";import{i as n}from"./types-C7C3Fwf-.js";var r=(0,t(e(),1).createContext)({users:[],usersMap:new Map,currentUser:n,setUsers:()=>{},updateCurrentUser:()=>{}});export{r as t};

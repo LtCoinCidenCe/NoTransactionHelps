@@ -1,0 +1,1 @@
+import{B as e,U as t}from"./utils-Zmze1OpG.js";var n=(0,t(e(),1).createContext)({jwt:``,expireTime:new Date(1990,2,3),userIdentifier:``});export{n as t};
