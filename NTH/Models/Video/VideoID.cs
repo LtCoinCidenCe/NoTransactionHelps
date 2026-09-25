@@ -23,23 +23,26 @@ public class VideoID
 	#region Video itself
 	[MaxLength(120)]
 	public string Title { get; set; } = string.Empty;
-	/// <summary>
-	/// jpg png webp ...
-	/// </summary>
-	[MaxLength(6)]
-	public string ThumbnailType { get; set; } = "";
-	[MaxLength(MAX_THUMBNAIL_SIZE)]
-	public byte[] Thumbnail { get; set; } = [];
+	public Guid ThumbnailGUID { get; set; }
+	public DateTimeOffset ThumbnailChangeDate { get; set; }
 	[MaxLength(3000)]
 	public string Introduction { get; set; } = "";
+	public List<string> Tags { get; set; } = [];
 	[Column(name: "AuthorID"), JsonIgnore]
 	public AuthorID? Author { get; set; }
 	[Column(name: "AuthorID")]
 	public long AuthorID { get; set; }
+	/// <summary>
+	/// in seconds
+	/// </summary>
+	public int Duration { get; set; }
+	public int CommentCount { get; set; }
+	public int Like_Count { get; set; }
+	public long ViewCount { get; set; }
 	[MaxLength(MAX_URL)]
 	public string YoutubePage { get; set; } = string.Empty;
 	[MaxLength(MAX_URL)]
-	public string NiconicoPage { get; set; } = string.Empty;
+	public string NiconicoID { get; set; } = string.Empty;
 	// If any author requests video to be translated for things here...
 	[MaxLength(MAX_URL)]
 	public string BilibiliPage { get; set; } = string.Empty;
@@ -96,4 +99,7 @@ public class VideoID
 	[MaxLength(MAX_URL)]
 	public string FinishedProductLink { get; set; } = string.Empty;
 	#endregion Work details
+
+	public DateTimeOffset CreationDate { get; set; }
+	public DateTimeOffset UpdatedAt { get; set; }
 }

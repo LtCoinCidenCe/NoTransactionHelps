@@ -19,7 +19,7 @@ jobs:
         run: sed -i "s|Not a release commit|${{ github.sha }}|" NTH/PipelineGitCommit.cs
       - name: Test Release
         run: dotnet test --solution NTH.slnx -c Release --progress true --settings .runsettings --coverage
-      - name: Publish Release(Linux)
+      - name: .NET Publish Release(Linux)
         run: dotnet publish -p:PublishProfile=NTH/Properties/PublishProfiles/LinuxReleaseProfile.pubxml NTH/NTH.csproj
       # - name: list files
       #   run: ls -alF
@@ -46,7 +46,7 @@ jobs:
           path: NTH/bin/Release/net10.0/linux-x64/publish/
           retention-days: 5
 
-      - name: Publish Release(Windows)
+      - name: .NET Publish Release(Windows)
         run: dotnet publish -p:PublishProfile=NTH/Properties/PublishProfiles/WindowsReleaseProfile.pubxml NTH/NTH.csproj
       - name: Archive production artifacts(Windows)
         uses: actions/upload-artifact@v7

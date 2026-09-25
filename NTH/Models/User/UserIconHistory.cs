@@ -1,10 +1,10 @@
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace NTH.Models.User;
 
+[Index(nameof(GUID))]
 [Index(nameof(CreationDate))]
 [Index(nameof(UserID), nameof(ID), IsUnique = true)]
 public class UserIconHistory
@@ -27,12 +27,13 @@ public class UserIconHistory
 
 	public long ByUserAudit { get; set; }
 
-	public required DateTimeOffset CreationDate { get; set; } = DateTimeOffset.UtcNow;
+	public required DateTimeOffset CreationDate { get; set; }
 
 	[JsonIgnore]
 	public bool IsDeleted { get; set; } = false;
 	// #endregion itsumono
 
-	[MaxLength(MAX_ICON_SIZE)]
-	public byte[] Icon { get; set; } = [];
+	//deprecated
+	//[MaxLength(MAX_ICON_SIZE)]
+	//public byte[] Icon { get; set; } = [];
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using NTH.Controllers;
 using NTH.DBContext;
 using NTH.Middlewares;
 using NTH.Services;
@@ -103,6 +104,7 @@ public class Program
 			};
 		});
 		builder.Services.AddSignalR();
+		builder.Services.AddSingleton<YtdlpInstanceService>();
 		//builder.Services.AddHangfire(config =>
 		//    config.UsePostgreSqlStorage(c =>
 		//    c.UseNpgsqlConnection("Host=localhost;Username=nthuser;Password=stillnicedatabase;Database=nthwork;Include Error Detail=True;")));
@@ -140,6 +142,16 @@ public class Program
 
 		var configuration = app.Services.GetService<IConfiguration>() ?? throw new NTHException("Why IConfiguration is null???");
 		var nthDataPath = configuration.GetValue<string>("NTHDataPath") ?? throw new NTHException("You need to provide a valid NTHDataPath in appsettings.json");
+		YtdlpInstanceService.dlpPath = Path.Join(nthDataPath, "dlpFolder");
+		YtdlpInstanceService.dlpOldPath = Path.Join(nthDataPath, "dlpOld");
+		UserCookieAssetController.UserIconPath = Path.Join(nthDataPath, "Icon", "User");
+		AuthorCookieAssetController.AuthorIconPath = Path.Join(nthDataPath, "Icon", "Author");
+		VideoCookieAssetController.VideoIconPath = Path.Join(nthDataPath, "Icon", "Video");
+		Directory.CreateDirectory(YtdlpInstanceService.dlpPath);
+		Directory.CreateDirectory(YtdlpInstanceService.dlpOldPath);
+		Directory.CreateDirectory(UserCookieAssetController.UserIconPath);
+		Directory.CreateDirectory(AuthorCookieAssetController.AuthorIconPath);
+		Directory.CreateDirectory(VideoCookieAssetController.VideoIconPath);
 
 		app.Lifetime.ApplicationStarted.Register(() =>
 		{

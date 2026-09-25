@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NTH.Models.Author;
 using NTH.Models.CharacterReality;
+using NTH.Models.DLPTask;
 using NTH.Models.LiaoTian;
 using NTH.Models.NTH;
 using NTH.Models.User;
@@ -54,6 +55,8 @@ public class SQLiteContext : DbContext
 	public DbSet<VideoID> Videos { get; set; }
 	public DbSet<WorkID> Works { get; set; }
 
+	public DbSet<DLPTaskID> DLPTasks { get; set; }
+
 	public DbSet<Message> LiaoTianJiLu { get; set; }
 
 	#region World Reality Information
@@ -66,5 +69,6 @@ public class SQLiteContext : DbContext
 	public DbSet<UserRoleSupplementary> UserRoleSupplementary { get; set; }
 	public DbSet<WorkStatusSupplementary> WorkStatusSupplementary { get; set; }
 	public DbSet<WorkTypeSupplementary> WorkTypeSupplementary { get; set; }
+	public DbSet<DLPTaskStatusSupplementary> DLPTaskStatusSupplementary { get; set; }
 	#endregion Supplementary Definition Reference Tables
 }
