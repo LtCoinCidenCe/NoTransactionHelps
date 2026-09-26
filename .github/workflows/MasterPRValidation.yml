@@ -31,6 +31,9 @@ jobs:
       with:
         node-version-file: 'NTH.Frontend/package.json'
 
+    - name: Delete old frontend
+      run: rm -r NTH/wwwroot/*
+
     - run: npm ci
       working-directory: NTH.Frontend/
 
