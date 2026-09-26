@@ -26,6 +26,23 @@ jobs:
       with:
         dotnet-version: 10.x
 
+    - name: Setup Node
+      uses: actions/setup-node@v7
+      with:
+        node-version-file: 'NTH.Frontend/package.json'
+
+    - name: Delete old frontend
+      run: rm -r NTH/wwwroot/*
+
+    - run: npm ci
+      working-directory: NTH.Frontend/
+
+    - run: npm run build
+      working-directory: NTH.Frontend/
+
+    - run: npm run copybuild
+      working-directory: NTH.Frontend/
+
     - name: Replace Path in appsettings.Staging.json
       run: jq --arg newpath ${{ runner.temp }} '.NTHDataPath = $newpath' ./NTH/appsettings.Staging.json > tmp.json && mv tmp.json ./NTH/appsettings.Staging.json
 

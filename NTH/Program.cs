@@ -142,7 +142,7 @@ public class Program
 
 		var configuration = app.Services.GetService<IConfiguration>() ?? throw new NTHException("Why IConfiguration is null???");
 		var nthDataPath = configuration.GetValue<string>("NTHDataPath") ?? throw new NTHException("You need to provide a valid NTHDataPath in appsettings.json");
-		YtdlpInstanceService.dlpPath = Path.Join(nthDataPath, "dlpFolder");
+		YtdlpInstanceService.dlpPath = Path.Join(nthDataPath, "dlpWorkTable");
 		YtdlpInstanceService.dlpOldPath = Path.Join(nthDataPath, "dlpOld");
 		UserCookieAssetController.UserIconPath = Path.Join(nthDataPath, "Icon", "User");
 		AuthorCookieAssetController.AuthorIconPath = Path.Join(nthDataPath, "Icon", "Author");

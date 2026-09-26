@@ -316,12 +316,18 @@ public class YtdlpInstanceService
 			}
 			finally
 			{
-				try { Directory.Delete(Path.Join(dlpOldPath, task.SubjectID, task.TimeDeStorage.ToString("yyyyMMdd"))); }
+				try
+				{
+					Directory.Delete(
+						Path.Join(dlpOldPath, task.SiteDeVideo.ToString(), task.SubjectID, task.TimeDeStorage.ToString("yyyyMMdd"))
+						, true);
+				}
 				catch (DirectoryNotFoundException) { }
 
 				// This is verbose and dumb
-				Directory.CreateDirectory(Path.Join(dlpOldPath, task.SubjectID));
-				Directory.Move(dlpPath, Path.Join(dlpOldPath, task.SubjectID, task.TimeDeStorage.ToString("yyyyMMdd")));
+				Directory.CreateDirectory(Path.Join(dlpOldPath, task.SiteDeVideo.ToString(), task.SubjectID));
+				Directory.Move(dlpPath,
+					Path.Join(dlpOldPath, task.SiteDeVideo.ToString(), task.SubjectID, task.TimeDeStorage.ToString("yyyyMMdd")));
 				Directory.CreateDirectory(dlpPath);
 				TaskStation.Release();
 			}
