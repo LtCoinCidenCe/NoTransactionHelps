@@ -26,7 +26,7 @@ const UserCard: React.FC<UserCardProps> = ({ userid, username, iconid, displayna
     .map(role => role.name);
 
   return (
-    <Link to={`/userDetail/${userid}`} className="border border-gray-200 rounded-lg p-4 transition-colors duration-200 hover:bg-gray-100">
+    <Link to={`/userDetail/${userid}`} className="border border-gray-200 rounded-lg p-4 transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-900">
       <div className="flex items-start gap-4">
         {/* 圆形头像 */}
         <div className="flex-shrink-0">
@@ -38,7 +38,7 @@ const UserCard: React.FC<UserCardProps> = ({ userid, username, iconid, displayna
 
         {/* 用户信息 */}
         <div className="flex-1 min-w-0">
-          <h3 className="text-lg font-semibold text-gray-900 truncate">{displayname}</h3>
+          <h3 className="text-lg font-semibold truncate">{displayname}</h3>
           <p className="text-sm text-gray-500 mt-1">{username}</p>
 
           {/* 角色标签 */}

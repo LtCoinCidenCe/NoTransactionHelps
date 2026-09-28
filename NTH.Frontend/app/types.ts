@@ -66,8 +66,10 @@ export type AuthorContactItem = zod.infer<typeof AuthorContactItemZod>;
 
 export const AuthorBasicZod = zod.object({
     id: zod.number(),
+    byUserAudit: zod.number(),
     name: zod.string(),
     youtubeHomePage: zod.string(),
+    niconicoID: zod.number(),
     niconicoHomePage: zod.string(),
     bilibiliHomePage: zod.string(),
     twitterHomePage: zod.string(),
@@ -77,13 +79,20 @@ export const AuthorBasicZod = zod.object({
     additionalRequirements: zod.string(),
     additionalRequirementsChangeDate: zod.coerce.date(),
     creationDate: zod.coerce.date(),
-    contact: zod.array(AuthorContactItemZod),
+    contact: zod.number().optional()
 });
 
 export type AuthorBasic = zod.infer<typeof AuthorBasicZod>;
 
 export const isAuthorBasic = (candidate: any): candidate is AuthorBasic =>
     AuthorBasicZod.safeParse(candidate).success;
+
+export const AuthorIDDTOZod = zod.object({
+    author: AuthorBasicZod,
+    contact: AuthorContactItemZod
+});
+
+export type AuthorIDDTO = zod.infer<typeof AuthorIDDTOZod>;
 
 export const LiaoTianMessageZod = zod.object({
     id: zod.number(),
@@ -98,3 +107,10 @@ export type LiaoTianMessage = zod.infer<typeof LiaoTianMessageZod>;
 export const LiaoTianJiLuZod = zod.array(LiaoTianMessageZod);
 
 export type LiaoTianJiLu = zod.infer<typeof LiaoTianJiLuZod>;
+
+
+export interface SVGNTHIcon {
+    name: string;
+    viewBox: string;
+    pathD: string;
+}

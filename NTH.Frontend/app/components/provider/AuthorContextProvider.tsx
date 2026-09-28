@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { AuthorBasicZod, type AuthorBasic } from "~/types";
+import { AuthorIDDTOZod, type AuthorBasic } from "~/types";
 import ErrorContext from "./ErrorContext";
 import JWTContext from "./JWTContext";
 import AuthorContext from "./AuthorContext";
@@ -23,7 +23,12 @@ const AuthorContextProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         return;
       }
       try {
-        setAuthors(allAuthors.map(author => AuthorBasicZod.parse(author)));
+        const authors = allAuthors.map(author => {
+          const dto = AuthorIDDTOZod.parse(author);
+          dto.author.contact = dto.contact.userID ?? undefined
+          return dto.author;
+        });
+        setAuthors(authors);
       } catch (error) {
         errorContext(`${URLPath} doesn't have valid items`);
         return;

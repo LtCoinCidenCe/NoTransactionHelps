@@ -207,7 +207,7 @@ public class UserCookieAssetController : ControllerBase
 		{
 			var potentialFile = Path.Join(UserIconPath, IconID.ToString() + '.' + ext);
 			if (System.IO.File.Exists(potentialFile))
-				return File(System.IO.File.Open(potentialFile, FileMode.Open), "image/" + ext);
+				return File(System.IO.File.Open(potentialFile, FileMode.Open, FileAccess.Read, FileShare.Read), "image/" + ext);
 		}
 		return NotFound();
 	}

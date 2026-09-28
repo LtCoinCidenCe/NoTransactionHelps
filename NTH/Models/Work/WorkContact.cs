@@ -8,6 +8,7 @@ namespace NTH.Models.Work;
 
 /// <summary>
 /// This should be called WorkContactHistory because it uses history storage style as well.
+/// That is, an author should only have 1 contact user.
 /// Query from the Author and the one with new biggest ID is the current data.
 /// </summary>
 [Index(nameof(AuthorID), nameof(ID))]
