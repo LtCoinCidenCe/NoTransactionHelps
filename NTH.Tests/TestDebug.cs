@@ -92,15 +92,22 @@ public sealed class TestDebug
 	}
 
 	[TestMethod]
-	public async Task VeryPrimitiveDLPthing()
+	public async Task DLPSystemTest()
 	{
 		var jwtcall = await client.PostAsJsonAsync("api/Login", new UserLoginDTO { Username = "string", Password = "string" });
 		jwtcall.EnsureSuccessStatusCode();
 		var jwt = await jwtcall.Content.ReadAsStringAsync();
+
 		var request = new HttpRequestMessage(HttpMethod.Post, "api/Author/dlp");
 		request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 		request.Content = JsonContent.Create(118691209); // an author くうい
 		var response = await client.SendAsync(request);
+		response.EnsureSuccessStatusCode();
+
+		request = new HttpRequestMessage(HttpMethod.Post, "api/Author/dlp");
+		request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+		request.Content = JsonContent.Create(90869956); // an author えよくれ
+		response = await client.SendAsync(request);
 		response.EnsureSuccessStatusCode();
 
 		for (int i = 0; i < 3; i++)
@@ -110,6 +117,12 @@ public sealed class TestDebug
 			await Task.Delay(1000);
 		}
 		await YtdlpInstanceService.TaskStation.WaitAsync(TestContext.CancellationToken);
+		if (YtdlpInstanceService.taskCompletionCount != 2)
+		{
+			YtdlpInstanceService.TaskStation.Release();
+			await Task.Delay(2000);
+			await YtdlpInstanceService.TaskStation.WaitAsync(TestContext.CancellationToken);
+		}
 		SQLiteContext dbContext = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<SQLiteContext>();
 		var author = await dbContext.Authors.Include(x => x.Videos).AsNoTracking().FirstOrDefaultAsync(x => x.Name == "くうい");
 		Assert.IsNotNull(author, "Targeted author is not documented");
