@@ -11,7 +11,7 @@ const AuthorContextProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     const fetchData = async () => {
       const URLPath = "/api/Author";
-      const allAuthorsURL = `${import.meta.env.VITE_BACKEND_URL}${URLPath}`;
+      const allAuthorsURL = `${import.meta.env.VITE_BACKEND_HOST}${URLPath}`;
       const response = await fetch(allAuthorsURL, { method: "GET", headers: { "Authorization": `Bearer ${jwt}` } });
       if (!response.ok) {
         errorContext("数据读取失败，请刷新");
@@ -25,7 +25,7 @@ const AuthorContextProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       try {
         const authors = allAuthors.map(author => {
           const dto = AuthorIDDTOZod.parse(author);
-          dto.author.contact = dto.contact.userID ?? undefined
+          dto.author.contact = dto.contact?.userID
           return dto.author;
         });
         setAuthors(authors);

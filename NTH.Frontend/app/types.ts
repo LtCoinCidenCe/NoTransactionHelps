@@ -68,6 +68,7 @@ export const AuthorBasicZod = zod.object({
     id: zod.number(),
     byUserAudit: zod.number(),
     name: zod.string(),
+    authorIconID: zod.string(),
     youtubeHomePage: zod.string(),
     niconicoID: zod.number(),
     niconicoHomePage: zod.string(),
@@ -89,7 +90,7 @@ export const isAuthorBasic = (candidate: any): candidate is AuthorBasic =>
 
 export const AuthorIDDTOZod = zod.object({
     author: AuthorBasicZod,
-    contact: AuthorContactItemZod
+    contact: AuthorContactItemZod.nullable()
 });
 
 export type AuthorIDDTO = zod.infer<typeof AuthorIDDTOZod>;
