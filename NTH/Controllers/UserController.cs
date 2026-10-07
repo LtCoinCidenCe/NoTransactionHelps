@@ -57,6 +57,8 @@ public class UserController(ILogger<UserController> logger,
 	[HttpPost]
 	public ActionResult CreateNewUser(NewUserDTO newUser)
 	{
+		if (requestingUser.UserID != 0)
+			return Unauthorized();
 		UserID? newUserID = userService.CreateNewUser(newUser);
 		if (newUserID is null)
 			return BadRequest();

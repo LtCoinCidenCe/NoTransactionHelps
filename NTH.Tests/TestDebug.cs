@@ -6,6 +6,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NTH.Controllers;
 using NTH.DBContext;
 using NTH.Services;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -94,39 +96,94 @@ public sealed class TestDebug
 	[TestMethod]
 	public async Task DLPSystemTest()
 	{
+		List<int> nicoAuthorsID = [
+			118691209, // an author くうい
+			90869956, // an author えよくれ
+			92143777, // an author Hetzer
+		];
+
 		var jwtcall = await client.PostAsJsonAsync("api/Login", new UserLoginDTO { Username = "string", Password = "string" });
 		jwtcall.EnsureSuccessStatusCode();
 		var jwt = await jwtcall.Content.ReadAsStringAsync();
 
-		var request = new HttpRequestMessage(HttpMethod.Post, "api/Author/dlp");
-		request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-		request.Content = JsonContent.Create(118691209); // an author くうい
-		var response = await client.SendAsync(request);
-		response.EnsureSuccessStatusCode();
-
-		request = new HttpRequestMessage(HttpMethod.Post, "api/Author/dlp");
-		request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-		request.Content = JsonContent.Create(90869956); // an author えよくれ
-		response = await client.SendAsync(request);
-		response.EnsureSuccessStatusCode();
-
-		for (int i = 0; i < 3; i++)
+		foreach (var nicoA in nicoAuthorsID)
 		{
-			if (YtdlpInstanceService.TaskStation.CurrentCount == 0)
-				break;
-			await Task.Delay(1000);
+			var request = new HttpRequestMessage(HttpMethod.Post, "api/Author/dlp");
+			request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+			request.Content = JsonContent.Create(nicoA);
+			var response = await client.SendAsync(request);
+			response.EnsureSuccessStatusCode();
 		}
-		await YtdlpInstanceService.TaskStation.WaitAsync(TestContext.CancellationToken);
-		if (YtdlpInstanceService.taskCompletionCount != 2)
+		await Task.Delay(3000);
+		Assert.AreEqual(0, YtdlpInstanceService.TaskStation.CurrentCount);
+
+		for (int i = 0; i < nicoAuthorsID.Count; i++)
 		{
+			await YtdlpInstanceService.TaskStation.WaitAsync(TestContext.CancellationToken);
+			if (YtdlpInstanceService.taskCompletionCount == nicoAuthorsID.Count)
+				break;
 			YtdlpInstanceService.TaskStation.Release();
 			await Task.Delay(2000);
-			await YtdlpInstanceService.TaskStation.WaitAsync(TestContext.CancellationToken);
 		}
 		SQLiteContext dbContext = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<SQLiteContext>();
 		var author = await dbContext.Authors.Include(x => x.Videos).AsNoTracking().FirstOrDefaultAsync(x => x.Name == "くうい");
 		Assert.IsNotNull(author, "Targeted author is not documented");
 		Assert.IsGreaterThan(3, author.Videos.Count, "Targeted videos are not documented enough");
+	}
+
+	[TestMethod]
+	public async Task UserInvitationSystemTest()
+	{
+		var jwtcall = await client.PostAsJsonAsync("api/Login", new UserLoginDTO { Username = "star", Password = "texas" });
+		jwtcall.EnsureSuccessStatusCode();
+		var jwt = await jwtcall.Content.ReadAsStringAsync();
+
+		var request = new HttpRequestMessage(HttpMethod.Post, "api/Login/InvitationLink");
+		request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+		request.Content = new StringContent("");
+		var response = await client.SendAsync(request);
+		response.EnsureSuccessStatusCode();
+		for (int i = 0; i < 4; i++)
+		{
+			request = new HttpRequestMessage(HttpMethod.Post, "api/Login/InvitationLink");
+			request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+			request.Content = new StringContent("");
+			response = await client.SendAsync(request);
+			response.EnsureSuccessStatusCode();
+		}
+		var ljnk = await response.Content.ReadAsStringAsync();
+
+		var theURI = new Uri(ljnk);
+		var it = theURI.Query.IndexOf("token");
+		var token = theURI.Query.Substring(it + 6).Split('&')[0];
+		var j = theURI.Query.IndexOf("ID");
+		var ID = long.Parse(theURI.Query.Substring(j + 3, 6).Split('&')[0]);
+
+		request = new HttpRequestMessage(HttpMethod.Post, "api/Login/InvitedAccountCreation");
+		request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
+		var dto = new AccountCreationDTO()
+		{
+			ID = ID,
+			Token = token,
+			NewUser = new NewUserDTO()
+			{
+				Username = "TGU",
+				Displayname = "Test generated user",
+				Password = "testerPassword"
+			}
+		};
+		request.Content = JsonContent.Create(dto);
+		response = await client.SendAsync(request);
+		response.EnsureSuccessStatusCode();
+
+		SQLiteContext dbContext = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<SQLiteContext>();
+		var invitationDB = dbContext.UserInvitationLinks.AsNoTracking().FirstOrDefault(x => x.ID == ID);
+		Assert.IsNotNull(invitationDB);
+		Assert.IsNotNull(invitationDB.CreatedUser);
+		var createdUser = dbContext.Users.AsNoTracking().FirstOrDefault(x => x.ID == invitationDB.CreatedUser);
+		Assert.IsNotNull(createdUser);
+		Assert.AreEqual("TGU", createdUser.Username);
+		Assert.AreEqual("Test generated user", createdUser.Displayname);
 	}
 }
 #endif
