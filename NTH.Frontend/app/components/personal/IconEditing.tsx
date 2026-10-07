@@ -21,7 +21,7 @@ const IconEditing: React.FC = () => {
 
   const iconBackgroundImageStyle = currentUser.userIconID === "00000000-0000-0000-0000-000000000000"
     ? undefined
-    : `${import.meta.env.VITE_BACKEND_URL}/api/User/Icon/${currentUser.userIconID}`;
+    : `${import.meta.env.VITE_BACKEND_HOST}/api/User/Icon/${currentUser.userIconID}`;
 
   useEffect(() => {
     if (!originalBitmap || !canvasRef.current) return;
@@ -119,7 +119,7 @@ const IconEditing: React.FC = () => {
                     blob,                  // 剪切好的图片Blob
                     "newIcon.png"           // 文件名（可自定义）
                   );
-                  const userIconURL = `${import.meta.env.VITE_BACKEND_URL}/api/User/${currentUser.id}/Icon`;
+                  const userIconURL = `${import.meta.env.VITE_BACKEND_HOST}/api/User/${currentUser.id}/Icon`;
                   const response = await fetch(userIconURL, {
                     method: "PUT",
                     headers: { "Authorization": `Bearer ${jwt}` },
