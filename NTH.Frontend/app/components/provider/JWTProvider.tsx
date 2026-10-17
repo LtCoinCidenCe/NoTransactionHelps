@@ -38,7 +38,7 @@ const JWTProvider: React.FC<{ loaderJWT: string, children: React.ReactNode }> = 
       }
       const userLoginDTO = { Username: NTHUsername, Password: NTHPassword };
       try {
-        const fetched = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/Login`,
+        const fetched = await fetch(`${import.meta.env.VITE_BACKEND_HOST}/api/Login`,
           {
             method: "POST", headers: { "Content-Type": "application/json" },
             body: JSON.stringify(userLoginDTO), credentials: "include"

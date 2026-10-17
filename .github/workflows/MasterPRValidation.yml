@@ -44,7 +44,7 @@ jobs:
       working-directory: NTH.Frontend/
 
     - name: Replace Path in appsettings.Staging.json
-      run: jq --arg newpath ${{ runner.temp }} '.NTHDataPath = $newpath' ./NTH/appsettings.Staging.json > tmp.json && mv tmp.json ./NTH/appsettings.Staging.json
+      run: jq --arg newpath ${{ github.workspace }}/Staging '.NTHDataPath = $newpath' ./NTH/appsettings.Staging.json > tmp.json && mv tmp.json ./NTH/appsettings.Staging.json
 
     - name: Print new appsettings.Staging.json
       if: ${{ contains(github.event.pull_request.body, 'workflowDebug') }}
@@ -63,5 +63,5 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
         name: NTHData.zip
-        path: ${{ runner.temp }}
+        path: ${{ github.workspace }}/Staging
         retention-days: 3

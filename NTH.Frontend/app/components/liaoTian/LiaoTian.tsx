@@ -16,7 +16,7 @@ const LiaoTian: FC = () => {
   useEffect(() => {
     console.debug("LiaoTian Effect runs");
 
-    var liaotianHub = new HubConnectionBuilder().withUrl(`${import.meta.env.VITE_BACKEND_URL}/api/LiaoTianHub`, { accessTokenFactory: () => jwt, timeout: 10 * 1000 }).build();
+    var liaotianHub = new HubConnectionBuilder().withUrl(`${import.meta.env.VITE_BACKEND_HOST}/api/LiaoTianHub`, { accessTokenFactory: () => jwt, timeout: 10 * 1000 }).build();
 
     liaotianHub.onreconnected((connectionId) => {
       console.debug("Reconnected to the hub with connection ID:", connectionId);
@@ -38,7 +38,7 @@ const LiaoTian: FC = () => {
       // here the connection is successful, or else it has thrown error
       liaoTianShiRef.current = liaotianHub;
 
-      const liaoTianJiLuURL = `${import.meta.env.VITE_BACKEND_URL}/api/LiaoTian/History?lastReceivedChatID=${0}`;
+      const liaoTianJiLuURL = `${import.meta.env.VITE_BACKEND_HOST}/api/LiaoTian/History?lastReceivedChatID=${0}`;
       const response = await fetch(liaoTianJiLuURL, { method: "GET", headers: { "Authorization": `Bearer ${jwt}` } });
       if (!response.ok) {
         errorContext(`/api/LiaoTian/History: ${response.status}`);
@@ -89,7 +89,7 @@ const LiaoTian: FC = () => {
       {msgList.toReversed().map(x =>
         <div key={x.id} className="flex flex-row items-center my-2">
           <img className="w-16 h-16 rounded-full object-cover"
-            src={userContext.usersMap.get(x.userID)?.userIconID === "00000000-0000-0000-0000-000000000000" ? futagotoYukari : `${import.meta.env.VITE_BACKEND_URL}/api/User/Icon/${userContext.usersMap.get(x.userID)?.userIconID}`}
+            src={userContext.usersMap.get(x.userID)?.userIconID === "00000000-0000-0000-0000-000000000000" ? futagotoYukari : `${import.meta.env.VITE_BACKEND_HOST}/api/User/Icon/${userContext.usersMap.get(x.userID)?.userIconID}`}
             onError={(e) => { e.currentTarget.src = futagotoYukari }}
           />
           <div className="flex flex-col">
@@ -109,7 +109,7 @@ const LiaoTian: FC = () => {
         setArrowText("");
         console.debug("聊天submit");
         const sendArrowMessagePath = "/api/LiaoTian/ShuoHua";
-        const sendAMURL = `${import.meta.env.VITE_BACKEND_URL}${sendArrowMessagePath}`;
+        const sendAMURL = `${import.meta.env.VITE_BACKEND_HOST}${sendArrowMessagePath}`;
         const response = await fetch(sendAMURL,
           {
             method: "POST",

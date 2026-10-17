@@ -1,8 +1,6 @@
-# Welcome to React Router!
+# NTH.Frontend
 
-A modern, production-ready template for building full-stack React applications using React Router.
-
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+React Router browser frontend for NTH.
 
 ## Features
 
@@ -18,10 +16,11 @@ A modern, production-ready template for building full-stack React applications u
 
 ### Installation
 
-Install the dependencies:
+Always install the dependencies:
 
 ```bash
-npm install
+npm install # or
+npm update
 ```
 
 ### Development
@@ -33,6 +32,10 @@ npm run dev
 ```
 
 Your application will be available at `http://localhost:5173`.
+
+⚠️ **When debugging DO NOT USE 127.0.0.1 as host.** ⚠️  
+⚠️ **Or else you will have problems with all backend static files.** ⚠️
+
 
 ## Building for Production
 
@@ -47,6 +50,10 @@ npm run build
 This app build generates static files. Just provide copydist.cjs a
 default destination as the backend wwwroot/.
 
+```bash
+npm run copybuild # copy the assets to NTH backend
+```
+
 ### ~~Docker Deployment~~
 
 To build and run using Docker:
@@ -56,29 +63,6 @@ docker build -t my-app .
 
 # Run the container
 docker run -p 3000:3000 my-app
-```
-
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
 ```
 
 ## Styling

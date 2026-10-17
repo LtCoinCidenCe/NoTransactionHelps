@@ -195,7 +195,7 @@ public class VideoCookieAssetController : ControllerBase
 		{
 			var potentialFile = Path.Join(VideoIconPath, IconID.ToString() + '.' + ext);
 			if (System.IO.File.Exists(potentialFile))
-				return File(System.IO.File.Open(potentialFile, FileMode.Open), "image/" + ext);
+				return File(System.IO.File.Open(potentialFile, FileMode.Open, FileAccess.Read, FileShare.Read), "image/" + ext);
 		}
 		return NotFound();
 	}

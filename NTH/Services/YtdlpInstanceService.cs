@@ -143,7 +143,7 @@ public class YtdlpInstanceService
 
 				using var worker = new Process();
 				worker.StartInfo.FileName = "yt-dlp";
-				worker.StartInfo.Arguments = $"--write-thumbnail --write-description --write-info-json --no-download --no-cache-dir --force-overwrites {task.URL}";
+				worker.StartInfo.Arguments = $"--write-thumbnail --write-description --write-info-json --no-download --no-cache-dir --force-overwrites --trim-filenames 60 {task.URL}";
 				worker.StartInfo.WorkingDirectory = dlpPath;
 				worker.StartInfo.RedirectStandardOutput = true;
 				worker.StartInfo.RedirectStandardError = true;
@@ -329,6 +329,7 @@ public class YtdlpInstanceService
 				Directory.Move(dlpPath,
 					Path.Join(dlpOldPath, task.SiteDeVideo.ToString(), task.SubjectID, task.TimeDeStorage.ToString("yyyyMMdd")));
 				Directory.CreateDirectory(dlpPath);
+				taskCompletionCount++;
 				TaskStation.Release();
 			}
 		}
@@ -337,6 +338,7 @@ public class YtdlpInstanceService
 	public static string dlpPath = null!;
 	public static string dlpOldPath = null!;
 	public static SemaphoreSlim TaskStation = new(1, 1);
+	public static int taskCompletionCount = 0;
 	private readonly IServiceScopeFactory scopeFactory; // for resolving database instance
 	private readonly ILogger<YtdlpInstanceService> logger;
 	private readonly Channel<YtdlpTask> firstChannel = Channel.CreateUnbounded<YtdlpTask>();
