@@ -78,7 +78,7 @@ public class VideoController(ILogger<VideoController> logger, SQLiteContext data
 			{
 				image.Size.Deconstruct(out int x, out int y);
 				Guid guid = Guid.CreateVersion7();
-				var savedPath = Path.Join(VideoCookieAssetController.VideoIconPath, guid.ToString() + newVideoDTO.ThumbnailType);
+				var savedPath = Path.Join(VideoCookieAssetController.VideoIconPath, guid.ToString() + '.' + newVideoDTO.ThumbnailType);
 				await System.IO.File.WriteAllBytesAsync(savedPath, newVideoDTO.Thumbnail);
 				newVideo.ThumbnailGUID = guid;
 				newVideo.ThumbnailChangeDate = DateTimeOffset.UtcNow;

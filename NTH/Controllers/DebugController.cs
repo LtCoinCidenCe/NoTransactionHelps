@@ -1,5 +1,6 @@
 #if DEBUG
 using System.ComponentModel.DataAnnotations;
+using System.Net;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -104,6 +105,13 @@ public class DebugController : ControllerBase
 		return newUserReturned;
 	}
 
+	private void NotLoopbackThenThrow()
+	{
+		var remote = HttpContext.Request.Host.Host;
+		if (remote != "localhost" && !IPAddress.IsLoopback(IPAddress.Parse(remote)))
+			throw new NTHException("don't use debug feature from remote machine");
+	}
+
 	/// <summary>
 	/// from rolls-royce engine blade pigtail
 	/// </summary>
@@ -113,6 +121,7 @@ public class DebugController : ControllerBase
 	[Route("[action]")]
 	public async Task<ActionResult> InitializeProductionPigtail()
 	{
+		NotLoopbackThenThrow();
 		database.Database.EnsureDeleted();
 		database.Database.EnsureCreated();
 		// at least this is controller call, validation like this works

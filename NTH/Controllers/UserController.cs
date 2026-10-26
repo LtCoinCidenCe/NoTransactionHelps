@@ -35,8 +35,7 @@ public class UserController(ILogger<UserController> logger,
 		users.ForEach(x =>
 		{
 			// non-public data
-			x.PassSalt = "";
-			x.Password = [];
+			x.Password = "";
 			x.PasswordChangeDate = DateTimeOffset.MinValue;
 		});
 		return users;

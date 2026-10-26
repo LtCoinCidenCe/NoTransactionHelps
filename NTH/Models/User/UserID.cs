@@ -43,10 +43,8 @@ public partial class UserID
 	#endregion TitleWords
 
 	#region Password
-	[MaxLength(32)]
-	public required byte[] Password { get; set; }
-	[MaxLength(5)]
-	public string PassSalt { get; set; } = "     ";
+	[MaxLength(99)]
+	public required string Password { get; set; }
 	public DateTimeOffset PasswordChangeDate { get; set; } = DateTimeOffset.UtcNow;
 	#endregion Password
 

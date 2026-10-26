@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -32,9 +33,8 @@ public class LoginController(ILogger<LoginController> logger, SQLiteContext data
 			return BadRequest();
 		bool isSA = (user.UserRole & UserRoleDTO.SystemAdministrator) != 0;
 		string roleString = isSA ? "sa" : "kt";
-		string? salt = user.PassSalt;
-		byte[] calculatedPasshash = PasswordHasher.GetHashedPassword(userLoginDTO.Password, ref salt);
-		if (!calculatedPasshash.SequenceEqual(user.Password))
+		var passwordResult = passwordHasher.VerifyHashedPassword(userLoginDTO, user.Password, userLoginDTO.Password);
+		if (passwordResult == PasswordVerificationResult.Failed)
 			return BadRequest();
 		var jwt = new JwtSecurityToken(
 			JwtHelper.ISSUER,
@@ -161,6 +161,8 @@ public class LoginController(ILogger<LoginController> logger, SQLiteContext data
 		Program.app.StopAsync();
 		return Ok("OK");
 	}
+
+	private readonly PasswordHasher<UserLoginDTO> passwordHasher = new();
 }
 
 public class InvitationToken

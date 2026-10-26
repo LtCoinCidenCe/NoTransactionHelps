@@ -135,10 +135,9 @@ public class Program
 		app.UseAuthorization();
 
 		app.MapHub<LiaoTianHub>("/api/LiaoTianHub").RequireAuthorization();
-
-		app.UseMiddleware<HomepageGuide>();
 		app.UseMiddleware<UserExtractor>();
 		app.MapControllers();
+		app.MapFallbackToFile("index.html");
 
 		var configuration = app.Services.GetService<IConfiguration>() ?? throw new NTHException("Why IConfiguration is null???");
 		var nthDataPath = configuration.GetValue<string>("NTHDataPath") ?? throw new NTHException("You need to provide a valid NTHDataPath in appsettings.json");
