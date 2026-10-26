@@ -11,7 +11,7 @@ const UserContextProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const fetchData = async () => {
       const URLPath = "/api/User";
-      const allUsersURL = `${import.meta.env.VITE_BACKEND_URL}${URLPath}`;
+      const allUsersURL = `${import.meta.env.VITE_BACKEND_HOST}${URLPath}`;
       try {
         const response = await fetch(allUsersURL, { method: "GET", headers: { "Authorization": `Bearer ${jwt}` } });
         if (!response.ok) {

@@ -35,8 +35,7 @@ public class UserController(ILogger<UserController> logger,
 		users.ForEach(x =>
 		{
 			// non-public data
-			x.PassSalt = "";
-			x.Password = [];
+			x.Password = "";
 			x.PasswordChangeDate = DateTimeOffset.MinValue;
 		});
 		return users;
@@ -57,6 +56,8 @@ public class UserController(ILogger<UserController> logger,
 	[HttpPost]
 	public ActionResult CreateNewUser(NewUserDTO newUser)
 	{
+		if (requestingUser.UserID != 0)
+			return Unauthorized();
 		UserID? newUserID = userService.CreateNewUser(newUser);
 		if (newUserID is null)
 			return BadRequest();
@@ -207,7 +208,7 @@ public class UserCookieAssetController : ControllerBase
 		{
 			var potentialFile = Path.Join(UserIconPath, IconID.ToString() + '.' + ext);
 			if (System.IO.File.Exists(potentialFile))
-				return File(System.IO.File.Open(potentialFile, FileMode.Open), "image/" + ext);
+				return File(System.IO.File.Open(potentialFile, FileMode.Open, FileAccess.Read, FileShare.Read), "image/" + ext);
 		}
 		return NotFound();
 	}

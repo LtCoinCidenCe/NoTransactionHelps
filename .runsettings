@@ -4,6 +4,7 @@
 	<RunConfiguration>
 		<EnvironmentVariables>
 			<ASPNETCORE_ENVIRONMENT>Staging</ASPNETCORE_ENVIRONMENT>
+			<JWT_SECRET>adfsipn建安费帕尔安排你现在v都v陪娃评论反馈安德森帆帆帆帆父亲配日内离开了现在v的</JWT_SECRET>
 		</EnvironmentVariables>
 	</RunConfiguration>
 </RunSettings>

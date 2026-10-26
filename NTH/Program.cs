@@ -21,8 +21,12 @@ public class Program
 	{
 		var builder = WebApplication.CreateBuilder(args);
 
-		// Add services to the container.
+		string? JWTSecret = builder.Configuration.GetValue<string>("JWT_SECRET");
+		if (string.IsNullOrEmpty(JWTSecret))
+			throw new NTHException("No JWT_SECRET");
+		JwtHelper.SECRET = JWTSecret;
 
+		// Add services to the container.
 		builder.Services.AddControllers();
 		builder.Services.AddEndpointsApiExplorer();
 		builder.Services.AddResponseCaching();
@@ -135,10 +139,9 @@ public class Program
 		app.UseAuthorization();
 
 		app.MapHub<LiaoTianHub>("/api/LiaoTianHub").RequireAuthorization();
-
-		app.UseMiddleware<HomepageGuide>();
 		app.UseMiddleware<UserExtractor>();
 		app.MapControllers();
+		app.MapFallbackToFile("index.html");
 
 		var configuration = app.Services.GetService<IConfiguration>() ?? throw new NTHException("Why IConfiguration is null???");
 		var nthDataPath = configuration.GetValue<string>("NTHDataPath") ?? throw new NTHException("You need to provide a valid NTHDataPath in appsettings.json");
