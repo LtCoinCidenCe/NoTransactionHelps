@@ -21,8 +21,12 @@ public class Program
 	{
 		var builder = WebApplication.CreateBuilder(args);
 
-		// Add services to the container.
+		string? JWTSecret = builder.Configuration.GetValue<string>("JWT_SECRET");
+		if (string.IsNullOrEmpty(JWTSecret))
+			throw new NTHException("No JWT_SECRET");
+		JwtHelper.SECRET = JWTSecret;
 
+		// Add services to the container.
 		builder.Services.AddControllers();
 		builder.Services.AddEndpointsApiExplorer();
 		builder.Services.AddResponseCaching();

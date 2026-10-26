@@ -145,7 +145,7 @@ public class LoginController(ILogger<LoginController> logger, SQLiteContext data
 		if (result is not OkObjectResult)
 			return result;
 		var userID = userService.CreateNewUser(accountCreationDTO.NewUser) ?? throw new NTHException("I don't know why user is not created");
-		var i = database.UserInvitationLinks.Where(x => x.ID == accountCreationDTO.ID)
+		var i = database.UserInvitationLinks.Where(x => x.ID == accountCreationDTO.ID && x.CreatedUser == null)
 			.ExecuteUpdate(setter => setter.SetProperty(y => y.CreatedUser, userID.ID));
 		return Ok("OK");
 	}
