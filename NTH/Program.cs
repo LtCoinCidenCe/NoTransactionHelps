@@ -150,11 +150,13 @@ public class Program
 		UserCookieAssetController.UserIconPath = Path.Join(nthDataPath, "Icon", "User");
 		AuthorCookieAssetController.AuthorIconPath = Path.Join(nthDataPath, "Icon", "Author");
 		VideoCookieAssetController.VideoIconPath = Path.Join(nthDataPath, "Icon", "Video");
+		TreasureCookieAssetController.TreasurePath = Path.Join(nthDataPath, "Treasure");
 		Directory.CreateDirectory(YtdlpInstanceService.dlpPath);
 		Directory.CreateDirectory(YtdlpInstanceService.dlpOldPath);
 		Directory.CreateDirectory(UserCookieAssetController.UserIconPath);
 		Directory.CreateDirectory(AuthorCookieAssetController.AuthorIconPath);
 		Directory.CreateDirectory(VideoCookieAssetController.VideoIconPath);
+		Directory.CreateDirectory(TreasureCookieAssetController.TreasurePath);
 
 		app.Lifetime.ApplicationStarted.Register(() =>
 		{
