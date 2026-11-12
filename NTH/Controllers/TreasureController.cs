@@ -55,13 +55,12 @@ public class TreasureCookieAssetController : ControllerBase
 	[ResponseCache(Duration = 60 * 60 * 24 * 30)]
 	public IActionResult GetFileByID([FromRoute] string ext, [FromRoute] Guid FileID)
 	{
-		if (FileID == default)
-			return NotFound();
 		var potentialFile = Path.Join(TreasurePath, ext, FileID.ToString() + '.' + ext);
-		FileStream fs;
-		try { fs = System.IO.File.OpenRead(potentialFile); }
-		catch (Exception) { return NotFound(); }
-		return File(fs, "application/octet-stream", $"{FileID}.{ext}");
+		if (!System.IO.File.Exists(potentialFile))
+			return NotFound();
+		if (ext == "mp4")
+			return PhysicalFile(potentialFile, $"video/{ext}", true);
+		return PhysicalFile(potentialFile, "application/octet-stream", $"{FileID}.{ext}");
 	}
 	public static string TreasurePath = null!;
 }
