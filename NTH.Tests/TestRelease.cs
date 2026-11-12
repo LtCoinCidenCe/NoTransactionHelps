@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using NTHApiClient = NTH.Tests.Generated.NTHApiClient;
 
 namespace NTH.Tests;
 
@@ -57,9 +58,7 @@ public sealed class TestRelease
 #pragma warning disable MSTEST0025, MSTEST0032
 		Assert.AreNotEqual("Not a release commit", PipelineGitCommit.CurrentCommitHash);
 #pragma warning restore MSTEST0025, MSTEST0032
-		var response = await client.GetAsync("api/Ping/Commit");
-		response.EnsureSuccessStatusCode();
-		var fromWebAPI = await response.Content.ReadAsStringAsync();
+		var fromWebAPI = await new NTHApiClient(client).Ping_GetCommitAsync();
 		Assert.AreNotEqual("Not a release commit", fromWebAPI);
 
 		var noDebug = await client.GetAsync("api/Debug/ping");

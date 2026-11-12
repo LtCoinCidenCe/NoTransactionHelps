@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.12" />
+    <PackageReference Include="NSwag.MSBuild" Version="14.6.3" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,7 +18,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="$(IntermediateOutputPath)Generated/NTHApiClient.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Update="Microsoft.Testing.Extensions.CodeCoverage" Version="18.11.2" />
   </ItemGroup>
+
+  <Target Name="GenerateNTHApiClient"
+          BeforeTargets="CoreCompile"
+          DependsOnTargets="ResolveProjectReferences"
+          Condition="'$(DesignTimeBuild)' != 'true'">
+    <MakeDir Directories="$(IntermediateOutputPath)Generated;$(IntermediateOutputPath)OpenApiData" />
+    <Exec Command="$(NSwagExe_Net100) run &quot;$(MSBuildProjectDirectory)/nswag.json&quot; &quot;/variables:Configuration=$(Configuration),OutputPath=$(MSBuildProjectDirectory)/$(IntermediateOutputPath)Generated&quot;"
+          EnvironmentVariables="ASPNETCORE_ENVIRONMENT=OpenApiGeneration;JWT_SECRET=OpenApiGenerationPlaceholder;NTHDataPath=$(MSBuildProjectDirectory)/$(IntermediateOutputPath)OpenApiData" />
+  </Target>
 
 </Project>

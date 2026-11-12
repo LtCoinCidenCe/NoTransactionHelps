@@ -11,6 +11,8 @@ using NTH.Middlewares;
 using NTH.Services;
 using NTH.SignalRHubs;
 using NTH.Utilities;
+using NSwag;
+using NSwag.Generation.Processors.Security;
 using System.Text;
 
 namespace NTH;
@@ -41,7 +43,7 @@ public class Program
 		builder.Services.AddSwaggerGen(options =>
 		{
 			var au = "Au";
-			var bearer = new OpenApiSecurityScheme
+			var bearer = new Microsoft.OpenApi.OpenApiSecurityScheme
 			{
 				Name = "Authorization",
 				In = ParameterLocation.Header,
@@ -51,10 +53,22 @@ public class Program
 			};
 			options.AddSecurityDefinition(au, bearer);
 
-			options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+			options.AddSecurityRequirement(document => new Microsoft.OpenApi.OpenApiSecurityRequirement
 			{
 				{ new OpenApiSecuritySchemeReference(au, document), new List<string>() }
 			});
+		});
+		builder.Services.AddOpenApiDocument(options =>
+		{
+			options.DocumentName = "v1";
+			options.Title = "NTH API";
+			options.AddSecurity("Au", Array.Empty<string>(), new NSwag.OpenApiSecurityScheme
+			{
+				Type = OpenApiSecuritySchemeType.Http,
+				Scheme = "bearer",
+				Description = "Enter you ****** here"
+			});
+			options.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("Au"));
 		});
 		builder.Services.AddDbContext<SQLiteContext>();
 		builder.Services.AddScoped<UserService>();
@@ -129,9 +143,12 @@ public class Program
 			app.UseSwagger();
 			app.UseSwaggerUI();
 		}
+		if (app.Environment.IsDevelopment() || app.Environment.IsStaging() || app.Environment.IsEnvironment("OpenApiGeneration"))
+			app.UseOpenApi(settings => settings.Path = "/openapi/{documentName}.json");
 
 		app.UseHttpsRedirection();
-		app.MapStaticAssets().ShortCircuit();
+		if (!app.Environment.IsEnvironment("OpenApiGeneration"))
+			app.MapStaticAssets().ShortCircuit();
 
 		app.UseResponseCaching();
 
@@ -141,7 +158,8 @@ public class Program
 		app.MapHub<LiaoTianHub>("/api/LiaoTianHub").RequireAuthorization();
 		app.UseMiddleware<UserExtractor>();
 		app.MapControllers();
-		app.MapFallbackToFile("index.html");
+		if (!app.Environment.IsEnvironment("OpenApiGeneration"))
+			app.MapFallbackToFile("index.html");
 
 		var configuration = app.Services.GetService<IConfiguration>() ?? throw new NTHException("Why IConfiguration is null???");
 		var nthDataPath = configuration.GetValue<string>("NTHDataPath") ?? throw new NTHException("You need to provide a valid NTHDataPath in appsettings.json");
@@ -158,19 +176,22 @@ public class Program
 		Directory.CreateDirectory(VideoCookieAssetController.VideoIconPath);
 		Directory.CreateDirectory(TreasureCookieAssetController.TreasurePath);
 
-		app.Lifetime.ApplicationStarted.Register(() =>
+		if (!app.Environment.IsEnvironment("OpenApiGeneration"))
 		{
-			var server = app.Services.GetRequiredService<IServer>();
-			var addresses = server.Features.GetRequiredFeature<IServerAddressesFeature>();
-			// exception does not stop the program here.
-			if (addresses.Addresses.Count == 0)
-				throw new NTHException("No addresses in server features.");
-			string firstAddress = addresses.Addresses.First();
-			string statedURL = $"{firstAddress}/api/Ping/Started";
-			using var http = new HttpClient();
-			if (!http.GetAsync(statedURL).Wait(6000))
-				throw new NTHException("Failed to ping the started URL.");
-		});
+			app.Lifetime.ApplicationStarted.Register(() =>
+			{
+				var server = app.Services.GetRequiredService<IServer>();
+				var addresses = server.Features.GetRequiredFeature<IServerAddressesFeature>();
+				// exception does not stop the program here.
+				if (addresses.Addresses.Count == 0)
+					throw new NTHException("No addresses in server features.");
+				string firstAddress = addresses.Addresses.First();
+				string statedURL = $"{firstAddress}/api/Ping/Started";
+				using var http = new HttpClient();
+				if (!http.GetAsync(statedURL).Wait(6000))
+					throw new NTHException("Failed to ping the started URL.");
+			});
+		}
 
 		app.Start();
 		app.WaitForShutdown();

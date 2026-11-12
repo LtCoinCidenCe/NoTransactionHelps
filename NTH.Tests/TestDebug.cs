@@ -13,6 +13,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using NTHApiClient = NTH.Tests.Generated.NTHApiClient;
 
 namespace NTH.Tests;
 
@@ -73,9 +74,8 @@ public sealed class TestDebug
 	[TestMethod]
 	public async Task BasicPingTest()
 	{
-		var response = await client.GetAsync("api/ping");
-		response.EnsureSuccessStatusCode();
-		Assert.AreEqual(200, (int)response.StatusCode);
+		using var response = await new NTHApiClient(client).Ping_PingAsync();
+		Assert.AreEqual(200, response.StatusCode);
 	}
 
 	[TestMethod]

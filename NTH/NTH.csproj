@@ -27,6 +27,7 @@
     <!-- https://sixlabors.com/posts/licence-enforcement-changes/ -->
     <PackageReference Include="SixLabors.ImageSharp" Version="4.1.2" />
 
+    <PackageReference Include="NSwag.AspNetCore" Version="14.6.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
   </ItemGroup>
 
