@@ -17,7 +17,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ video }) => {
     <div className="border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
       {/* 缩略图区域：320*180 尺寸，顶部显示 */}
       <div className="relative w-[320px] h-[180px]">
-        <img src={`${import.meta.env.VITE_BACKEND_URL}/api/Video/${video.id}/Thumbnail`}
+        <img src={`${import.meta.env.VITE_BACKEND_HOST}/api/Video/${video.id}/Thumbnail`}
           alt={`${video.title} 的缩略图`}
           className="w-full h-full object-cover" />
       </div>

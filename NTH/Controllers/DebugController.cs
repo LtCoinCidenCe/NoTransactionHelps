@@ -1,9 +1,11 @@
 #if DEBUG
 using System.ComponentModel.DataAnnotations;
+using System.Net;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using NTH.DBContext;
 using NTH.Middlewares;
 using NTH.Models.User;
@@ -104,6 +106,13 @@ public class DebugController : ControllerBase
 		return newUserReturned;
 	}
 
+	private void NotLoopbackThenThrow()
+	{
+		var remote = HttpContext.Request.Host.Host;
+		if (remote != "localhost" && !IPAddress.IsLoopback(IPAddress.Parse(remote)))
+			throw new NTHException("don't use debug feature from remote machine");
+	}
+
 	/// <summary>
 	/// from rolls-royce engine blade pigtail
 	/// </summary>
@@ -111,8 +120,9 @@ public class DebugController : ControllerBase
 	/// <exception cref="NTHException">should not happen</exception>
 	[HttpDelete]
 	[Route("[action]")]
-	public async Task<ActionResult> InitializeProductionPigtail()
+	public async Task<ActionResult> InitializeProductionPigtail([FromServices] IMemoryCache cache)
 	{
+		NotLoopbackThenThrow();
 		database.Database.EnsureDeleted();
 		database.Database.EnsureCreated();
 		// at least this is controller call, validation like this works
@@ -125,13 +135,13 @@ public class DebugController : ControllerBase
 		// generic ActionResult<T>.Value fools people
 		var newUserResult = (userController.CreateNewUser(newUser) as CreatedAtActionResult) ?? throw new NTHException("pigtail generation failure, First user creation");
 		var newUserReturned = (newUserResult.Value as NonSensitiveUserDTO) ?? throw new NTHException("pigtail generation failure, First user return");
-		userController.SetUserRole(newUserReturned.ID, UserRoleDTO.God);
+		userController.SetUserRole(cache, newUserReturned.ID, UserRoleDTO.God);
 		return Ok("OK");
 	}
 
 	[HttpDelete]
 	[Route("[action]")]
-	public async Task<IActionResult> InitializeDatabase()
+	public async Task<IActionResult> InitializeDatabase([FromServices] IMemoryCache cache)
 	{
 		logger.Log(LogLevel.Warning, "Database Reinitializing");
 
@@ -145,7 +155,7 @@ public class DebugController : ControllerBase
 			throw new NTHException("Debug Initialization 鱼卡日 file not found. Check if this program is running debug.");
 		}
 
-		await InitializeProductionPigtail();
+		await InitializeProductionPigtail(cache);
 
 		supplementaryService.GenerateSupplementaryDefinition();
 
@@ -194,13 +204,13 @@ public class DebugController : ControllerBase
 		var PatientStrategizer = newUsers.Single(x => x.Username == "pstrag");
 		var LondonHeathrow = newUsers.Single(x => x.Username == "heathrow");
 		var businessman = newUsers.Single(x => x.Username == "business");
-		userController.SetUserRole(firstUser.ID, UserRoleDTO.SystemAdministrator | UserRoleDTO.Translator);
-		userController.SetUserRole(testUser.ID, UserRoleDTO.SystemAdministrator);
-		userController.SetUserRole(starUser.ID, UserRoleDTO.SystemAdministrator);
-		userController.SetUserRole(Angular.ID, UserRoleDTO.Translator | UserRoleDTO.Scriptor);
-		userController.SetUserRole(franc.ID, UserRoleDTO.Scriptor);
-		userController.SetUserRole(PatientStrategizer.ID, UserRoleDTO.Translator);
-		userController.SetUserRole(LondonHeathrow.ID, UserRoleDTO.Translator);
+		userController.SetUserRole(cache, firstUser.ID, UserRoleDTO.SystemAdministrator | UserRoleDTO.Translator);
+		userController.SetUserRole(cache, testUser.ID, UserRoleDTO.SystemAdministrator);
+		userController.SetUserRole(cache, starUser.ID, UserRoleDTO.SystemAdministrator);
+		userController.SetUserRole(cache, Angular.ID, UserRoleDTO.Translator | UserRoleDTO.Scriptor);
+		userController.SetUserRole(cache, franc.ID, UserRoleDTO.Scriptor);
+		userController.SetUserRole(cache, PatientStrategizer.ID, UserRoleDTO.Translator);
+		userController.SetUserRole(cache, LondonHeathrow.ID, UserRoleDTO.Translator);
 
 		userController = new UserController(userLogger, database, userService, new RequestingUser() { UserID = starUser.ID, UserRole = UserRoleDTO.SystemAdministrator });
 
@@ -213,7 +223,7 @@ public class DebugController : ControllerBase
 
 		userController = new UserController(userLogger, database, userService, new RequestingUser() { UserID = businessman.ID, UserRole = UserRoleDTO.User });
 		authorController = new AuthorController(authorLogger, database, authorService, new RequestingUser() { UserID = businessman.ID, UserRole = UserRoleDTO.User });
-		var businessRoleResult = userController.SetUserRole(businessman.ID, UserRoleDTO.Translator | UserRoleDTO.Scriptor);
+		var businessRoleResult = userController.SetUserRole(cache, businessman.ID, UserRoleDTO.Translator | UserRoleDTO.Scriptor);
 
 		List<NewAuthorDTO> moreAuthors = [
 			new NewAuthorDTO() { Name = "kflat", TwitterHomePage = "https://x.com/kflat_aasa" },

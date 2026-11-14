@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using NTH.DBContext;
 using NTH.Middlewares;
 using NTH.Models.User;
@@ -35,8 +36,7 @@ public class UserController(ILogger<UserController> logger,
 		users.ForEach(x =>
 		{
 			// non-public data
-			x.PassSalt = "";
-			x.Password = [];
+			x.Password = "";
 			x.PasswordChangeDate = DateTimeOffset.MinValue;
 		});
 		return users;
@@ -57,6 +57,8 @@ public class UserController(ILogger<UserController> logger,
 	[HttpPost]
 	public ActionResult CreateNewUser(NewUserDTO newUser)
 	{
+		if (requestingUser.UserID != 0)
+			return Unauthorized();
 		UserID? newUserID = userService.CreateNewUser(newUser);
 		if (newUserID is null)
 			return BadRequest();
@@ -113,11 +115,16 @@ public class UserController(ILogger<UserController> logger,
 
 	[HttpPut]
 	[Route("{ID}/UserRole")]
-	public IActionResult SetUserRole(long ID, [FromBody] UserRoleDTO newUserRole)
+	public IActionResult SetUserRole([FromServices] IMemoryCache cache, [FromRoute] long ID, [FromBody] UserRoleDTO newUserRole)
 	{
+		if (requestingUser.UserRole < UserRoleDTO.Manager)
+			return Unauthorized("at least manager");
+		if (newUserRole >= UserRoleDTO.SystemAdministrator && requestingUser.UserRole < UserRoleDTO.SystemAdministrator)
+			return Unauthorized("needs a system admin to grant system admin");
 		UserRoleHistory? result = userService.SetUserRole(ID, newUserRole);
 		if (result is null)
 			return NotFound();
+		cache.Set($"UserRole{ID}", result.UserRole, TimeSpan.FromMinutes(15));
 		return Ok(result);
 	}
 
@@ -207,7 +214,7 @@ public class UserCookieAssetController : ControllerBase
 		{
 			var potentialFile = Path.Join(UserIconPath, IconID.ToString() + '.' + ext);
 			if (System.IO.File.Exists(potentialFile))
-				return File(System.IO.File.Open(potentialFile, FileMode.Open), "image/" + ext);
+				return File(System.IO.File.Open(potentialFile, FileMode.Open, FileAccess.Read, FileShare.Read), "image/" + ext);
 		}
 		return NotFound();
 	}
