@@ -1,3 +1,9 @@
+using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,13 +17,6 @@ using NTH.Middlewares;
 using NTH.Models.User;
 using NTH.Services;
 using NTH.Utilities;
-using System.Buffers.Text;
-using System.ComponentModel.DataAnnotations;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
 
 namespace NTH.Controllers;
 
@@ -31,15 +30,13 @@ public class LoginController(ILogger<LoginController> logger, SQLiteContext data
 		var user = userService.Login(userLoginDTO);
 		if (user is null)
 			return BadRequest();
-		bool isSA = (user.UserRole & UserRoleDTO.SystemAdministrator) != 0;
-		string roleString = isSA ? "sa" : "kt";
 		var passwordResult = passwordHasher.VerifyHashedPassword(userLoginDTO, user.Password, userLoginDTO.Password);
 		if (passwordResult == PasswordVerificationResult.Failed)
 			return BadRequest();
 		var jwt = new JwtSecurityToken(
 			JwtHelper.ISSUER,
-			$"{roleString}{user.UserID}",
-			null,
+			user.UserID.ToString(),
+			[new Claim("role", $"{(int)user.UserRole}")],
 			notBefore: null,
 			expires: DateTime.Now + TimeSpan.FromMinutes(15),
 			new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtHelper.SECRET)),
@@ -50,7 +47,7 @@ public class LoginController(ILogger<LoginController> logger, SQLiteContext data
 		var claims = new List<Claim>
 		{
 			new Claim("aud", user.UserID.ToString()),
-			new Claim(ClaimTypes.Role, roleString)
+			new Claim(ClaimTypes.Role, $"{(int)user.UserRole}")
 		};
 		var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
