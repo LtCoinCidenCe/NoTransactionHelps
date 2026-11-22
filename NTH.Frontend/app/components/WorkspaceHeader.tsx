@@ -53,7 +53,7 @@ const WorkspaceHeader: React.FC<{ NTHUsername: string, userIdentifier: string }>
             >
               {/* 用户头像 */}
               <img className="w-[35px] h-[35px] rounded-full mr-2"
-                src={currentUser.userIconID === "00000000-0000-0000-0000-000000000000" ? undefined : `${import.meta.env.VITE_BACKEND_URL}/api/User/Icon/${currentUser.userIconID}`} />
+                src={currentUser.userIconID === "00000000-0000-0000-0000-000000000000" ? undefined : `${import.meta.env.VITE_BACKEND_HOST}/api/User/Icon/${currentUser.userIconID}`} />
               {/* 用户图标 */}
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" viewBox="0 0 640 640">
                 <path fill="#9c7592" d="M320 312C386.3 312 440 258.3 440 192C440 125.7 386.3 72 320 72C253.7 72 200 125.7 200 192C200 258.3 253.7 312 320 312zM290.3 368C191.8 368 112 447.8 112 546.3C112 562.7 125.3 576 141.7 576L498.3 576C514.7 576 528 562.7 528 546.3C528 447.8 448.2 368 349.7 368L290.3 368z" />

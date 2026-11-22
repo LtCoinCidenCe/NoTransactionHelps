@@ -11,7 +11,6 @@ public class PingController(SQLiteContext database) : ControllerBase
 	[HttpGet]
 	public IActionResult Ping()
 	{
-		database.Users.Any();
 		return Ok("OK");
 	}
 
@@ -26,8 +25,12 @@ public class PingController(SQLiteContext database) : ControllerBase
 	[Route("Started")]
 	public IActionResult HealthCheck()
 	{
-		database.ProgramStarts.Add(new());
-		database.SaveChanges();
+		if (!InitialHealthCheckWindow.IsCompleted)
+		{
+			database.ProgramStarts.Add(new());
+			database.SaveChanges();
+		}
+
 		return Ok("Healthy");
 	}
 
@@ -37,4 +40,6 @@ public class PingController(SQLiteContext database) : ControllerBase
 	{
 		return PipelineGitCommit.CurrentCommitHash;
 	}
+
+	private static readonly Task InitialHealthCheckWindow = Task.Delay(TimeSpan.FromSeconds(5));
 }

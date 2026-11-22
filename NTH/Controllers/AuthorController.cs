@@ -21,60 +21,11 @@ public class AuthorController(ILogger<AuthorController> logger, SQLiteContext da
 	[HttpGet]
 	public IActionResult GetAllAuthors()
 	{
-		//var data = database.Authors.Include(x => x.Contact)
-		//	.Select(author => new
-		//	{
-		//		// This is to exclude Icon bytes, if the Icon bytes is in the table
-		//		author.ID,
-		//		author.Name,
-		//		author.YoutubeHomePage,
-		//		author.NiconicoHomePage,
-		//		author.BilibiliHomePage,
-		//		author.TwitterHomePage,
-		//		author.AuthorizedPerVideo,
-		//		author.AllVideoAuthorized,
-		//		author.AuthorizationChangeDate,
-		//		author.AdditionalRequirements,
-		//		author.AdditionalRequirementsChangeDate,
-		//		author.CreationDate,
-		//		author.Contact
-		//	}).ToList();
-
-		//return Ok(data.Select(x => new {
-		//	x.ID,
-		//	x.Name,
-		//	x.YoutubeHomePage,
-		//	x.NiconicoHomePage,
-		//	x.BilibiliHomePage,
-		//	x.TwitterHomePage,
-		//	x.AuthorizedPerVideo,
-		//	x.AllVideoAuthorized,
-		//	x.AuthorizationChangeDate,
-		//	x.AdditionalRequirements,
-		//	x.AdditionalRequirementsChangeDate,
-		//	x.CreationDate,
-		//	ContactUserID = x.ContactUserIDraw.FirstOrDefault()
-		//}));
-
-		// This is somehow... huge if someone has changes contact multiple times
-		// But how many times you really need to change people contacting??
-		return Ok(database.Authors.Include(x => x.Contact).Select(x => new
+		// this is a lazy trick to avoid jsonignore
+		return Ok(database.Authors.AsNoTracking().Select(author => new
 		{
-			x.ID,
-			x.Name,
-			x.AuthorIconID,
-			x.IconChangeDate,
-			x.YoutubeHomePage,
-			x.NiconicoHomePage,
-			x.BilibiliHomePage,
-			x.TwitterHomePage,
-			x.AuthorizedPerVideo,
-			x.AllVideoAuthorized,
-			x.AuthorizationChangeDate,
-			x.AdditionalRequirements,
-			x.AdditionalRequirementsChangeDate,
-			x.CreationDate,
-			x.Contact
+			author,
+			Contact = database.WorkContacts.OrderByDescending(x => x.ID).FirstOrDefault(x => x.AuthorID == author.ID)
 		}));
 	}
 
@@ -261,15 +212,13 @@ public class AuthorCookieAssetController : ControllerBase
 		{
 			var potentialFile = Path.Join(AuthorIconPath, IconID.ToString() + '.' + ext);
 			if (System.IO.File.Exists(potentialFile))
-				return File(System.IO.File.Open(potentialFile, FileMode.Open), "image/" + ext);
+				return File(System.IO.File.Open(potentialFile, FileMode.Open, FileAccess.Read, FileShare.Read), "image/" + ext);
 		}
 		return NotFound();
 	}
+
 	public static string AuthorIconPath = null!;
 }
-
-
-
 
 
 

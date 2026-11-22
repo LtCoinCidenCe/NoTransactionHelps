@@ -10,7 +10,7 @@ const VideoGrid: React.FC = () => {
   const [videos, setVideos] = useState<VideoInfo[]>([]);
   useEffect(() => {
     const fetchData = async () => {
-      const workStartedURL = `${import.meta.env.VITE_BACKEND_URL}/api/Video/WorkStarted`;
+      const workStartedURL = `${import.meta.env.VITE_BACKEND_HOST}/api/Video/WorkStarted`;
       const response = await fetch(workStartedURL, { method: "GET", headers: { "Authorization": `Bearer ${jwt}` } });
       if (!response.ok) {
         errorContext(`${response.status}`);

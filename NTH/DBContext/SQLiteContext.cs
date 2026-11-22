@@ -11,23 +11,16 @@ using NTH.Utilities;
 
 namespace NTH.DBContext;
 
-public class SQLiteContext : DbContext
+public class SQLiteContext(DbContextOptions<SQLiteContext> options,
+	IConfiguration diConfiguration) : DbContext(options)
 {
-	private ILogger<SQLiteContext> logger;
-	private IConfiguration configuration;
-	private string NTHDataPath;
-	public SQLiteContext(DbContextOptions<SQLiteContext> options,
-	ILogger<SQLiteContext> diLogger,
-	IConfiguration diConfiguration) : base(options)
-	{
-		logger = diLogger;
-		configuration = diConfiguration;
-		NTHDataPath = configuration["NTHDataPath"] ?? throw new NTHException("NTHDataPath configuration is not provided");
-	}
+	private readonly string NTHDBPath = diConfiguration["NTHDBPath"]
+			?? diConfiguration["NTHDataPath"]
+			?? throw new NTHException("NTHDataPath configuration is not provided");
 
 	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 	{
-		optionsBuilder.UseSqlite($"Data Source={NTHDataPath}/NTHdatabase.db")
+		optionsBuilder.UseSqlite($"Data Source={NTHDBPath}/NTHdatabase.db")
 		.EnableSensitiveDataLogging();
 	}
 
