@@ -1,5 +1,6 @@
 using System.Collections;
 using System.ComponentModel.DataAnnotations;
+using System.Net;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +26,7 @@ public class UserController(ILogger<UserController> logger,
 #pragma warning restore CS9113 // 参数未读。
 {
 	[HttpGet]
+	[ProducesResponseType<ICollection<UserID>>((int)HttpStatusCode.OK)]
 	public ICollection GetUsers()
 	{
 		var users = database.Users
@@ -44,7 +46,8 @@ public class UserController(ILogger<UserController> logger,
 
 	[HttpGet]
 	[Route("{ID}")]
-	public ActionResult<NonSensitiveUserDTO> GetUser(string ID)
+	[ProducesResponseType<NonSensitiveUserDTO>((int)HttpStatusCode.OK)]
+	public IActionResult GetUser([FromRoute] string ID)
 	{
 		var user = userService.GetUserByID(ID);
 		if (user is null)
@@ -55,7 +58,8 @@ public class UserController(ILogger<UserController> logger,
 	}
 
 	[HttpPost]
-	public ActionResult CreateNewUser(NewUserDTO newUser)
+	[ProducesResponseType<NonSensitiveUserDTO>((int)HttpStatusCode.Created)]
+	public IActionResult CreateNewUser([FromBody] NewUserDTO newUser)
 	{
 		if (requestingUser.UserID != 0)
 			return Unauthorized();
@@ -67,6 +71,7 @@ public class UserController(ILogger<UserController> logger,
 
 	[HttpPut]
 	[Route("{ID}/DisplayName")]
+	[ProducesResponseType<DisplaynameHistory>((int)HttpStatusCode.OK)]
 	public IActionResult SetDisplayName(long ID, [Length(2, 30)][FromBody] string newDisplayName)
 	{
 		if (requestingUser.UserID != ID)
@@ -115,6 +120,7 @@ public class UserController(ILogger<UserController> logger,
 
 	[HttpPut]
 	[Route("{ID}/UserRole")]
+	[ProducesResponseType<UserRoleHistory>((int)HttpStatusCode.OK)]
 	public IActionResult SetUserRole([FromServices] IMemoryCache cache, [FromRoute] long ID, [FromBody] UserRoleDTO newUserRole)
 	{
 		if (requestingUser.UserRole < UserRoleDTO.Manager)
@@ -145,6 +151,7 @@ public class UserController(ILogger<UserController> logger,
 
 	[HttpPut]
 	[Route("{ID}/Icon")]
+	[ProducesResponseType<Guid>((int)HttpStatusCode.OK)]
 	public async Task<IActionResult> SetUserIcon([FromRoute] long ID, IFormFile icon)
 	{
 		if (requestingUser.UserID != ID)
@@ -220,51 +227,4 @@ public class UserCookieAssetController : ControllerBase
 	}
 
 	public static string UserIconPath = null!;
-}
-
-public partial class NonSensitiveUserDTO
-{
-	public long ID { get; set; }
-	public required string Username { get; set; }
-	#region Profile Icon
-	public DateTimeOffset IconChangeDate { get; set; }
-	#endregion Profile Icon
-
-	#region Display name
-	public required string Displayname { get; set; }
-	public List<DisplaynameHistory>? DisplaynameHistory { get; set; }
-	public DateTimeOffset DisplaynameChangeDate { get; set; }
-	#endregion Display name
-
-	#region TitleWords
-	public string TitleWords { get; set; } = string.Empty;
-	public DateTimeOffset TitleWordsChangeDate { get; set; }
-	#endregion TitleWords
-
-	#region User Roles
-	public UserRoleDTO UserRole { get; set; }
-	public List<UserRoleHistory>? UserRoleHistory { get; set; }
-	public DateTimeOffset UserRoleChangeDate { get; set; }
-	#endregion User Roles
-
-	public DateTimeOffset CreationDate { get; set; }
-
-	public static NonSensitiveUserDTO FromDBModel(UserID userID)
-	{
-		return new NonSensitiveUserDTO()
-		{
-			ID = userID.ID,
-			Username = userID.Username,
-			IconChangeDate = userID.IconChangeDate,
-			Displayname = userID.Displayname,
-			DisplaynameHistory = userID.DisplaynameHistory.Count > 0 ? userID.DisplaynameHistory : null,
-			DisplaynameChangeDate = userID.DisplaynameChangeDate,
-			TitleWords = userID.TitleWords,
-			TitleWordsChangeDate = userID.TitleWordsChangeDate,
-			UserRole = (UserRoleDTO)(int)userID.UserRole,
-			UserRoleHistory = userID.UserRoleHistory.Count > 0 ? userID.UserRoleHistory : null,
-			UserRoleChangeDate = userID.UserRoleChangeDate,
-			CreationDate = userID.CreationDate
-		};
-	}
 }
